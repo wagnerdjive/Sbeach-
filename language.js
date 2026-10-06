@@ -212,11 +212,42 @@
     'Wraps': 'Wraps',
     'Disponibilidade, ingredientes e preços podem mudar. Confirme os detalhes no menu actual ou contacte directamente o South Beach.': 'Availability, ingredients and prices may change. Check the current menu or contact South Beach directly.',
     'RESERVAS · SOUTH BEACH MAPUTO': 'RESERVATIONS · SOUTH BEACH MAPUTO',
+    'PEDIDO DE RESERVA': 'RESERVATION REQUEST',
+    'O seu lugar': 'Your place',
+    'à beira-mar.': 'by the sea.',
+    'Indique as suas preferências e prepare o pedido para a equipa. A data e o horário são pedidos; a reserva só fica confirmada depois da resposta do South Beach.': 'Share your preferences and prepare a request for the team. Your date and time are preferences; the reservation is only confirmed after South Beach replies.',
+    'FALAR DIRECTAMENTE': 'CONTACT US DIRECTLY',
+    'Planeie a sua visita': 'Plan your visit',
+    'Nome completo': 'Full name',
+    'Telefone de contacto': 'Contact phone',
+    'Data pretendida': 'Preferred date',
+    'Horário preferido': 'Preferred time',
+    'Número de pessoas': 'Number of guests',
+    'Espaço preferido': 'Preferred space',
+    'Seleccione': 'Select',
+    'Restaurante': 'Restaurant',
+    'Sem preferência': 'No preference',
+    '1 pessoa': '1 person',
+    '2 pessoas': '2 people',
+    '3 pessoas': '3 people',
+    '4 pessoas': '4 people',
+    '5 pessoas': '5 people',
+    '6 pessoas': '6 people',
+    '7 pessoas': '7 people',
+    '8 pessoas': '8 people',
+    '9 pessoas': '9 people',
+    '10 pessoas': '10 people',
+    'Mais de 10 pessoas': 'More than 10 people',
+    'Ocasião': 'Occasion',
+    'Informações adicionais': 'Additional information',
+    'Aniversário, encontro, reunião…': 'Birthday, date, gathering…',
+    'Preferências ou necessidades especiais': 'Preferences or special requests',
+    'Ao continuar, será aberto um rascunho no seu programa de email. Reveja e envie a mensagem para solicitar a reserva.': 'Continuing opens a draft in your email app. Review and send it to request a reservation.',
+    'A disponibilidade é confirmada pela equipa. Para grupos grandes ou ajuda imediata, ligue para': 'Availability is confirmed by the team. For large groups or immediate help, call',
     'Escolha a data.': 'Choose your date.',
     'Nós tratamos da mesa.': 'We’ll take care of the table.',
-    'Use o sistema de reservas actual do South Beach para indicar o tamanho do grupo, a data e o horário pretendidos. A disponibilidade e a confirmação são feitas directamente pela equipa do espaço.': 'Use South Beach’s current booking system to choose your group size, date and preferred time. Availability and confirmation are handled by the venue team.',
-    'Continuar para reservas': 'Continue to reservations',
-    'A reserva será concluída na página oficial do South Beach.': 'Your reservation will be completed on the official South Beach page.',
+    'Conte-nos como gostaria de nos visitar. A equipa confirma a disponibilidade directamente consigo.': 'Tell us how you would like to visit. The team will confirm availability directly with you.',
+    'Escolha hoje ou uma data futura.': 'Choose today or a future date.',
     'PRECISA DE AJUDA?': 'NEED HELP?',
     'SABORES DO ÍNDICO': 'FLAVOURS OF THE INDIAN OCEAN',
     'Restaurante': 'Restaurant',
@@ -272,7 +303,8 @@
     'Restaurante South Beach': 'South Beach restaurant',
     'Espaço exterior South Beach': 'South Beach outdoor area',
     'Sports bar South Beach': 'South Beach sports bar',
-    'Vista do South Beach': 'View of South Beach'
+    'Vista do South Beach': 'View of South Beach',
+    'Vista do South Beach Maputo': 'View of South Beach Maputo'
   };
 
   const titles = {
@@ -297,7 +329,7 @@
     'Veja eventos e informações sobre eventos privados no South Beach, Maputo.': 'Explore events and private event information at South Beach, Maputo.',
     'Veja imagens do South Beach e de eventos realizados em Maputo.': 'View images of South Beach and past events in Maputo.',
     'Encontre a localização, os contactos e os horários do South Beach em Maputo.': 'Find South Beach’s location, contact details and opening hours in Maputo.',
-    'Consulte as opções oficiais para reservar uma mesa no South Beach, Maputo.': 'View the official options for booking a table at South Beach, Maputo.'
+    'Peça uma reserva no South Beach Maputo. A equipa confirmará a disponibilidade por contacto directo.': 'Request a reservation at South Beach Maputo. The team will confirm availability directly with you.'
   };
 
   const originalNodes = [];

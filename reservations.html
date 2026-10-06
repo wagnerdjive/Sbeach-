@@ -1,9 +1,35 @@
 <!doctype html>
 <html lang="pt-MZ">
-  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content="Faça uma reserva no South Beach através do sistema actual de reservas." /><title>Reservas — South Beach Maputo</title><link rel="preconnect" href="https://static.wixstatic.com" /><link rel="stylesheet" href="styles.css" /><script src="script.js" defer></script><script src="language.js" defer></script></head>
-  <body><a class="skip-link" href="#main">Saltar para o conteúdo</a>
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Peça uma reserva no South Beach Maputo. A equipa confirmará a disponibilidade por contacto directo." />
+    <title>Reservas — South Beach Maputo</title>
+    <link rel="preconnect" href="https://static.wixstatic.com" /><link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="reservations.css" />
+    <script src="script.js" defer></script><script src="language.js" defer></script><script src="reservations.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Saltar para o conteúdo</a>
     <header class="site-header"><a class="brand" href="index.html" aria-label="South Beach — início"><img src="https://static.wixstatic.com/media/f436ca_3797381906234141943c822ba6e77602~mv2.png" alt="South Beach" /></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Abrir menu"><span></span><span></span></button><nav class="primary-nav" id="primary-nav" aria-label="Navegação principal"><details class="nav-group"><summary>Espaços</summary><div class="nav-dropdown"><a href="restaurant.html">Restaurante</a><a href="beach-bar.html">Beach Bar</a><a href="sports-bar.html">Sports Bar</a></div></details><a href="menus.html">Menus</a><a href="events.html">Eventos</a><a href="gallery.html">Galeria</a><a href="contact.html">Visite-nos</a><a class="button button-dark nav-book" aria-current="page" href="reservations.html">Reservar <span aria-hidden="true">↗</span></a></nav><button class="language-toggle" type="button" data-language-toggle aria-label="Switch to English" aria-pressed="false">EN</button></header>
-    <main id="main"><section class="booking-page"><div class="booking-photo"><img src="https://static.wixstatic.com/media/f436ca_d9fb55418bc34b64a73f395579f6d962~mv2.jpg" alt="South Beach Maputo" /></div><div class="booking-copy"><p class="eyebrow">RESERVAS · SOUTH BEACH MAPUTO</p><h1>Escolha a data.<br /><em>Nós tratamos da mesa.</em></h1><p>Use o sistema de reservas actual do South Beach para indicar o tamanho do grupo, a data e o horário pretendidos. A disponibilidade e a confirmação são feitas directamente pela equipa do espaço.</p><a class="button button-dark" href="https://www.southbeach.co.mz/reservations" target="_blank" rel="noreferrer">Continuar para reservas <span aria-hidden="true">↗</span></a><p class="booking-note">A reserva será concluída na página oficial do South Beach.</p><div class="booking-contact"><span>PRECISA DE AJUDA?</span><a href="tel:+258823255120">(+258) 82 325 5120</a><a href="mailto:turigest@southbeach.co.mz">turigest@southbeach.co.mz</a></div></div></section></main>
+    <main id="main" class="reservation-page">
+      <section class="reservation-hero"><div class="reservation-hero-image" role="img" aria-label="Vista do South Beach Maputo"></div><div class="reservation-hero-shade"></div><div class="reservation-hero-copy"><p class="eyebrow eyebrow-light">RESERVAS · SOUTH BEACH MAPUTO</p><h1>Escolha a data.<br /><em>Nós tratamos da mesa.</em></h1><p>Conte-nos como gostaria de nos visitar. A equipa confirma a disponibilidade directamente consigo.</p></div><span class="subpage-caption">Marginal de Maputo · Moçambique</span></section>
+      <section class="reservation-content section-wrap">
+        <div class="reservation-intro"><p class="eyebrow">PEDIDO DE RESERVA</p><h2>O seu lugar<br /><em>à beira-mar.</em></h2><p>Indique as suas preferências e prepare o pedido para a equipa. A data e o horário são pedidos; a reserva só fica confirmada depois da resposta do South Beach.</p><div class="booking-contact"><span>FALAR DIRECTAMENTE</span><a href="tel:+258823255120">(+258) 82 325 5120</a><a href="mailto:turigest@southbeach.co.mz">turigest@southbeach.co.mz</a></div></div>
+        <form class="reservation-form" data-mail-form data-mail-subject="Pedido de reserva — South Beach Maputo" data-mail-subject-en="Reservation request — South Beach Maputo">
+          <div class="reservation-form-heading"><p class="eyebrow">SOUTH BEACH MAPUTO</p><h2>Planeie a sua visita</h2></div>
+          <div class="reservation-fields">
+            <label>Nome completo<input name="Nome" autocomplete="name" required /></label>
+            <label>Telefone de contacto<input type="tel" name="Telefone" autocomplete="tel" placeholder="Ex.: +258 84 123 4567" required /></label>
+            <div class="reservation-form-row"><label>Data pretendida<input type="date" name="Data pretendida" data-reservation-date required /></label><label>Horário preferido<input type="time" name="Horário preferido" required /></label></div>
+            <div class="reservation-form-row"><label>Número de pessoas<select name="Número de pessoas" required><option value="">Seleccione</option><option>1 pessoa</option><option>2 pessoas</option><option>3 pessoas</option><option>4 pessoas</option><option>5 pessoas</option><option>6 pessoas</option><option>7 pessoas</option><option>8 pessoas</option><option>9 pessoas</option><option>10 pessoas</option><option>Mais de 10 pessoas</option></select></label><label>Espaço preferido<select name="Espaço preferido" required><option value="">Seleccione</option><option>Restaurante</option><option>Beach Bar</option><option>Sports Bar</option><option>Sem preferência</option></select></label></div>
+            <label>Ocasião <span class="field-optional">(opcional)</span><input name="Ocasião" placeholder="Aniversário, encontro, reunião…" /></label>
+            <label>Informações adicionais <span class="field-optional">(opcional)</span><textarea name="Informações adicionais" rows="3" placeholder="Preferências ou necessidades especiais"></textarea></label>
+          </div>
+          <button class="button button-dark reservation-submit" type="submit">Preparar pedido <span aria-hidden="true">↗</span></button>
+          <p class="reservation-status" data-form-status aria-live="polite">Ao continuar, será aberto um rascunho no seu programa de email. Reveja e envie a mensagem para solicitar a reserva.</p>
+        </form>
+      </section>
+      <section class="reservation-note"><div class="section-wrap reservation-note-inner"><span aria-hidden="true">✳</span><p>A disponibilidade é confirmada pela equipa. Para grupos grandes ou ajuda imediata, ligue para <a href="tel:+258823255120">(+258) 82 325 5120</a>.</p></div></section>
+    </main>
     <footer class="site-footer"><a class="footer-brand" href="index.html">SOUTH<br /><em>BEACH</em></a><p>Maputo, Moçambique<br />© <span id="year"></span> South Beach</p><div><a href="about.html">Sobre</a><a href="gallery.html">Galeria</a><a href="events.html">Eventos</a><a href="contact.html">Contactos</a></div></footer>
   </body>
 </html>

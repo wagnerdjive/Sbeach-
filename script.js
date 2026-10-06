@@ -111,7 +111,7 @@ document.querySelectorAll('[data-mail-form]').forEach((form) => {
     event.preventDefault();
     if (!form.reportValidity()) return;
     const values = new FormData(form);
-    const subject = form.dataset.mailSubject || 'Pedido de informação — South Beach';
+    const subject = (document.documentElement.lang === 'en' && form.dataset.mailSubjectEn) || form.dataset.mailSubject || 'Pedido de informação — South Beach';
     const body = [...values.entries()].map(([key, value]) => `${key}: ${value}`).join('\n');
     const status = form.querySelector('[data-form-status]');
     if (status) status.textContent = document.documentElement.lang === 'en'
