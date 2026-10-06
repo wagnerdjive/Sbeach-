@@ -12,6 +12,7 @@ public record AdminReservationResponse(
         String reference,
         String fullName,
         String phone,
+        String email,
         LocalDate requestedDate,
         LocalTime requestedTime,
         Integer partySize,
@@ -24,7 +25,7 @@ public record AdminReservationResponse(
 ) {
     public static AdminReservationResponse from(Reservation reservation) {
         return new AdminReservationResponse(
-                reservation.getReference(), reservation.getFullName(), reservation.getPhone(),
+                reservation.getReference(), reservation.getFullName(), reservation.getPhone(), reservation.getEmail(),
                 reservation.getRequestedDate(), reservation.getRequestedTime(), reservation.getPartySize(),
                 reservation.getVenue(), reservation.getOccasion(), reservation.getNotes(),
                 reservation.getStatus(), reservation.getCreatedAt(), reservation.getUpdatedAt()

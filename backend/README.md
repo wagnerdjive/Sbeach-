@@ -42,6 +42,14 @@ Venue values: `RESTAURANT`, `BEACH_BAR`, `SPORTS_BAR`, `NO_PREFERENCE`. Dates be
 - `GET /api/admin/reservations` — paginated requests, newest first; optionally filter with `?status=PENDING`.
 - `PATCH /api/admin/reservations/{reference}/status` — set `{"status":"CONFIRMED"}` or `{"status":"CANCELLED"}`. Confirming checks capacity and returns `409` if the venue is full; a `NO_PREFERENCE` request needs `"venue"` (e.g. `{"status":"CONFIRMED","venue":"BEACH_BAR"}`).
 
+### Notifications
+
+Confirming or cancelling a reservation, and a reminder the day before a confirmed one (daily at 10:00 Maputo time, once per reservation), trigger customer messages after the change is committed; a delivery failure never blocks the change. The form's email field is optional.
+
+- Email: set `NOTIFY_EMAIL_ENABLED=true`, `NOTIFY_EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` (any SMTP provider).
+- SMS: no provider is wired yet. Register a bean implementing `SmsGateway`; without one SMS is skipped.
+- `NOTIFY_REMINDERS_ENABLED` and `NOTIFY_REMINDERS_CRON` control reminders. Messages are in Portuguese only.
+
 ### Staff dashboard
 
 `admin.html` (not linked from the public menu, `noindex`) lists requests, filters by status and confirms or cancels them through the admin API. Staff sign in with the `APP_ADMIN_*` credentials; they are kept in memory only, so reloading the page signs out. Locally open `http://localhost:8000/admin.html` with the API running.

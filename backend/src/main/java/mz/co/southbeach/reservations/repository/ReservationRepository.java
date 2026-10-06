@@ -14,6 +14,7 @@ import java.time.LocalTime;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     Page<Reservation> findByStatus(ReservationStatus status, Pageable pageable);
     Page<Reservation> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    java.util.List<Reservation> findByStatusAndRequestedDateAndReminderSentAtIsNull(ReservationStatus status, LocalDate date);
     java.util.Optional<Reservation> findByReference(String reference);
 
     @Query("""

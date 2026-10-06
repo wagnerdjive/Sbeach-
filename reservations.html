@@ -19,6 +19,7 @@
           <div class="reservation-fields">
             <label>Nome completo<input name="fullName" autocomplete="name" minlength="2" maxlength="100" required /></label>
             <label>Telefone de contacto<input type="tel" name="phone" autocomplete="tel" placeholder="Ex.: +258 84 123 4567" maxlength="30" required /></label>
+            <label>Email <span class="field-optional">(opcional)</span><input type="email" name="email" autocomplete="email" maxlength="120" placeholder="Para receber confirmação e lembrete" /></label>
             <div class="reservation-form-row"><label>Data pretendida<input type="date" name="requestedDate" data-reservation-date required /></label><label>Horário preferido<input type="time" name="requestedTime" required /></label></div>
             <div class="reservation-form-row"><label>Número de pessoas<input type="number" name="partySize" min="1" max="100" placeholder="1–100" required /></label><label>Espaço preferido<select name="venue" required><option value="">Seleccione</option><option value="RESTAURANT">Restaurante</option><option value="BEACH_BAR">Beach Bar</option><option value="SPORTS_BAR">Sports Bar</option><option value="NO_PREFERENCE">Sem preferência</option></select></label></div>
             <label>Ocasião <span class="field-optional">(opcional)</span><input name="occasion" maxlength="100" placeholder="Aniversário, encontro, reunião…" /></label>

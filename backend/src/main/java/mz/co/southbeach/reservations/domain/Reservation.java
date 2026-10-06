@@ -30,6 +30,12 @@ public class Reservation {
     @Column(nullable = false, length = 30)
     private String phone;
 
+    @Column(length = 120)
+    private String email;
+
+    @Column(name = "reminder_sent_at")
+    private Instant reminderSentAt;
+
     @Column(name = "requested_date", nullable = false)
     private LocalDate requestedDate;
 
@@ -61,12 +67,13 @@ public class Reservation {
 
     protected Reservation() { }
 
-    public Reservation(String reference, String fullName, String phone, LocalDate requestedDate,
+    public Reservation(String reference, String fullName, String phone, String email, LocalDate requestedDate,
                        LocalTime requestedTime, Integer partySize, ReservationVenue venue,
                        String occasion, String notes, Instant now) {
         this.reference = reference;
         this.fullName = fullName;
         this.phone = phone;
+        this.email = email;
         this.requestedDate = requestedDate;
         this.requestedTime = requestedTime;
         this.partySize = partySize;
@@ -87,6 +94,10 @@ public class Reservation {
         this.updatedAt = now;
     }
 
+    public void markReminderSent(Instant now) {
+        this.reminderSentAt = now;
+    }
+
     public void assignVenue(ReservationVenue venue) {
         this.venue = venue;
     }
@@ -95,6 +106,8 @@ public class Reservation {
     public String getReference() { return reference; }
     public String getFullName() { return fullName; }
     public String getPhone() { return phone; }
+    public String getEmail() { return email; }
+    public Instant getReminderSentAt() { return reminderSentAt; }
     public LocalDate getRequestedDate() { return requestedDate; }
     public LocalTime getRequestedTime() { return requestedTime; }
     public Integer getPartySize() { return partySize; }

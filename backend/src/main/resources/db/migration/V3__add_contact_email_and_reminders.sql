@@ -1,0 +1,2 @@
+ALTER TABLE reservations ADD COLUMN email VARCHAR(120);
+ALTER TABLE reservations ADD COLUMN reminder_sent_at TIMESTAMP WITH TIME ZONE;

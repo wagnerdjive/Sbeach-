@@ -220,6 +220,8 @@
     'Planeie a sua visita': 'Plan your visit',
     'Nome completo': 'Full name',
     'Telefone de contacto': 'Contact phone',
+    'Email': 'Email',
+    'Para receber confirmação e lembrete': 'To receive confirmation and reminder',
     'Data pretendida': 'Preferred date',
     'Horário preferido': 'Preferred time',
     'Número de pessoas': 'Number of guests',

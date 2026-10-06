@@ -9,8 +9,8 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [x] Endpoints protegidos para consultar, confirmar ou cancelar
 - [x] Verificar disponibilidade real e evitar conflitos (capacidade por espaço e horário, de forma atómica)
 - [x] Painel para a equipa (rever, confirmar e cancelar pedidos)
-- [ ] Confirmações e lembretes por email/SMS
-- [ ] Publicar a API e configurar a base de dados de produção
+- [ ] Confirmações e lembretes por email/SMS — pendente: escolher fornecedor e configurar conta (código base pronto: email por SMTP e interface `SmsGateway`, desligados por omissão)
+- [ ] Publicar a API e configurar a base de dados de produção — pendente: escolher alojamento
 
 ## Bilhetes
 

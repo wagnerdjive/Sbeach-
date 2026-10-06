@@ -10,6 +10,7 @@ import mz.co.southbeach.reservations.repository.VenueCapacityRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +27,15 @@ public class ReservationService {
     private final ReservationRepository repository;
     private final VenueCapacityRepository capacities;
     private final Clock clock;
+    private final ApplicationEventPublisher events;
     private final int durationMinutes;
 
-    public ReservationService(ReservationRepository repository, VenueCapacityRepository capacities, Clock clock,
+    public ReservationService(ReservationRepository repository, VenueCapacityRepository capacities, Clock clock, ApplicationEventPublisher events,
                               @Value("${app.reservations.duration-minutes}") int durationMinutes) {
         this.repository = repository;
         this.capacities = capacities;
         this.clock = clock;
+        this.events = events;
         this.durationMinutes = durationMinutes;
     }
 
@@ -45,7 +48,7 @@ public class ReservationService {
         var now = clock.instant();
         var reference = "SB-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
         var reservation = new Reservation(
-                reference, request.fullName().trim(), request.phone().trim(), request.requestedDate(),
+                reference, request.fullName().trim(), request.phone().trim(), clean(request.email()), request.requestedDate(),
                 request.requestedTime(), request.partySize(), request.venue(), clean(request.occasion()),
                 clean(request.notes()), now
         );
@@ -64,7 +67,9 @@ public class ReservationService {
         if (request.status() == ReservationStatus.CONFIRMED && reservation.getStatus() != ReservationStatus.CONFIRMED) {
             confirmWithinCapacity(reservation, request.venue());
         }
+        var previous = reservation.getStatus();
         reservation.changeStatus(request.status(), clock.instant());
+        if (previous != reservation.getStatus()) events.publishEvent(new ReservationStatusChanged(reservation));
         return reservation;
     }
 
