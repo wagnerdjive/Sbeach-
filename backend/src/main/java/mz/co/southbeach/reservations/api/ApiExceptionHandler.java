@@ -5,6 +5,9 @@ import mz.co.southbeach.reservations.service.ReservationCapacityExceededExceptio
 import mz.co.southbeach.reservations.service.ReservationDateInPastException;
 import mz.co.southbeach.reservations.service.ReservationVenueRequiredException;
 import mz.co.southbeach.reservations.service.ReservationNotFoundException;
+import mz.co.southbeach.tickets.service.TicketNotFoundException;
+import mz.co.southbeach.tickets.service.TicketRequestException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -51,6 +54,24 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiErrorResponse handleCapacity(RuntimeException exception) {
         return error(HttpStatus.CONFLICT, exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(TicketNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiErrorResponse handleTicketNotFound(TicketNotFoundException exception) {
+        return error(HttpStatus.NOT_FOUND, exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(TicketRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiErrorResponse handleTicketRequest(TicketRequestException exception) {
+        return error(HttpStatus.BAD_REQUEST, exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiErrorResponse handleIntegrity(DataIntegrityViolationException exception) {
+        return error(HttpStatus.CONFLICT, "That value already exists or conflicts with existing data.", Map.of());
     }
 
     @ExceptionHandler(IllegalStateException.class)

@@ -15,8 +15,8 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 ## Bilhetes
 
 - [x] Prévia visual e interactiva com categorias e quantidades
-- [ ] Backend de eventos e vendas
-- [ ] Lotes, preços e inventário
+- [x] Backend de eventos e vendas (eventos, encomendas com reserva de stock e expiração; sem pagamento)
+- [x] Lotes, preços e inventário (categorias com preço, capacidade, janela de venda e limite por encomenda)
 - [ ] Pagamentos reais por M-Pesa, e-Mola e cartão
 - [ ] Emissão e envio de bilhetes QR
 - [ ] Leitura à entrada e relatórios

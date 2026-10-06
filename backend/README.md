@@ -60,6 +60,16 @@ Capacity per venue lives in the `venue_capacity` table. The seeded values (Resta
 
 Set `APP_ADMIN_USERNAME` and `APP_ADMIN_PASSWORD`. The latter must be at least 16 characters. Admin endpoints expose contact details, so use HTTPS and restrict access to trusted staff.
 
+## Ticketing API
+
+Events, ticket types (batches), and orders that hold stock. Prices are integers in centavos of MZN (`150000` = 1500,00 MZN). No payment is taken: an order stays `PENDING` for `TICKET_HOLD_MINUTES` (default 15), then expires and releases its stock. A payment adapter will call `OrderService.markPaid(reference)`, which is idempotent; there is deliberately no HTTP endpoint that marks an order paid.
+
+Public: `GET /api/events`, `GET /api/events/{slug}` (published events with availability), `POST /api/orders` (`eventSlug`, `fullName`, `phone`, optional `email`, `items: [{ticketTypeId, quantity}]`; `409` when sold out or outside the sale window).
+
+Team only: `GET|POST /api/admin/events`, `PUT /api/admin/events/{id}`, `POST /api/admin/events/{id}/ticket-types`, `PUT /api/admin/ticket-types/{id}`, `GET /api/admin/orders?status=`, `POST /api/admin/orders/{reference}/cancel` (pending orders only). Capacity cannot be lowered below sold + held.
+
+Stock is taken with single conditional `UPDATE` statements, so concurrent buyers cannot oversell (covered by a 40-buyer test for 10 tickets). Expiry cleanup is not covered by an automated test yet.
+
 ## Production database
 
 Set `DATABASE_URL` to a PostgreSQL JDBC URL, plus `DB_USERNAME` and `DB_PASSWORD`. Flyway applies versioned schema migrations; Hibernate validates the schema on startup. Configure `CORS_ALLOWED_ORIGINS` to the exact website origin(s). Store credentials in the hosting provider's secret manager, enable HTTPS, backups, monitoring and a rate limit at the edge before accepting public traffic.
