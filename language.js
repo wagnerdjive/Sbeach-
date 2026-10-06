@@ -244,6 +244,8 @@
     'Preferências ou necessidades especiais': 'Preferences or special requests',
     'Ao continuar, será aberto um rascunho no seu programa de email. Reveja e envie a mensagem para solicitar a reserva.': 'Continuing opens a draft in your email app. Review and send it to request a reservation.',
     'A disponibilidade é confirmada pela equipa. Para grupos grandes ou ajuda imediata, ligue para': 'Availability is confirmed by the team. For large groups or immediate help, call',
+    'O pedido será guardado para revisão pela equipa. A reserva só fica confirmada após resposta do South Beach.': 'The request will be saved for the team to review. The reservation is only confirmed after South Beach replies.',
+    '1–100': '1–100',
     'Escolha a data.': 'Choose your date.',
     'Nós tratamos da mesa.': 'We’ll take care of the table.',
     'Conte-nos como gostaria de nos visitar. A equipa confirma a disponibilidade directamente consigo.': 'Tell us how you would like to visit. The team will confirm availability directly with you.',

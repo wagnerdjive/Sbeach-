@@ -2,18 +2,19 @@
 
 ## Implementado
 
-`reservations.html` substitui o redireccionamento para a página de reservas existente por um formulário PT/EN com nome, telefone, data, horário preferido, número de pessoas, espaço e notas opcionais. Datas anteriores a hoje (fuso horário de Maputo) são bloqueadas. O formulário prepara um email para `turigest@southbeach.co.mz`; a pessoa revê e envia o pedido no seu próprio programa de email. O texto deixa claro que data e horário são preferências e que só a equipa confirma a reserva.
+`reservations.html` substitui o redireccionamento para a página de reservas existente por um formulário PT/EN com nome, telefone, data, horário preferido, número de pessoas, espaço e notas opcionais. Datas anteriores a hoje (fuso horário de Maputo) são bloqueadas. O formulário envia o pedido à API Spring Boot e mostra a referência devolvida. Cada pedido começa em `PENDING`; a equipa confirma ou cancela através da API administrativa protegida.
+
+O código e instruções para iniciar a API estão em [`backend/README.md`](backend/README.md). Usa H2 em ficheiro para desenvolvimento local e PostgreSQL quando configurado para produção.
 
 ## Ainda não é uma agenda de reservas
 
-O pedido depende de email e não fica guardado num painel. Não há verificação de disponibilidade, confirmação automática, prevenção de reservas duplicadas, lista de espera nem gestão de mesas. O browser não tem acesso a uma base de dados própria ou ao calendário do restaurante.
+Os pedidos ficam guardados, mas o sistema ainda não é um calendário de mesas. Não há verificação de disponibilidade, confirmação automática, prevenção de sobreposições, lista de espera ou gestão de mesas. A API ainda não envia notificações por email/SMS; a equipa tem de consultar os pedidos e contactar os clientes. O formulário precisa de um backend acessível, configuração CORS e base de dados de produção para funcionar no site alojado.
 
 ## Para aceitar e gerir reservas no próprio site
 
-1. Criar um serviço autenticado e uma base de dados controlada pelo South Beach.
-2. Configurar os espaços, horários de funcionamento, capacidade por mesa/área, duração de cada reserva, limites por grupo e períodos bloqueados.
-3. Verificar disponibilidade e criar a reserva de modo atómico no servidor, para impedir conflitos de horário ou mesa.
-4. Enviar confirmação e lembretes por email/SMS; permitir à equipa confirmar, alterar, cancelar e registar chegadas num painel protegido por funções.
-5. Registar consentimento, limitar dados pessoais ao necessário e definir prazo de retenção, exportação e cópias de segurança.
+1. Configurar espaços, horários, capacidade por mesa/área, duração, limites por grupo e períodos bloqueados.
+2. Verificar disponibilidade e atribuir mesas/horários no servidor de modo atómico para impedir sobreposições.
+3. Adicionar confirmações e lembretes por email/SMS e criar um painel protegido para a equipa rever, alterar, cancelar e registar chegadas.
+4. Registar consentimento, limitar dados pessoais ao necessário e definir prazo de retenção, exportação e cópias de segurança.
 
-Os horários e regras de capacidade devem ser fornecidos e confirmados pelo South Beach antes de activar reservas automáticas. O site actual não inventa essa disponibilidade.
+Os horários e regras de capacidade devem ser fornecidos e confirmados pelo South Beach antes de activar reservas automáticas. A API guarda a data e hora pedidas; não afirma que estão disponíveis.

@@ -5,7 +5,7 @@
     <meta name="description" content="Peça uma reserva no South Beach Maputo. A equipa confirmará a disponibilidade por contacto directo." />
     <title>Reservas — South Beach Maputo</title>
     <link rel="preconnect" href="https://static.wixstatic.com" /><link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="reservations.css" />
-    <script src="script.js" defer></script><script src="language.js" defer></script><script src="reservations.js" defer></script>
+    <script src="script.js" defer></script><script src="language.js" defer></script><script src="api-config.js" defer></script><script src="reservations.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Saltar para o conteúdo</a>
@@ -14,18 +14,18 @@
       <section class="reservation-hero"><div class="reservation-hero-image" role="img" aria-label="Vista do South Beach Maputo"></div><div class="reservation-hero-shade"></div><div class="reservation-hero-copy"><p class="eyebrow eyebrow-light">RESERVAS · SOUTH BEACH MAPUTO</p><h1>Escolha a data.<br /><em>Nós tratamos da mesa.</em></h1><p>Conte-nos como gostaria de nos visitar. A equipa confirma a disponibilidade directamente consigo.</p></div><span class="subpage-caption">Marginal de Maputo · Moçambique</span></section>
       <section class="reservation-content section-wrap">
         <div class="reservation-intro"><p class="eyebrow">PEDIDO DE RESERVA</p><h2>O seu lugar<br /><em>à beira-mar.</em></h2><p>Indique as suas preferências e prepare o pedido para a equipa. A data e o horário são pedidos; a reserva só fica confirmada depois da resposta do South Beach.</p><div class="booking-contact"><span>FALAR DIRECTAMENTE</span><a href="tel:+258823255120">(+258) 82 325 5120</a><a href="mailto:turigest@southbeach.co.mz">turigest@southbeach.co.mz</a></div></div>
-        <form class="reservation-form" data-mail-form data-mail-subject="Pedido de reserva — South Beach Maputo" data-mail-subject-en="Reservation request — South Beach Maputo">
+        <form class="reservation-form" data-reservation-form>
           <div class="reservation-form-heading"><p class="eyebrow">SOUTH BEACH MAPUTO</p><h2>Planeie a sua visita</h2></div>
           <div class="reservation-fields">
-            <label>Nome completo<input name="Nome" autocomplete="name" required /></label>
-            <label>Telefone de contacto<input type="tel" name="Telefone" autocomplete="tel" placeholder="Ex.: +258 84 123 4567" required /></label>
-            <div class="reservation-form-row"><label>Data pretendida<input type="date" name="Data pretendida" data-reservation-date required /></label><label>Horário preferido<input type="time" name="Horário preferido" required /></label></div>
-            <div class="reservation-form-row"><label>Número de pessoas<select name="Número de pessoas" required><option value="">Seleccione</option><option>1 pessoa</option><option>2 pessoas</option><option>3 pessoas</option><option>4 pessoas</option><option>5 pessoas</option><option>6 pessoas</option><option>7 pessoas</option><option>8 pessoas</option><option>9 pessoas</option><option>10 pessoas</option><option>Mais de 10 pessoas</option></select></label><label>Espaço preferido<select name="Espaço preferido" required><option value="">Seleccione</option><option>Restaurante</option><option>Beach Bar</option><option>Sports Bar</option><option>Sem preferência</option></select></label></div>
-            <label>Ocasião <span class="field-optional">(opcional)</span><input name="Ocasião" placeholder="Aniversário, encontro, reunião…" /></label>
-            <label>Informações adicionais <span class="field-optional">(opcional)</span><textarea name="Informações adicionais" rows="3" placeholder="Preferências ou necessidades especiais"></textarea></label>
+            <label>Nome completo<input name="fullName" autocomplete="name" minlength="2" maxlength="100" required /></label>
+            <label>Telefone de contacto<input type="tel" name="phone" autocomplete="tel" placeholder="Ex.: +258 84 123 4567" maxlength="30" required /></label>
+            <div class="reservation-form-row"><label>Data pretendida<input type="date" name="requestedDate" data-reservation-date required /></label><label>Horário preferido<input type="time" name="requestedTime" required /></label></div>
+            <div class="reservation-form-row"><label>Número de pessoas<input type="number" name="partySize" min="1" max="100" placeholder="1–100" required /></label><label>Espaço preferido<select name="venue" required><option value="">Seleccione</option><option value="RESTAURANT">Restaurante</option><option value="BEACH_BAR">Beach Bar</option><option value="SPORTS_BAR">Sports Bar</option><option value="NO_PREFERENCE">Sem preferência</option></select></label></div>
+            <label>Ocasião <span class="field-optional">(opcional)</span><input name="occasion" maxlength="100" placeholder="Aniversário, encontro, reunião…" /></label>
+            <label>Informações adicionais <span class="field-optional">(opcional)</span><textarea name="notes" maxlength="1000" rows="3" placeholder="Preferências ou necessidades especiais"></textarea></label>
           </div>
           <button class="button button-dark reservation-submit" type="submit">Preparar pedido <span aria-hidden="true">↗</span></button>
-          <p class="reservation-status" data-form-status aria-live="polite">Ao continuar, será aberto um rascunho no seu programa de email. Reveja e envie a mensagem para solicitar a reserva.</p>
+          <p class="reservation-status" data-reservation-status aria-live="polite">O pedido será guardado para revisão pela equipa. A reserva só fica confirmada após resposta do South Beach.</p>
         </form>
       </section>
       <section class="reservation-note"><div class="section-wrap reservation-note-inner"><span aria-hidden="true">✳</span><p>A disponibilidade é confirmada pela equipa. Para grupos grandes ou ajuda imediata, ligue para <a href="tel:+258823255120">(+258) 82 325 5120</a>.</p></div></section>
