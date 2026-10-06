@@ -40,7 +40,11 @@ Venue values: `RESTAURANT`, `BEACH_BAR`, `SPORTS_BAR`, `NO_PREFERENCE`. Dates be
 ### Team only (HTTP Basic)
 
 - `GET /api/admin/reservations` — paginated requests, newest first; optionally filter with `?status=PENDING`.
-- `PATCH /api/admin/reservations/{reference}/status` — set `{"status":"CONFIRMED"}` or `{"status":"CANCELLED"}`.
+- `PATCH /api/admin/reservations/{reference}/status` — set `{"status":"CONFIRMED"}` or `{"status":"CANCELLED"}`. Confirming checks capacity and returns `409` if the venue is full; a `NO_PREFERENCE` request needs `"venue"` (e.g. `{"status":"CONFIRMED","venue":"BEACH_BAR"}`).
+
+### Availability
+
+Capacity per venue lives in the `venue_capacity` table. The seeded values (Restaurante 60, Beach Bar 80, Sports Bar 50) are **placeholders**; South Beach must confirm real seat counts and update them. Confirmed reservations whose start times are less than `RESERVATION_DURATION_MINUTES` (default 90) apart share the same capacity. This is conservative: it may refuse a slot that a table-level model would allow. The venue row is locked during confirmation so concurrent confirmations cannot overbook.
 
 Set `APP_ADMIN_USERNAME` and `APP_ADMIN_PASSWORD`. The latter must be at least 16 characters. Admin endpoints expose contact details, so use HTTPS and restrict access to trusted staff.
 
@@ -52,4 +56,4 @@ Build a container with `docker build -t south-beach-reservations backend/` from 
 
 ## Scope
 
-This service stores and manages requests, not table inventory. It does not yet calculate availability, send confirmations/reminders, or integrate with email/SMS. The team must review a request before confirming it.
+This service stores and manages requests and enforces seat capacity on confirmation, but has no table-level inventory, opening hours or public availability endpoint. It does not yet send confirmations/reminders, or integrate with email/SMS. The team must review a request before confirming it.

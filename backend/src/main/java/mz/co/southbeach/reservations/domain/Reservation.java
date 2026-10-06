@@ -87,6 +87,10 @@ public class Reservation {
         this.updatedAt = now;
     }
 
+    public void assignVenue(ReservationVenue venue) {
+        this.venue = venue;
+    }
+
     public Long getId() { return id; }
     public String getReference() { return reference; }
     public String getFullName() { return fullName; }

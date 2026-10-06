@@ -1,7 +1,9 @@
 package mz.co.southbeach.reservations.api;
 
 import mz.co.southbeach.reservations.api.dto.ApiErrorResponse;
+import mz.co.southbeach.reservations.service.ReservationCapacityExceededException;
 import mz.co.southbeach.reservations.service.ReservationDateInPastException;
+import mz.co.southbeach.reservations.service.ReservationVenueRequiredException;
 import mz.co.southbeach.reservations.service.ReservationNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -43,6 +45,12 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiErrorResponse handleNotFound(ReservationNotFoundException exception) {
         return error(HttpStatus.NOT_FOUND, exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler({ReservationCapacityExceededException.class, ReservationVenueRequiredException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiErrorResponse handleCapacity(RuntimeException exception) {
+        return error(HttpStatus.CONFLICT, exception.getMessage(), Map.of());
     }
 
     @ExceptionHandler(IllegalStateException.class)

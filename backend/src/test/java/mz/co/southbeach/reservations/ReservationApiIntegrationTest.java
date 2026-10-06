@@ -80,4 +80,44 @@ class ReservationApiIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fields.fullName").exists());
     }
+
+    private String createReservation(String venue, int partySize, String time) throws Exception {
+        var payload = Map.of(
+                "fullName", "Cliente Teste", "phone", "+258 84 123 4567",
+                "requestedDate", LocalDate.now().plusDays(10).toString(), "requestedTime", time,
+                "partySize", partySize, "venue", venue);
+        var created = mvc.perform(post("/api/reservations").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isCreated()).andReturn();
+        return objectMapper.readTree(created.getResponse().getContentAsString()).get("reference").asText();
+    }
+
+    private org.springframework.test.web.servlet.ResultActions setStatus(String reference, String body) throws Exception {
+        return mvc.perform(patch("/api/admin/reservations/{reference}/status", reference)
+                .with(httpBasic("test-admin", "integration-test-password-17"))
+                .contentType(MediaType.APPLICATION_JSON).content(body));
+    }
+
+    @Test
+    void confirmationIsRejectedWhenVenueCapacityWouldBeExceeded() throws Exception {
+        // SPORTS_BAR has 50 seats; the two requests overlap at 20:00 and 20:30.
+        var first = createReservation("SPORTS_BAR", 40, "20:00");
+        var second = createReservation("SPORTS_BAR", 11, "20:30");
+        var third = createReservation("SPORTS_BAR", 10, "20:30");
+        var later = createReservation("SPORTS_BAR", 11, "22:00");
+
+        setStatus(first, "{\"status\":\"CONFIRMED\"}").andExpect(status().isOk());
+        setStatus(second, "{\"status\":\"CONFIRMED\"}").andExpect(status().isConflict());
+        setStatus(third, "{\"status\":\"CONFIRMED\"}").andExpect(status().isOk());
+        setStatus(later, "{\"status\":\"CONFIRMED\"}").andExpect(status().isOk());
+    }
+
+    @Test
+    void noPreferenceRequestNeedsAVenueToBeConfirmed() throws Exception {
+        var reference = createReservation("NO_PREFERENCE", 4, "13:00");
+        setStatus(reference, "{\"status\":\"CONFIRMED\"}").andExpect(status().isConflict());
+        setStatus(reference, "{\"status\":\"CONFIRMED\",\"venue\":\"BEACH_BAR\"}")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.venue", is("BEACH_BAR")));
+    }
 }
