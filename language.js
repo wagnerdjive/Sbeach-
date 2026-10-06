@@ -50,6 +50,7 @@
     'Jantar · 20h00–21h30': 'Dinner · 20:00–21:30',
     '17h00–19h00 · Jantar · 20h00–21h30': '17:00–19:00 · Dinner · 20:00–21:30',
     'Maputo, Moçambique': 'Maputo, Mozambique',
+    'MOÇAMBIQUE': 'MOZAMBIQUE',
     'Petiscos, bebidas e aquele tempo extra que sabe bem junto ao mar.': 'Small plates, drinks and a little extra time by the sea.',
     'JOGO, COMIDA & AMIGOS': 'SPORTS, FOOD & FRIENDS',
     'Junte a sua equipa, escolha o lugar e aproveite o ambiente de jogo.': 'Gather your team, find your spot and enjoy the game-day atmosphere.',
@@ -334,6 +335,13 @@
       button.setAttribute('aria-label', language === 'en' ? 'Switch to Portuguese' : 'Switch to English');
       button.setAttribute('aria-pressed', String(language === 'en'));
     });
+    const menuButton = document.querySelector('.menu-toggle');
+    if (menuButton) {
+      const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
+      menuButton.setAttribute('aria-label', language === 'en'
+        ? (isOpen ? 'Close menu' : 'Open menu')
+        : (isOpen ? 'Fechar menu' : 'Abrir menu'));
+    }
     try { localStorage.setItem('southBeachLanguage', language); } catch (_) {}
   }
 
