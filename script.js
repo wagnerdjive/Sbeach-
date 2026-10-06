@@ -3,8 +3,9 @@ const nav = document.querySelector('#primary-nav');
 
 menuButton?.addEventListener('click', () => {
   const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
+  const isEnglish = document.documentElement.lang === 'en';
   menuButton.setAttribute('aria-expanded', String(!isOpen));
-  menuButton.setAttribute('aria-label', isOpen ? 'Abrir menu' : 'Fechar menu');
+  menuButton.setAttribute('aria-label', isOpen ? (isEnglish ? 'Open menu' : 'Abrir menu') : (isEnglish ? 'Close menu' : 'Fechar menu'));
   nav?.classList.toggle('is-open', !isOpen);
 });
 
@@ -12,7 +13,7 @@ nav?.querySelectorAll('a').forEach((link) => {
   link.addEventListener('click', () => {
     nav.classList.remove('is-open');
     menuButton?.setAttribute('aria-expanded', 'false');
-    menuButton?.setAttribute('aria-label', 'Abrir menu');
+    menuButton?.setAttribute('aria-label', document.documentElement.lang === 'en' ? 'Open menu' : 'Abrir menu');
     nav.querySelectorAll('details[open]').forEach((group) => group.removeAttribute('open'));
   });
 });
@@ -44,6 +45,22 @@ menuTabs.forEach((tab, index) => {
   });
 });
 if (menuTabs.length) activateMenu(location.hash.slice(1) || menuTabs[0].dataset.menuTab);
+
+const menuCategoryButtons = [...document.querySelectorAll('[data-menu-category]')];
+function activateMenuCategory(category) {
+  menuPanels.forEach((panel) => {
+    panel.querySelectorAll('.menu-tags li[data-category]').forEach((tag) => {
+      tag.hidden = tag.dataset.category !== category;
+    });
+  });
+  menuCategoryButtons.forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.menuCategory === category));
+  });
+}
+menuCategoryButtons.forEach((button) => {
+  button.addEventListener('click', () => activateMenuCategory(button.dataset.menuCategory));
+});
+if (menuCategoryButtons.length) activateMenuCategory('food');
 
 const galleryFilters = [...document.querySelectorAll('[data-gallery-filter]')];
 const galleryCards = [...document.querySelectorAll('[data-gallery-item]')];
@@ -97,7 +114,9 @@ document.querySelectorAll('[data-mail-form]').forEach((form) => {
     const subject = form.dataset.mailSubject || 'Pedido de informação — South Beach';
     const body = [...values.entries()].map(([key, value]) => `${key}: ${value}`).join('\n');
     const status = form.querySelector('[data-form-status]');
-    if (status) status.textContent = 'A abrir o seu programa de email com o pedido preenchido. A reserva ou pedido só é enviado quando confirmar o envio no email.';
+    if (status) status.textContent = document.documentElement.lang === 'en'
+      ? 'Opening your email app with the request filled in. Your request is sent only after you confirm and send the email.'
+      : 'A abrir o seu programa de email com o pedido preenchido. A reserva ou pedido só é enviado quando confirmar o envio no email.';
     location.href = `mailto:turigest@southbeach.co.mz?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
 });
