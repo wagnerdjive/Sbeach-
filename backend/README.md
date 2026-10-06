@@ -52,7 +52,7 @@ Confirming or cancelling a reservation, and a reminder the day before a confirme
 
 ### Staff dashboard
 
-`admin.html` (not linked from the public menu, `noindex`) lists requests, filters by status and confirms or cancels them through the admin API. Staff sign in with the `APP_ADMIN_*` credentials; they are kept in memory only, so reloading the page signs out. Locally open `http://localhost:8000/admin.html` with the API running.
+`admin.html` (not linked from the public menu, `noindex`) has three tabs. *Reservas* lists requests, filters by status and confirms or cancels them. *Eventos e bilhetes* creates and edits events (draft, published, cancelled) and their ticket types (price in MZN, capacity, per-order limit, sale window), showing sold, held and available stock; dates are entered in Maputo time. *Encomendas* lists ticket orders and cancels pending ones, which releases their stock. Everything goes through the admin API. Staff sign in with the `APP_ADMIN_*` credentials; they are kept in memory only, so reloading the page signs out. Locally open `http://localhost:8000/admin.html` with the API running.
 
 ### Availability
 

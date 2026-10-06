@@ -8,7 +8,7 @@
     <script src="api-config.js" defer></script><script src="admin.js" defer></script>
   </head>
   <body class="admin-page">
-    <header class="admin-header"><a class="admin-brand" href="index.html">SOUTH <em>BEACH</em></a><span>Painel da equipa · Reservas</span><button type="button" class="admin-logout" data-logout hidden>Terminar sessão</button></header>
+    <header class="admin-header"><a class="admin-brand" href="index.html">SOUTH <em>BEACH</em></a><span>Painel da equipa</span><button type="button" class="admin-logout" data-logout hidden>Terminar sessão</button></header>
     <main class="admin-main">
       <form class="admin-login" data-login>
         <h1>Entrar</h1>
@@ -18,13 +18,58 @@
         <p class="admin-message" data-login-message role="status"></p>
       </form>
       <section class="admin-panel" data-panel hidden>
-        <div class="admin-toolbar">
-          <label>Estado<select data-filter><option value="PENDING">Pendentes</option><option value="CONFIRMED">Confirmadas</option><option value="CANCELLED">Canceladas</option><option value="">Todas</option></select></label>
-          <button type="button" class="admin-refresh" data-refresh>Actualizar</button>
-          <p class="admin-message" data-message role="status"></p>
+        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button></div>
+        <p class="admin-message" data-message role="status"></p>
+
+        <div data-view="reservations">
+          <div class="admin-toolbar">
+            <label>Estado<select data-filter><option value="PENDING">Pendentes</option><option value="CONFIRMED">Confirmadas</option><option value="CANCELLED">Canceladas</option><option value="">Todas</option></select></label>
+            <button type="button" class="admin-refresh" data-refresh>Actualizar</button>
+          </div>
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Referência</th><th>Cliente</th><th>Data e hora</th><th>Pessoas</th><th>Espaço</th><th>Notas</th><th>Estado</th><th>Acções</th></tr></thead><tbody data-rows></tbody></table></div>
+          <p class="admin-empty" data-empty hidden>Sem pedidos para este filtro.</p>
         </div>
-        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Referência</th><th>Cliente</th><th>Data e hora</th><th>Pessoas</th><th>Espaço</th><th>Notas</th><th>Estado</th><th>Acções</th></tr></thead><tbody data-rows></tbody></table></div>
-        <p class="admin-empty" data-empty hidden>Sem pedidos para este filtro.</p>
+
+        <div data-view="events" hidden>
+          <div class="admin-toolbar"><button type="button" class="admin-primary" data-new-event>Novo evento</button><button type="button" class="admin-refresh" data-refresh-events>Actualizar</button></div>
+          <form class="admin-form" data-event-form hidden>
+            <h2 data-event-form-title>Novo evento</h2>
+            <div class="admin-form-grid">
+              <label>Endereço (slug)<input name="slug" required maxlength="80" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="sunset-sessions" /></label>
+              <label>Título<input name="title" required maxlength="150" /></label>
+              <label>Local<input name="location" required maxlength="150" value="South Beach Maputo" /></label>
+              <label>Estado<select name="status"><option value="DRAFT">Rascunho (invisível)</option><option value="PUBLISHED">Publicado</option><option value="CANCELLED">Cancelado</option></select></label>
+              <label>Início (hora de Maputo)<input name="startsAt" type="datetime-local" required /></label>
+              <label>Fim (opcional)<input name="endsAt" type="datetime-local" /></label>
+              <label class="wide">Descrição (opcional)<textarea name="description" maxlength="2000" rows="3"></textarea></label>
+            </div>
+            <div class="admin-form-actions"><button class="admin-primary" type="submit">Guardar evento</button><button type="button" data-cancel-form>Fechar</button></div>
+          </form>
+          <form class="admin-form" data-type-form hidden>
+            <h2 data-type-form-title>Nova categoria</h2>
+            <div class="admin-form-grid">
+              <label>Nome<input name="name" required maxlength="80" placeholder="Normal, VIP, Lote 1…" /></label>
+              <label>Descrição (opcional)<input name="description" maxlength="500" /></label>
+              <label>Preço (MZN)<input name="price" type="number" min="0" step="0.01" required /></label>
+              <label>Capacidade<input name="capacity" type="number" min="1" max="100000" step="1" required /></label>
+              <label>Máximo por encomenda<input name="maxPerOrder" type="number" min="1" max="50" step="1" value="10" required /></label>
+              <label>Venda começa (opcional)<input name="saleStartsAt" type="datetime-local" /></label>
+              <label>Venda termina (opcional)<input name="saleEndsAt" type="datetime-local" /></label>
+            </div>
+            <div class="admin-form-actions"><button class="admin-primary" type="submit">Guardar categoria</button><button type="button" data-cancel-form>Fechar</button></div>
+          </form>
+          <div data-events></div>
+          <p class="admin-empty" data-events-empty hidden>Ainda não há eventos. Crie o primeiro com “Novo evento”.</p>
+        </div>
+
+        <div data-view="orders" hidden>
+          <div class="admin-toolbar">
+            <label>Estado<select data-order-filter><option value="PENDING">Pendentes</option><option value="PAID">Pagas</option><option value="EXPIRED">Expiradas</option><option value="CANCELLED">Canceladas</option><option value="">Todas</option></select></label>
+            <button type="button" class="admin-refresh" data-refresh-orders>Actualizar</button>
+          </div>
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Referência</th><th>Cliente</th><th>Bilhetes</th><th>Total</th><th>Estado</th><th>Expira</th><th>Acções</th></tr></thead><tbody data-order-rows></tbody></table></div>
+          <p class="admin-empty" data-orders-empty hidden>Sem encomendas para este filtro.</p>
+        </div>
       </section>
     </main>
   </body>

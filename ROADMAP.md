@@ -25,7 +25,7 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 ## Eventos
 
 - [x] Página estática com arquivo e formulário para eventos privados
-- [ ] Área de gestão para a equipa publicar eventos e actualizar datas, textos e bilhetes
+- [x] Área de gestão para a equipa publicar eventos e actualizar datas, textos e bilhetes (`admin.html`: eventos, categorias, encomendas)
 
 ## Conteúdo do site
 
