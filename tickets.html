@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-MZ">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Prévia da futura bilheteira própria do South Beach Maputo." />
+    <title>Bilhetes — South Beach Maputo</title>
+    <link rel="preconnect" href="https://static.wixstatic.com" /><link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="tickets.css" /><script src="script.js" defer></script><script src="language.js" defer></script><script src="tickets.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Saltar para o conteúdo</a>
+    <header class="site-header"><a class="brand" href="index.html" aria-label="South Beach — início"><img src="https://static.wixstatic.com/media/f436ca_3797381906234141943c822ba6e77602~mv2.png" alt="South Beach" /></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Abrir menu"><span></span><span></span></button><nav class="primary-nav" id="primary-nav" aria-label="Navegação principal"><details class="nav-group"><summary>Espaços</summary><div class="nav-dropdown"><a href="restaurant.html">Restaurante</a><a href="beach-bar.html">Beach Bar</a><a href="sports-bar.html">Sports Bar</a></div></details><a href="menus.html">Menus</a><a aria-current="page" href="events.html">Eventos</a><a href="gallery.html">Galeria</a><a href="contact.html">Visite-nos</a><a class="button button-dark nav-book" href="reservations.html">Reservar <span aria-hidden="true">↗</span></a></nav><button class="language-toggle" type="button" data-language-toggle aria-label="Switch to English" aria-pressed="false">EN</button></header>
+    <main id="main" class="tickets-page">
+      <section class="tickets-hero">
+        <div class="tickets-hero-shade"></div>
+        <div class="tickets-hero-content"><p class="eyebrow eyebrow-light" data-ticket-text="kicker">BILHETES SOUTH BEACH</p><h1 data-ticket-text="title">Os seus próximos<br /><em>momentos começam aqui.</em></h1><p data-ticket-text="intro">Uma bilheteira própria, com eventos, pagamentos e confirmações geridos directamente pelo South Beach.</p></div>
+        <span class="subpage-caption">South Beach · Maputo</span>
+      </section>
+      <section class="ticket-preview section-wrap" aria-labelledby="preview-title">
+        <div class="ticket-preview-heading"><div><p class="eyebrow" data-ticket-text="previewLabel">PRÉVIA INTERACTIVA</p><h2 id="preview-title" data-ticket-text="previewTitle">Como será <em>escolher bilhetes.</em></h2></div><span class="preview-badge" data-ticket-text="demoBadge">DEMONSTRAÇÃO</span></div>
+        <div class="preview-notice" role="status"><span aria-hidden="true">i</span><p data-ticket-text="notice">Esta é uma prévia do checkout. Nenhum evento está à venda e nenhum pagamento será iniciado.</p></div>
+        <div class="ticket-layout">
+          <div class="event-demo-card">
+            <div class="event-demo-photo" role="img" aria-label="Ambiente de praia no South Beach"></div>
+            <div class="event-demo-info"><p class="eyebrow" data-ticket-text="demoEvent">EVENTO DE DEMONSTRAÇÃO</p><h3 data-ticket-text="eventName">South Beach Sunset Sessions</h3><p data-ticket-text="eventDetails">South Beach Maputo · Data e programa a anunciar</p><div class="event-tags"><span data-ticket-text="tagMusic">Música</span><span data-ticket-text="tagOcean">À beira-mar</span></div></div>
+          </div>
+          <div class="ticket-options" aria-label="Opções de bilhetes">
+            <article class="ticket-option" data-ticket-option="standard"><div><span class="ticket-type" data-ticket-text="standardName">NORMAL</span><h3 data-ticket-text="standardDesc">Acesso geral</h3><p data-ticket-text="standardNote">Exemplo de categoria</p></div><div class="ticket-option-action"><strong data-ticket-text="pricePending">Preço a definir</strong><div class="quantity-control"><button type="button" data-quantity-change="-1" data-category="standard" aria-label="Diminuir quantidade">−</button><output data-quantity="standard" aria-live="polite">0</output><button type="button" data-quantity-change="1" data-category="standard" aria-label="Aumentar quantidade">+</button></div></div></article>
+            <article class="ticket-option" data-ticket-option="vip"><div><span class="ticket-type" data-ticket-text="vipName">VIP</span><h3 data-ticket-text="vipDesc">Acesso VIP</h3><p data-ticket-text="vipNote">Exemplo de categoria</p></div><div class="ticket-option-action"><strong data-ticket-text="pricePending">Preço a definir</strong><div class="quantity-control"><button type="button" data-quantity-change="-1" data-category="vip" aria-label="Diminuir quantidade">−</button><output data-quantity="vip" aria-live="polite">0</output><button type="button" data-quantity-change="1" data-category="vip" aria-label="Aumentar quantidade">+</button></div></div></article>
+            <article class="ticket-option" data-ticket-option="lounge"><div><span class="ticket-type" data-ticket-text="loungeName">LOUNGE</span><h3 data-ticket-text="loungeDesc">Mesa ou lounge</h3><p data-ticket-text="loungeNote">Capacidade e consumo a definir</p></div><div class="ticket-option-action"><strong data-ticket-text="pricePending">Preço a definir</strong><div class="quantity-control"><button type="button" data-quantity-change="-1" data-category="lounge" aria-label="Diminuir quantidade">−</button><output data-quantity="lounge" aria-live="polite">0</output><button type="button" data-quantity-change="1" data-category="lounge" aria-label="Aumentar quantidade">+</button></div></div></article>
+          </div>
+          <aside class="checkout-card" aria-labelledby="checkout-title">
+            <p class="eyebrow" data-ticket-text="orderLabel">O SEU PEDIDO</p><h3 id="checkout-title" data-ticket-text="checkoutTitle">Resumo</h3>
+            <div class="checkout-line"><span data-ticket-text="selectedTickets">Bilhetes seleccionados</span><strong id="ticket-count">0</strong></div>
+            <div class="checkout-line checkout-total"><span data-ticket-text="totalEstimate">Total estimado</span><strong data-ticket-text="pricePending">A definir</strong></div>
+            <p class="checkout-hint" data-ticket-text="selectHint">Escolha uma categoria para ver o resumo.</p>
+            <fieldset class="payment-methods"><legend data-ticket-text="paymentLabel">Meios de pagamento previstos</legend><label><input type="radio" name="payment-method" value="mpesa" checked /><span>M-Pesa</span></label><label><input type="radio" name="payment-method" value="emola" /><span>e-Mola</span></label><label><input type="radio" name="payment-method" value="card" /><span data-ticket-text="cards">Cartão</span></label></fieldset>
+            <button class="button button-dark checkout-button" type="button" id="checkout-preview" disabled data-ticket-text="checkoutButton">Continuar</button>
+            <p class="checkout-hint" data-ticket-text="paymentHint">Os métodos aparecem como prévia. A integração e a confirmação de pagamento ainda não estão activas.</p>
+          </aside>
+        </div>
+      </section>
+      <section class="ownership-section"><div class="section-wrap ownership-inner"><div><p class="eyebrow eyebrow-light" data-ticket-text="ownershipLabel">FEITO PARA O SOUTH BEACH</p><h2 data-ticket-text="ownershipTitle">Do anúncio à<br /><em>entrada no evento.</em></h2></div><div class="ownership-list"><p><span>01</span><span data-ticket-text="ownershipOne">Eventos e lotes publicados pela própria equipa.</span></p><p><span>02</span><span data-ticket-text="ownershipTwo">Confirmações e bilhetes digitais emitidos pela plataforma.</span></p><p><span>03</span><span data-ticket-text="ownershipThree">Validação de entrada e relatórios de vendas num só painel.</span></p></div></div></section>
+    </main>
+    <footer class="site-footer"><a class="footer-brand" href="index.html">SOUTH<br /><em>BEACH</em></a><p>Maputo, Moçambique<br />© <span id="year"></span> South Beach</p><div><a href="about.html">Sobre</a><a href="gallery.html">Galeria</a><a href="contact.html">Contactos</a><a href="reservations.html">Reservas</a></div></footer>
+    <dialog class="preview-dialog" id="checkout-dialog"><button class="preview-dialog-close" type="button" aria-label="Fechar">×</button><p class="eyebrow" data-ticket-text="dialogLabel">PRÓXIMO PASSO</p><h2 data-ticket-text="dialogTitle">Checkout próprio, <em>em preparação.</em></h2><p data-ticket-text="dialogCopy">A selecção foi demonstrada. Para começar a vender, o South Beach precisa ligar a bilheteira ao seu comerciante M-Pesa, e-Mola e cartões, e activar o serviço de confirmação e emissão de bilhetes.</p><button class="button button-dark preview-dialog-ok" type="button" data-ticket-text="dialogButton">Entendi</button></dialog>
+  </body>
+</html>

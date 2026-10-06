@@ -19,6 +19,7 @@ Then visit <http://localhost:8000>.
 - `restaurant.html`, `beach-bar.html`, `sports-bar.html`: separate pages for each space.
 - `menus.html`: accessible tabs for the three spaces, with food/drinks filters, linking to the current full menus.
 - `events.html`: upcoming-events empty state based on the current events page, past-event archive links, and an event inquiry form that prepares an email draft.
+- `tickets.html`: interactive bilingual preview of a South Beach owned ticket checkout, with ticket categories, quantities, planned payment methods and a clear prelaunch notice.
 - `gallery.html`: filterable photo grid with keyboard-operable lightbox.
 - `reservations.html`: reservation page linked to the existing official booking flow.
 - `contact.html`: contact information, published meal hours, directions and map.
@@ -30,6 +31,7 @@ Then visit <http://localhost:8000>.
 - South Beach's public image assets are loaded from Wix's CDN.
 - Menu links and the reservation action continue to the current official South Beach pages, so published prices and booking availability stay authoritative.
 - The event list currently has no upcoming events. The page displays that state instead of inventing events.
+- The ticket selection page is a non-transactional prototype. It does not publish real event prices, accept customer data, contact a payment provider, or issue tickets. See `TICKETING.md` for the backend, security and merchant setup required for real sales.
 - The event inquiry form opens a pre-filled email draft; it does not send or store visitor data itself.
 - Opening times and contact details reflect information currently displayed on the public site and should be reconfirmed before launch.
 - This is a multi-page concept in a separate project; it does not replace or publish over the current South Beach site.
