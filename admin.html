@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-MZ">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Painel da equipa — South Beach</title>
+    <link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="admin.css" />
+    <script src="api-config.js" defer></script><script src="admin.js" defer></script>
+  </head>
+  <body class="admin-page">
+    <header class="admin-header"><a class="admin-brand" href="index.html">SOUTH <em>BEACH</em></a><span>Painel da equipa · Reservas</span><button type="button" class="admin-logout" data-logout hidden>Terminar sessão</button></header>
+    <main class="admin-main">
+      <form class="admin-login" data-login>
+        <h1>Entrar</h1>
+        <label>Utilizador<input name="username" autocomplete="username" required /></label>
+        <label>Palavra-passe<input name="password" type="password" autocomplete="current-password" required /></label>
+        <button class="button button-dark" type="submit">Entrar</button>
+        <p class="admin-message" data-login-message role="status"></p>
+      </form>
+      <section class="admin-panel" data-panel hidden>
+        <div class="admin-toolbar">
+          <label>Estado<select data-filter><option value="PENDING">Pendentes</option><option value="CONFIRMED">Confirmadas</option><option value="CANCELLED">Canceladas</option><option value="">Todas</option></select></label>
+          <button type="button" class="admin-refresh" data-refresh>Actualizar</button>
+          <p class="admin-message" data-message role="status"></p>
+        </div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Referência</th><th>Cliente</th><th>Data e hora</th><th>Pessoas</th><th>Espaço</th><th>Notas</th><th>Estado</th><th>Acções</th></tr></thead><tbody data-rows></tbody></table></div>
+        <p class="admin-empty" data-empty hidden>Sem pedidos para este filtro.</p>
+      </section>
+    </main>
+  </body>
+</html>

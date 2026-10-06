@@ -42,6 +42,10 @@ Venue values: `RESTAURANT`, `BEACH_BAR`, `SPORTS_BAR`, `NO_PREFERENCE`. Dates be
 - `GET /api/admin/reservations` — paginated requests, newest first; optionally filter with `?status=PENDING`.
 - `PATCH /api/admin/reservations/{reference}/status` — set `{"status":"CONFIRMED"}` or `{"status":"CANCELLED"}`. Confirming checks capacity and returns `409` if the venue is full; a `NO_PREFERENCE` request needs `"venue"` (e.g. `{"status":"CONFIRMED","venue":"BEACH_BAR"}`).
 
+### Staff dashboard
+
+`admin.html` (not linked from the public menu, `noindex`) lists requests, filters by status and confirms or cancels them through the admin API. Staff sign in with the `APP_ADMIN_*` credentials; they are kept in memory only, so reloading the page signs out. Locally open `http://localhost:8000/admin.html` with the API running.
+
 ### Availability
 
 Capacity per venue lives in the `venue_capacity` table. The seeded values (Restaurante 60, Beach Bar 80, Sports Bar 50) are **placeholders**; South Beach must confirm real seat counts and update them. Confirmed reservations whose start times are less than `RESERVATION_DURATION_MINUTES` (default 90) apart share the same capacity. This is conservative: it may refuse a slot that a table-level model would allow. The venue row is locked during confirmation so concurrent confirmations cannot overbook.

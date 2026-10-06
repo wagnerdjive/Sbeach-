@@ -8,7 +8,7 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [x] Validação e gravação dos pedidos, com referência por pedido
 - [x] Endpoints protegidos para consultar, confirmar ou cancelar
 - [x] Verificar disponibilidade real e evitar conflitos (capacidade por espaço e horário, de forma atómica)
-- [ ] Painel para a equipa (rever, confirmar e cancelar pedidos)
+- [x] Painel para a equipa (rever, confirmar e cancelar pedidos)
 - [ ] Confirmações e lembretes por email/SMS
 - [ ] Publicar a API e configurar a base de dados de produção
 

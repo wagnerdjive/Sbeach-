@@ -1,0 +1,10 @@
+.admin-page{background:#f4f1ea;color:#20251f;font:400 13px/1.5 var(--sans)}
+.admin-header{display:flex;align-items:center;gap:20px;padding:16px clamp(16px,4vw,40px);background:#304238;color:#fff}.admin-brand{font:500 20px var(--serif);letter-spacing:.08em;color:#fff}.admin-brand em{color:#d3bc91}.admin-header span{flex:1;font-size:11px;opacity:.8}
+.admin-logout,.admin-refresh,.admin-actions button{border:1px solid rgba(32,37,31,.3);background:#fff;padding:7px 12px;font:600 11px var(--sans);cursor:pointer}.admin-logout{border-color:rgba(255,255,255,.5);background:transparent;color:#fff}
+.admin-main{padding:30px clamp(16px,4vw,40px) 60px}
+.admin-login{max-width:340px;margin:40px auto;display:grid;gap:14px;background:#fff;padding:30px;border:1px solid rgba(32,37,31,.1)}.admin-login h1{font:500 30px var(--serif);margin:0}.admin-login label,.admin-toolbar label{display:grid;gap:5px;font-size:10px;font-weight:600}.admin-login input,.admin-toolbar select{min-height:40px;border:1px solid rgba(32,37,31,.25);padding:8px 10px;font:400 13px var(--sans);background:#fff}
+.admin-toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:14px;margin-bottom:18px}.admin-message{margin:0;font-size:11px;color:#8a3a2e}.admin-message.ok{color:#2f6a46}
+.admin-table-wrap{overflow-x:auto;background:#fff;border:1px solid rgba(32,37,31,.1)}.admin-table{width:100%;border-collapse:collapse;min-width:900px}.admin-table th,.admin-table td{text-align:left;padding:10px 12px;border-bottom:1px solid rgba(32,37,31,.08);vertical-align:top}.admin-table th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#6b6f66}
+.admin-notes{max-width:240px;white-space:pre-wrap;word-break:break-word}.admin-badge{display:inline-block;padding:2px 8px;font-size:10px;font-weight:700;background:#eee}.admin-badge.PENDING{background:#f3e3b8}.admin-badge.CONFIRMED{background:#cfe6d6}.admin-badge.CANCELLED{background:#eacdc8}
+.admin-actions>div{display:flex;flex-wrap:wrap;gap:6px}.admin-actions select{min-height:30px;font-size:11px}.admin-actions button[disabled]{opacity:.5;cursor:wait}.admin-empty{padding:20px;color:#6b6f66}
+[hidden]{display:none!important}
