@@ -15,6 +15,7 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 ## Bilhetes
 
 - [x] Prévia visual e interactiva com categorias e quantidades
+- [x] Página de bilhetes ligada à API (eventos publicados, quantidades, reserva de bilhetes; sem pagamento)
 - [x] Backend de eventos e vendas (eventos, encomendas com reserva de stock e expiração; sem pagamento)
 - [x] Lotes, preços e inventário (categorias com preço, capacidade, janela de venda e limite por encomenda)
 - [ ] Pagamentos reais por M-Pesa, e-Mola e cartão

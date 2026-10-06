@@ -4,6 +4,10 @@
 
 `tickets.html` é uma prévia interactiva e bilingue da experiência directa de bilhetes. Permite testar categorias, quantidades, resumo e a apresentação de M-Pesa, e-Mola e cartões. O conteúdo usa um evento fictício e informa em todas as etapas que não há venda nem cobrança. Não recolhe dados pessoais, não emite QR codes e não liga para a Tabater.
 
+## Integração com a API
+
+`tickets-live.js` consulta `GET /api/events`. Se a API devolver eventos publicados com categorias, a página mostra esses eventos (preços, disponibilidade, quantidades) e um formulário que cria uma encomenda em `POST /api/orders`, a qual reserva os bilhetes durante 15 minutos. **Não há pagamento**: a página diz-o ao cliente e a equipa conclui a compra por contacto. Se a API não responder ou não houver eventos publicados, continua a aparecer a prévia de demonstração. Para o desenvolvimento local, publique um evento pela API administrativa (ver `backend/README.md`).
+
 ## O que é necessário para vender bilhetes reais
 
 O site actual é estático. Uma venda segura precisa de um serviço próprio e armazenamento durável, porque o browser não pode confirmar um pagamento nem proteger segredos do comerciante. Arquitectura proposta:

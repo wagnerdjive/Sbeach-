@@ -5,7 +5,7 @@
     <meta name="description" content="Prévia da futura bilheteira própria do South Beach Maputo." />
     <title>Bilhetes — South Beach Maputo</title>
     <link rel="preconnect" href="https://static.wixstatic.com" /><link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="tickets.css" /><script src="script.js" defer></script><script src="language.js" defer></script><script src="tickets.js" defer></script>
+    <link rel="stylesheet" href="tickets.css" /><script src="script.js" defer></script><script src="language.js" defer></script><script src="api-config.js" defer></script><script src="tickets.js" defer></script><script src="tickets-live.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Saltar para o conteúdo</a>
@@ -16,6 +16,7 @@
         <div class="tickets-hero-content"><p class="eyebrow eyebrow-light" data-ticket-text="kicker">BILHETES SOUTH BEACH</p><h1 data-ticket-text="title">Os seus próximos<br /><em>momentos começam aqui.</em></h1><p data-ticket-text="intro">Uma bilheteira própria, com eventos, pagamentos e confirmações geridos directamente pelo South Beach.</p></div>
         <span class="subpage-caption">South Beach · Maputo</span>
       </section>
+      <section class="live-tickets section-wrap" data-live-tickets hidden aria-live="polite"></section>
       <section class="ticket-preview section-wrap" aria-labelledby="preview-title">
         <div class="ticket-preview-heading"><div><p class="eyebrow" data-ticket-text="previewLabel">PRÉVIA INTERACTIVA</p><h2 id="preview-title" data-ticket-text="previewTitle">Como será <em>escolher bilhetes.</em></h2></div><span class="preview-badge" data-ticket-text="demoBadge">DEMONSTRAÇÃO</span></div>
         <div class="preview-notice" role="status"><span aria-hidden="true">i</span><p data-ticket-text="notice">Esta é uma prévia do checkout. Nenhum evento está à venda e nenhum pagamento será iniciado.</p></div>
