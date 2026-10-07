@@ -18,7 +18,7 @@
       bad: 'Verifique os dados e a quantidade escolhida e tente novamente.',
       down: 'Não foi possível reservar agora. Tente novamente ou contacte a equipa.',
       less: 'Diminuir quantidade', more: 'Aumentar quantidade',
-      back: '← Todos os eventos', missing: 'Este evento não está disponível.'
+      back: '← Todos os eventos', missing: 'Este evento não está disponível.', order: 'O seu pedido', categories: 'Escolha os bilhetes'
     },
     en: {
       label: 'ON SALE', total: 'Total', tickets: 'Selected tickets', none: 'Choose how many tickets you want.',
@@ -30,7 +30,7 @@
       bad: 'Check your details and the quantities and try again.',
       down: 'We could not reserve right now. Try again or contact the team.',
       less: 'Decrease quantity', more: 'Increase quantity',
-      back: '← All events', missing: 'This event is not available.'
+      back: '← All events', missing: 'This event is not available.', order: 'Your order', categories: 'Choose your tickets'
     }
   };
   const holdMinutes = 15;
@@ -68,6 +68,9 @@
     const fields = [field('fullName', 'text', 'name', true, 'name'), field('phone', 'tel', 'tel', true, 'phone'), field('email', 'email', 'email', false, 'email')];
 
     const options = el('div', { className: 'ticket-options' });
+    const optionsTitle = el('p', { className: 'ticket-options-title' });
+    options.append(optionsTitle);
+    refreshers.push(() => { optionsTitle.textContent = t('categories'); });
     const typeViews = event.ticketTypes.map((type) => {
       const canBuy = type.onSale && type.available > 0;
       const output = el('output', { textContent: '0' });
@@ -79,6 +82,7 @@
         const max = Math.min(type.maxPerOrder, type.available);
         quantities.set(type.id, Math.max(0, Math.min(max, quantities.get(type.id) + delta)));
         output.textContent = String(quantities.get(type.id));
+        article.classList.toggle('is-selected', quantities.get(type.id) > 0);
         update();
       };
       minus.addEventListener('click', () => step(-1));
@@ -114,13 +118,14 @@
     const setMessage = (key, values, ok = false) => { message = key ? { key, values } : null; status.textContent = key ? t(key, values) : ''; status.classList.toggle('ok', ok); };
 
     const noteLine = el('p', { className: 'checkout-hint' });
-    const form = el('form', { className: 'checkout-card' },
+    const orderTitle = el('h3', { className: 'checkout-title' });
+    const form = el('form', { className: 'checkout-card' }, orderTitle,
       el('div', { className: 'checkout-line' }, el('span', { className: 'live-count-label' }), count),
       el('div', { className: 'checkout-line checkout-total' }, el('span', { className: 'live-total-label' }), total),
       hint, ...fields.map((f) => f.label), submit, noteLine, status);
     const countLabel = form.querySelector('.live-count-label');
     const totalLabel = form.querySelector('.live-total-label');
-    refreshers.push(() => { countLabel.textContent = t('tickets'); totalLabel.textContent = t('total'); });
+    refreshers.push(() => { countLabel.textContent = t('tickets'); totalLabel.textContent = t('total'); orderTitle.textContent = t('order'); });
 
     form.addEventListener('submit', async (submitEvent) => {
       submitEvent.preventDefault();
@@ -154,8 +159,8 @@
 
     const info = el('div', { className: 'live-event-info' },
       el('p', { className: 'eyebrow' }), el('h2', { textContent: event.title }),
-      el('p', { textContent: `${when(event.startsAt)} · ${event.location}` }));
-    if (event.description) info.append(el('p', { textContent: event.description }));
+      el('p', { className: 'live-event-meta', textContent: `${when(event.startsAt)}  ·  ${event.location}` }));
+    if (event.description) info.append(el('p', { className: 'live-event-about', textContent: event.description }));
     const head = el('div', { className: 'live-event-head' });
     if (event.posterUrl) {
       head.classList.add('has-poster');
