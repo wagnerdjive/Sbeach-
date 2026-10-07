@@ -420,7 +420,7 @@ body.refined{
 .refined .primary-nav a.nav-book[aria-current=page]{color:#fff}
 
 /* Menu items managed by staff */
-.refined .menu-panel.has-items{display:block}
+.refined .menu-panel.has-items:not([hidden]){display:block}
 .refined .menu-panel.has-items>div:first-child{margin-bottom:34px}
 .refined .menu-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:36px 56px;border-top:1px solid var(--line);padding-top:34px}
 .refined .menu-items[hidden]{display:none}
@@ -432,3 +432,4 @@ body.refined{
 .refined .menu-section li p{flex-basis:100%;margin:0;font-size:12px;line-height:1.7;color:var(--muted)}
 .refined .menu-empty{margin:0;color:var(--muted);font-size:13px}
 .refined .menu-external[hidden]{display:none}
+.refined .menu-panel[hidden]{display:none}
