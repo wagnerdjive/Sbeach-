@@ -2,6 +2,7 @@ package mz.co.southbeach.tickets.notification;
 
 import mz.co.southbeach.reservations.notification.SmsGateway;
 import mz.co.southbeach.tickets.service.OrderPaid;
+import mz.co.southbeach.tickets.service.TicketPdfService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -20,16 +21,18 @@ public class TicketNotifier {
 
     private final ObjectProvider<JavaMailSender> mailSender;
     private final ObjectProvider<SmsGateway> sms;
+    private final TicketPdfService pdfs;
     private final boolean emailEnabled;
     private final String from;
     private final String siteUrl;
 
-    public TicketNotifier(ObjectProvider<JavaMailSender> mailSender, ObjectProvider<SmsGateway> sms,
+    public TicketNotifier(ObjectProvider<JavaMailSender> mailSender, ObjectProvider<SmsGateway> sms, TicketPdfService pdfs,
                           @Value("${app.notifications.email.enabled}") boolean emailEnabled,
                           @Value("${app.notifications.email.from}") String from,
                           @Value("${app.site-url}") String siteUrl) {
         this.mailSender = mailSender;
         this.sms = sms;
+        this.pdfs = pdfs;
         this.emailEnabled = emailEnabled;
         this.from = from;
         this.siteUrl = siteUrl;
@@ -58,7 +61,15 @@ public class TicketNotifier {
         try {
             gateway.send(order.getPhone(), text);
         } catch (RuntimeException exception) {
-            log.warn("Ticket SMS for order {} failed: {}", order.getReference(), exception.getClass().getSimpleName());
+            log.warn("Ticket SMS for order {} failed: {}", order.getReference(), exception.getMessage());
+            return; // the customer is out of reach (e.g. WhatsApp's 24-hour window): do not try the file either
+        }
+        if (!gateway.supportsDocuments()) return;
+        try {
+            pdfs.forAccessToken(order.getAccessToken()).ifPresent(pdf -> gateway.sendDocument(order.getPhone(), pdf.filename(),
+                    "Os seus bilhetes da encomenda " + order.getReference() + " (PDF).", pdf.bytes()));
+        } catch (RuntimeException exception) {
+            log.warn("Ticket PDF for order {} could not be sent: {}", order.getReference(), exception.getMessage());
         }
     }
 

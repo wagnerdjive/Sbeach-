@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -31,6 +32,7 @@ public class WhatsAppTextGateway implements SmsGateway {
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
     private final ObjectMapper json = new ObjectMapper();
     private final String endpoint;
+    private final String mediaEndpoint;
     private final String token;
 
     public WhatsAppTextGateway(
@@ -41,7 +43,9 @@ public class WhatsAppTextGateway implements SmsGateway {
         if (phoneNumberId == null || phoneNumberId.isBlank() || token == null || token.isBlank()) {
             throw new IllegalStateException("WhatsApp is enabled: set WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_TOKEN.");
         }
-        this.endpoint = baseUrl.replaceAll("/+$", "") + "/" + apiVersion + "/" + phoneNumberId.strip() + "/messages";
+        var root = baseUrl.replaceAll("/+$", "") + "/" + apiVersion + "/" + phoneNumberId.strip();
+        this.endpoint = root + "/messages";
+        this.mediaEndpoint = root + "/media";
         this.token = token.strip();
     }
 
@@ -90,6 +94,44 @@ public class WhatsAppTextGateway implements SmsGateway {
             return "WhatsApp refused the message: HTTP " + status + ", code " + code + " — " + error.path("message").asText("no details") + hint;
         } catch (IOException exception) {
             return "WhatsApp refused the message: HTTP " + status;
+        }
+    }
+
+    @Override
+    public boolean supportsDocuments() { return true; }
+
+    /** A PDF is uploaded to WhatsApp first and then sent by its id, so the file never needs a public address. Same 24-hour rule as text. */
+    @Override
+    public void sendDocument(String phone, String filename, String caption, byte[] content) {
+        var to = normalize(phone);
+        var boundary = "----southbeach" + Long.toHexString(System.nanoTime());
+        var head = ("--" + boundary + "\r\nContent-Disposition: form-data; name=\"messaging_product\"\r\n\r\nwhatsapp\r\n"
+                + "--" + boundary + "\r\nContent-Disposition: form-data; name=\"type\"\r\n\r\napplication/pdf\r\n"
+                + "--" + boundary + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"" + filename.replaceAll("[^A-Za-z0-9._-]", "_")
+                + "\"\r\nContent-Type: application/pdf\r\n\r\n").getBytes(StandardCharsets.UTF_8);
+        var tail = ("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8);
+        var multipart = new byte[head.length + content.length + tail.length];
+        System.arraycopy(head, 0, multipart, 0, head.length);
+        System.arraycopy(content, 0, multipart, head.length, content.length);
+        System.arraycopy(tail, 0, multipart, head.length + content.length, tail.length);
+        var upload = HttpRequest.newBuilder(URI.create(mediaEndpoint)).timeout(Duration.ofSeconds(30))
+                .header("Authorization", "Bearer " + token).header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .POST(HttpRequest.BodyPublishers.ofByteArray(multipart)).build();
+        try {
+            var uploaded = http.send(upload, HttpResponse.BodyHandlers.ofString());
+            if (uploaded.statusCode() / 100 != 2) throw new IllegalStateException(describe(uploaded.statusCode(), uploaded.body()));
+            var mediaId = json.readTree(uploaded.body()).path("id").asText("");
+            if (mediaId.isEmpty()) throw new IllegalStateException("WhatsApp did not return a file id");
+            var body = json.writeValueAsString(Map.of("messaging_product", "whatsapp", "recipient_type", "individual", "to", to, "type", "document",
+                    "document", Map.of("id", mediaId, "filename", filename, "caption", caption.length() > 1000 ? caption.substring(0, 1000) : caption)));
+            var message = HttpRequest.newBuilder(URI.create(endpoint)).timeout(Duration.ofSeconds(10))
+                    .header("Authorization", "Bearer " + token).header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(body)).build();
+            var response = http.send(message, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() / 100 != 2) throw new IllegalStateException(describe(response.statusCode(), response.body()));
+        } catch (IOException | InterruptedException exception) {
+            if (exception instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new IllegalStateException("WhatsApp is unreachable (" + exception.getClass().getSimpleName() + ")");
         }
     }
 }

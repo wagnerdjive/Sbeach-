@@ -3,6 +3,7 @@ package mz.co.southbeach.tickets.api;
 import mz.co.southbeach.tickets.api.dto.TicketPassResponse;
 import mz.co.southbeach.tickets.service.QrService;
 import mz.co.southbeach.tickets.service.TicketPassService;
+import mz.co.southbeach.tickets.service.TicketPdfService;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +19,12 @@ import java.time.Duration;
 public class PublicTicketController {
     private final TicketPassService passes;
     private final QrService qr;
+    private final TicketPdfService pdfs;
 
-    public PublicTicketController(TicketPassService passes, QrService qr) {
+    public PublicTicketController(TicketPassService passes, QrService qr, TicketPdfService pdfs) {
         this.passes = passes;
         this.qr = qr;
+        this.pdfs = pdfs;
     }
 
     /** The customer's ticket page data, found by the private token in their link. */
@@ -35,5 +38,13 @@ public class PublicTicketController {
     public ResponseEntity<byte[]> qr(@PathVariable String code) {
         passes.requireCode(code);
         return ResponseEntity.ok().cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate()).body(qr.png(code));
+    }
+
+    /** The same tickets as a PDF (one page per person), found by the private token. Orders without tickets answer 404. */
+    @GetMapping(value = "/{accessToken}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> pdf(@PathVariable String accessToken) {
+        var pdf = pdfs.forAccessToken(accessToken).orElseThrow(() -> new mz.co.southbeach.tickets.service.TicketNotFoundException("Tickets"));
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .header("Content-Disposition", "attachment; filename=\"" + pdf.filename() + "\"").body(pdf.bytes());
     }
 }

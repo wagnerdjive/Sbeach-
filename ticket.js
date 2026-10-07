@@ -6,16 +6,17 @@
   const note = document.querySelector('[data-pass-note]');
   const list = document.querySelector('[data-pass-list]');
   const printButton = document.querySelector('[data-pass-print]');
+  const pdfButton = document.querySelector('[data-pass-pdf]');
 
   const copy = {
     pt: { title: 'Os seus bilhetes', loading: 'A carregar…', invalid: 'Esta ligação não é válida. Confirme a mensagem que recebeu ou contacte o South Beach.', down: 'Não foi possível carregar os bilhetes. Tente novamente dentro de instantes.',
       refunded: 'A encomenda {ref} foi reembolsada: os bilhetes abaixo estão anulados e já não dão entrada.', unpaid: 'A encomenda {ref} ainda aguarda a confirmação do pagamento. Os bilhetes aparecem aqui assim que a equipa a confirmar.', cancelled: 'A encomenda {ref} foi cancelada ou expirou, por isso não tem bilhetes.',
-      ready: 'Encomenda {ref} · mostre o código QR à entrada, no telemóvel ou impresso. Cada código admite uma só pessoa, uma só vez.', used: 'JÁ UTILIZADO', valid: 'VÁLIDO', voided: 'ANULADO', print: 'Imprimir ou guardar em PDF', ticket: 'Bilhete',
+      ready: 'Encomenda {ref} · mostre o código QR à entrada, no telemóvel ou impresso. Cada código admite uma só pessoa, uma só vez.', used: 'JÁ UTILIZADO', valid: 'VÁLIDO', voided: 'ANULADO', print: 'Imprimir', pdf: 'Descarregar PDF', ticket: 'Bilhete',
       kicker: 'SOUTH BEACH · MAPUTO', where: 'Local', ticketOf: '{n} de {total}', order: 'Encomenda', map: 'Ver no mapa', nextDay: 'dia seguinte',
       howto: 'Mostre este código à entrada. Cada código vale para uma pessoa e uma só entrada.' },
     en: { title: 'Your tickets', loading: 'Loading…', invalid: 'This link is not valid. Check the message you received or contact South Beach.', down: 'We could not load your tickets. Please try again shortly.',
       refunded: 'Order {ref} was refunded: the tickets below are void and no longer admit anyone.', unpaid: 'Order {ref} is still waiting for payment confirmation. Your tickets will appear here as soon as the team confirms it.', cancelled: 'Order {ref} was cancelled or expired, so it has no tickets.',
-      ready: 'Order {ref} · show the QR code at the entrance, on your phone or printed. Each code admits one person, once.', used: 'ALREADY USED', valid: 'VALID', voided: 'VOIDED', print: 'Print or save as PDF', ticket: 'Ticket',
+      ready: 'Order {ref} · show the QR code at the entrance, on your phone or printed. Each code admits one person, once.', used: 'ALREADY USED', valid: 'VALID', voided: 'VOIDED', print: 'Print', pdf: 'Download PDF', ticket: 'Ticket',
       kicker: 'SOUTH BEACH · MAPUTO', where: 'Venue', ticketOf: '{n} of {total}', order: 'Order', map: 'View on map', nextDay: 'next day',
       howto: 'Show this code at the entrance. Each code is valid for one person and one entry.' }
   };
@@ -36,6 +37,7 @@
 
   document.querySelector('[data-pass-title]').textContent = t('title');
   printButton.textContent = t('print');
+  pdfButton.textContent = t('pdf');
   printButton.addEventListener('click', () => window.print());
 
   async function load() {
@@ -75,6 +77,9 @@
           el('div', { className: 'pass-tear', ariaHidden: 'true' }), el('div', { className: 'pass-bottom' }, qr, details)));
       });
       printButton.hidden = pass.tickets.length === 0;
+      pdfButton.hidden = pass.tickets.length === 0;
+      pdfButton.href = `${apiOrigin}/api/tickets/${encodeURIComponent(token)}/pdf`;
+      pdfButton.setAttribute('download', `Bilhetes-${pass.orderReference}.pdf`);
     } catch (_) { note.textContent = t('down'); }
   }
   load();

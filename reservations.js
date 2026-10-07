@@ -55,6 +55,10 @@
       }
       const result = await response.json();
       setStatus('sent', { reference: result.reference });
+      await window.SouthBeachWhatsApp?.ready;
+      status.parentElement.querySelector('.whatsapp-cta')?.remove();
+      const whatsapp = window.SouthBeachWhatsApp?.link(result.reference);
+      if (whatsapp) status.insertAdjacentElement('afterend', whatsapp);
       form.reset();
       dateInput.min = today;
     } catch (_) {

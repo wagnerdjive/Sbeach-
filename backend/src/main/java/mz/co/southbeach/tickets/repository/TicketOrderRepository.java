@@ -16,6 +16,7 @@ public interface TicketOrderRepository extends JpaRepository<TicketOrder, Long> 
     List<TicketOrder> findForTypes(java.util.Collection<Long> typeIds);
     Optional<TicketOrder> findByAccessToken(String accessToken);
     Optional<TicketOrder> findByReference(String reference);
+    List<TicketOrder> findTop200ByOrderByCreatedAtDesc();
     Page<TicketOrder> findByStatus(OrderStatus status, Pageable pageable);
     List<TicketOrder> findByStatusAndExpiresAtBefore(OrderStatus status, Instant instant);
 }

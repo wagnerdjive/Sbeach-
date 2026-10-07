@@ -665,3 +665,12 @@ body.pass-page.refined{background:var(--paper);color:var(--ink);font-family:var(
   .refined .pass-card:last-child{break-after:auto}
   .refined .pass-qr img{width:280px;height:280px}
 }
+
+/* WhatsApp buttons and the ticket PDF button */
+.refined .whatsapp-cta{display:flex;align-items:center;justify-content:center;min-height:52px;margin-top:16px;padding:0 20px;border:1px solid #1f8f4f;color:#146c3a;background:transparent;font:600 12px var(--sans);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;text-align:center;transition:background .2s,color .2s}
+.refined .whatsapp-cta:hover{background:#1f8f4f;color:#fff}
+.refined .reservation-form-note+.whatsapp-cta,.refined [data-reservation-status]+.whatsapp-cta{margin-top:14px}
+.refined .pass-pdf{display:block;width:max-content;margin:38px auto 0;text-decoration:none}
+.refined .pass-pdf[hidden]{display:none}
+.refined .pass-pdf+.pass-print{margin-top:12px;background:transparent;color:var(--black);border:1px solid var(--black)}
+@media print{.refined .pass-pdf{display:none}}

@@ -17,6 +17,26 @@ Activar com variáveis de ambiente no servidor (o token é um segredo: nunca no 
 
 Numa conta de teste da Meta, as mensagens só chegam a destinatários autorizados (erro `131030`).
 
+### O cliente abre a conversa (sem custo de modelo) e recebe os bilhetes em PDF
+
+Depois de **reservar bilhetes** ou **pedir uma reserva de mesa**, o site mostra o botão **«Receber … por WhatsApp»**: abre o WhatsApp do cliente com a mensagem já escrita («Quero receber os bilhetes da encomenda TK-…»). Ao enviar, o cliente abre a janela de 24 horas e o site responde sozinho:
+
+- encomenda **paga**: a ligação dos bilhetes **e o PDF** (uma página por pessoa, com QR);
+- encomenda **pendente**: «recebemos o seu pedido»; quando a equipa marca o pagamento, os bilhetes e o PDF seguem para o mesmo WhatsApp (a janela continua aberta);
+- **reserva**: o estado (pendente ou confirmada); a confirmação ou o cancelamento posteriores seguem pelo mesmo canal;
+- sem referência: usa a encomenda ou reserva mais recente feita **com esse mesmo número**; um número desconhecido recebe só uma ajuda curta.
+
+**Privacidade:** só se responde com dados de uma encomenda ao número que a fez (o número vem do próprio WhatsApp, não do texto). Quem escrever uma referência alheia recebe «não encontrámos essa referência associada a este número».
+
+O PDF também se descarrega na página do bilhete («Descarregar PDF») e em `/api/tickets/<código>/pdf`.
+
+**Configurar na Meta (uma vez):**
+1. No servidor, definir `WHATSAPP_VERIFY_TOKEN` (um texto à sua escolha), `WHATSAPP_APP_SECRET` (app Meta → *Definições → Básico → Chave secreta da app*) e `WHATSAPP_BUSINESS_NUMBER` (o número da empresa, só dígitos com indicativo, por exemplo `258865708062`).
+2. Meta → *WhatsApp → Configuração → Webhook*: URL de retorno `https://southbeach.techtarget.host/api/whatsapp/webhook` e o mesmo *token de verificação*; depois subscrever o campo **messages**.
+3. Sem `WHATSAPP_APP_SECRET`, o site recusa todas as chamadas à API de entrada (não consegue confirmar que vêm da Meta), e o botão «Receber por WhatsApp» não aparece sem `WHATSAPP_BUSINESS_NUMBER`.
+
+As falhas de entrega que a Meta comunica (por exemplo, fora da janela de 24 horas) ficam registadas no log do servidor.
+
 ## Fase 2 — modelos (templates) para aprovação da Meta
 
 Fora da janela de 24 horas só se pode escrever com **modelos aprovados**. Todos os modelos abaixo são de categoria **UTILITY** (mensagens sobre algo que o cliente pediu), o que os mantém mais baratos e mais fáceis de aprovar do que os de marketing. Idioma: `pt_PT`.

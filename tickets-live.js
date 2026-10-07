@@ -47,6 +47,7 @@
     return node;
   };
   const refreshers = [];
+  let lastOrder = null; // the reference of the order just placed, to offer "receive on WhatsApp"
 
   function buildEvent(event) {
     const quantities = new Map(event.ticketTypes.map((type) => [type.id, 0]));
@@ -118,11 +119,15 @@
     const setMessage = (key, values, ok = false) => { message = key ? { key, values } : null; status.textContent = key ? t(key, values) : ''; status.classList.toggle('ok', ok); };
 
     const noteLine = el('p', { className: 'checkout-hint' });
+    const whatsapp = el('div', { className: 'live-whatsapp' });
+    const paintWhatsApp = () => { const button = lastOrder && window.SouthBeachWhatsApp?.link(lastOrder); whatsapp.replaceChildren(...(button ? [button] : [])); };
     const orderTitle = el('h3', { className: 'checkout-title' });
     const form = el('form', { className: 'checkout-card' }, orderTitle,
       el('div', { className: 'checkout-line' }, el('span', { className: 'live-count-label' }), count),
       el('div', { className: 'checkout-line checkout-total' }, el('span', { className: 'live-total-label' }), total),
       hint, ...fields.map((f) => f.label), submit, noteLine, status);
+    form.append(whatsapp);
+    refreshers.push(paintWhatsApp);
     const countLabel = form.querySelector('.live-count-label');
     const totalLabel = form.querySelector('.live-total-label');
     refreshers.push(() => { countLabel.textContent = t('tickets'); totalLabel.textContent = t('total'); orderTitle.textContent = t('order'); });
@@ -140,6 +145,9 @@
         });
         if (response.status === 201) {
           const order = await response.json();
+          lastOrder = order.reference;
+          await window.SouthBeachWhatsApp?.ready;
+          paintWhatsApp();
           quantities.forEach((_, id) => quantities.set(id, 0));
           form.reset();
           setMessage('ok', { reference: order.reference, time: clock(order.expiresAt) }, true);

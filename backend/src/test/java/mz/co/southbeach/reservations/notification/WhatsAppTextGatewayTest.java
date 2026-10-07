@@ -47,7 +47,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class WhatsAppTextGatewayTest {
     record Call(String path, String authorization, String contentType, JsonNode body) { }
 
+    record Upload(String path, String authorization, String contentType, byte[] bytes) { }
+
     static final List<Call> CALLS = new CopyOnWriteArrayList<>();
+    static final List<Upload> UPLOADS = new CopyOnWriteArrayList<>();
     static final AtomicInteger NEXT_STATUS = new AtomicInteger(200);
     static volatile String NEXT_BODY = "{\"messaging_product\":\"whatsapp\",\"messages\":[{\"id\":\"wamid.X\"}]}";
     static final HttpServer FAKE = startFake();
@@ -57,7 +60,17 @@ class WhatsAppTextGatewayTest {
             var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
             var mapper = new ObjectMapper();
             server.createContext("/", exchange -> {
-                var raw = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                var rawBytes = exchange.getRequestBody().readAllBytes();
+                if (exchange.getRequestURI().getPath().endsWith("/media")) { // a file upload (multipart), answered with its id
+                    UPLOADS.add(new Upload(exchange.getRequestURI().getPath(), exchange.getRequestHeaders().getFirst("Authorization"),
+                            exchange.getRequestHeaders().getFirst("Content-Type"), rawBytes));
+                    var id = "{\"id\":\"MEDIA-1\"}".getBytes(StandardCharsets.UTF_8);
+                    exchange.sendResponseHeaders(200, id.length);
+                    exchange.getResponseBody().write(id);
+                    exchange.close();
+                    return;
+                }
+                var raw = new String(rawBytes, StandardCharsets.UTF_8);
                 CALLS.add(new Call(exchange.getRequestURI().getPath(), exchange.getRequestHeaders().getFirst("Authorization"),
                         exchange.getRequestHeaders().getFirst("Content-Type"), mapper.readTree(raw)));
                 var response = NEXT_BODY.getBytes(StandardCharsets.UTF_8);
@@ -84,7 +97,7 @@ class WhatsAppTextGatewayTest {
     @Autowired OrderService orders;
 
     @BeforeEach
-    void reset() { CALLS.clear(); NEXT_STATUS.set(200); NEXT_BODY = "{\"messaging_product\":\"whatsapp\",\"messages\":[{\"id\":\"wamid.X\"}]}"; }
+    void reset() { CALLS.clear(); UPLOADS.clear(); NEXT_STATUS.set(200); NEXT_BODY = "{\"messaging_product\":\"whatsapp\",\"messages\":[{\"id\":\"wamid.X\"}]}"; }
 
     @Test
     void numbersAreNormalisedToDigitsWithTheCountryCode() {
@@ -111,7 +124,7 @@ class WhatsAppTextGatewayTest {
         assertThat(call.body().get("to").asText()).isEqualTo("258841234567");
         assertThat(call.body().get("type").asText()).isEqualTo("text"); // plain text: never a template
         assertThat(call.body().has("template")).isFalse();
-        assertThat(call.body().get("text").get("body").asText()).startsWith("Olá! Os seus bilhetes");
+        assertThat(call.body().path("text").path("body").asText()).startsWith("Olá! Os seus bilhetes");
         assertThat(call.body().get("text").get("preview_url").asBoolean()).isTrue();
     }
 
@@ -142,7 +155,7 @@ class WhatsAppTextGatewayTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"CONFIRMED\"}")).andExpect(status().isOk());
 
         await().untilAsserted(() -> assertThat(CALLS).anyMatch(c -> c.body().get("to").asText().equals("258847771111")
-                && c.body().get("text").get("body").asText().contains(reference)));
+                && c.body().path("text").path("body").asText().contains(reference)));
     }
 
     @Test
@@ -164,6 +177,8 @@ class WhatsAppTextGatewayTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString());
         assertThat(paid.get("status").asText()).isEqualTo("PAID");
         await().untilAsserted(() -> assertThat(CALLS).anyMatch(c -> c.body().get("to").asText().equals("258845550001")));
+        Thread.sleep(500);
+        assertThat(UPLOADS).isEmpty(); // refused text: the file is not even attempted
 
         // Delivered: the message carries the customer's private ticket link.
         CALLS.clear(); NEXT_STATUS.set(200);
@@ -172,6 +187,18 @@ class WhatsAppTextGatewayTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).get("ticketsUrl").asText();
         var token = url.substring(url.indexOf("t=") + 2);
         await().untilAsserted(() -> assertThat(CALLS).anyMatch(c -> c.body().get("to").asText().equals("258845550002")
-                && c.body().get("text").get("body").asText().contains("ticket.html?t=" + token)));
+                && c.body().path("text").path("body").asText().contains("ticket.html?t=" + token)));
+        // ...followed by the PDF of the tickets: uploaded first (a real PDF), then sent by its id as a document
+        await().untilAsserted(() -> assertThat(CALLS).anyMatch(c -> "document".equals(c.body().path("type").asText())));
+        var document = CALLS.stream().filter(c -> "document".equals(c.body().path("type").asText())).findFirst().orElseThrow();
+        assertThat(document.body().get("to").asText()).isEqualTo("258845550002");
+        assertThat(document.body().get("document").get("id").asText()).isEqualTo("MEDIA-1");
+        assertThat(document.body().get("document").get("filename").asText()).isEqualTo("Bilhetes-" + ok + ".pdf");
+        assertThat(UPLOADS).hasSize(1);
+        var upload = UPLOADS.get(0);
+        assertThat(upload.path()).isEqualTo("/v99.0/1234567890/media");
+        assertThat(upload.authorization()).isEqualTo("Bearer SECRET-TEST-TOKEN");
+        assertThat(upload.contentType()).startsWith("multipart/form-data");
+        assertThat(new String(upload.bytes(), StandardCharsets.ISO_8859_1)).contains("name=\"messaging_product\"").contains("application/pdf").contains("%PDF-");
     }
 }

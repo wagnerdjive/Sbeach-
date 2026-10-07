@@ -7,6 +7,8 @@ import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 import mz.co.southbeach.tickets.api.dto.OrderRequest;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.text.PDFTextStripper;
 import mz.co.southbeach.tickets.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,6 +193,34 @@ class TicketEntryIntegrationTest {
         admin(get("/api/admin/events/" + ids[0] + "/entry-stats"), "").andExpect(jsonPath("$.admitted", is(1)));
         mvc.perform(post("/api/admin/check-in/peek").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"eventId\":" + ids[0] + ",\"code\":\"" + code + "\"}")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void theTicketsAlsoComeAsAPdfWithOnePagePerPerson() throws Exception {
+        var ids = event("pdf-night");
+        var pending = paidOrder("pdf-night", ids[1], 1);
+        var pendingUrl = body(admin(post("/api/admin/orders/" + pending + "/cancel"), Map.of())).path("ticketsUrl").asText("");
+        var reference = paidOrder("pdf-night", ids[1], 3);
+        var token = markPaid(reference).get("ticketsUrl").asText();
+        token = token.substring(token.indexOf("t=") + 2);
+
+        var response = mvc.perform(get("/api/tickets/" + token + "/pdf")).andExpect(status().isOk()).andReturn().getResponse();
+        assertThat(response.getContentType()).isEqualTo("application/pdf");
+        assertThat(response.getHeader("Content-Disposition")).contains("Bilhetes-" + reference + ".pdf");
+        assertThat(response.getHeader("Cache-Control")).contains("no-store");
+        try (var pdf = Loader.loadPDF(response.getContentAsByteArray())) {
+            assertThat(pdf.getNumberOfPages()).isEqualTo(3);
+            var text = new PDFTextStripper().getText(pdf);
+            assertThat(text).contains("Evento pdf-night").contains("VIP").contains(reference).contains("1 de 3").contains("3 de 3").contains("South Beach");
+            for (var ticket : passes("x?t=" + token).get("tickets")) assertThat(text).contains(ticket.get("code").asText());
+        }
+        // A used ticket is shown as such, and unknown, unpaid or cancelled links have no PDF.
+        var code = passes("x?t=" + token).get("tickets").get(0).get("code").asText();
+        checkIn(ids[0], code);
+        try (var pdf = Loader.loadPDF(mvc.perform(get("/api/tickets/" + token + "/pdf")).andReturn().getResponse().getContentAsByteArray())) {
+            assertThat(new PDFTextStripper().getText(pdf)).contains("UTILIZADO");
+        }
+        mvc.perform(get("/api/tickets/NOSUCHTOKENNOSUCHTOKEN/pdf")).andExpect(status().isNotFound());
     }
 
     @Test

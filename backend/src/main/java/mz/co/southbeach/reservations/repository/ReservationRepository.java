@@ -16,6 +16,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Page<Reservation> findAllByOrderByCreatedAtDesc(Pageable pageable);
     java.util.List<Reservation> findByStatusAndRequestedDateAndReminderSentAtIsNull(ReservationStatus status, LocalDate date);
     java.util.Optional<Reservation> findByReference(String reference);
+    java.util.List<Reservation> findTop200ByOrderByCreatedAtDesc();
 
     @Query("""
             select coalesce(sum(r.partySize), 0) from Reservation r
