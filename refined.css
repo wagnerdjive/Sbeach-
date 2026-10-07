@@ -554,3 +554,15 @@ body.refined{
   .refined .ticket-option-action{justify-items:start;text-align:left;min-width:0}
   .refined .ticket-option-action small{text-align:left}
 }
+
+/* Entrance of the page headers and a soft change when a tab's content is swapped */
+@media (prefers-reduced-motion:no-preference){
+  @keyframes sb-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  .refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content)>*{animation:sb-rise 1s cubic-bezier(.2,.6,.2,1) both}
+  .refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content)>*:nth-child(2){animation-delay:.12s}
+  .refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content)>*:nth-child(3){animation-delay:.24s}
+  .refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content)>*:nth-child(n+4){animation-delay:.36s}
+  .refined .menu-panel:not([hidden]){animation:sb-rise .6s ease both}
+  .refined .menu-items>*{animation:sb-rise .55s ease both}
+  .refined .site-header .primary-nav a,.refined .nav-dropdown{transition:color .25s,opacity .25s}
+}
