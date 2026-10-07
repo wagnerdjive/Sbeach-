@@ -447,3 +447,6 @@ body.refined{
 .refined .menu-section li p{flex-basis:100%;margin:3px 0 0;font-size:12.5px;line-height:1.6;color:var(--muted)}
 .refined .menu-empty{margin:0;text-align:center;color:var(--muted);font-size:13px}
 @media(max-width:700px){.refined .menu-section ul{columns:1}.refined .menu-groups-nav{gap:0 22px}.refined .menu-section h4{gap:12px}}
+.refined .menu-section{margin-bottom:58px}
+.refined .menu-section:last-child{margin-bottom:10px}
+.refined .menu-section h4{font-size:clamp(26px,3vw,34px)}

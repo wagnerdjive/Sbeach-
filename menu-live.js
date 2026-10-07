@@ -1,4 +1,4 @@
-// Shows the dishes and drinks managed by staff in each menu panel, one group and one section at a time.
+// Shows the dishes and drinks managed by staff in each menu panel, one group (the tabs: À Lá Carte, Sushi, Tapas, Bebidas, Cocktails) at a time.
 // A space with no items keeps the link to its full menu.
 (() => {
   const lists = [...document.querySelectorAll('[data-menu-items]')];
@@ -11,7 +11,7 @@
   const pick = (pt, en) => (language() === 'en' ? en || translations[pt] || pt : pt);
   const price = (cents) => `${(cents / 100).toLocaleString(language() === 'en' ? 'en-GB' : 'pt-PT', { minimumFractionDigits: cents % 100 ? 2 : 0, maximumFractionDigits: 2 })} MZN`;
   let items = null;
-  const chosen = {}; // group and section picked in each space and kind; kept across re-renders and language switches
+  const chosen = {}; // group picked in each space; kept across re-renders and language switches
 
   // Groups items by a key, in order of first appearance. Items without a key share one unnamed group.
   function bucket(list, keyOf) {
@@ -64,46 +64,31 @@
 
   function render() {
     if (!items) return;
-    const pressed = document.querySelector('[data-menu-category][aria-pressed="true"]');
-    const kind = (pressed?.dataset.menuCategory || 'food').toUpperCase();
     lists.forEach((list) => {
       const own = items.filter((item) => item.venue === list.dataset.menuItems);
       const panel = list.closest('[data-menu-panel]');
       panel.classList.toggle('has-items', own.length > 0);
       panel.querySelector('.menu-external')?.toggleAttribute('hidden', own.length > 0);
       list.hidden = own.length === 0;
-      const shown = own.filter((item) => item.kind === kind);
+      if (!own.length) return;
       const blocks = [];
-      if (!shown.length && own.length) {
-        const none = document.createElement('p');
-        none.className = 'menu-empty';
-        none.textContent = language() === 'en' ? 'Nothing listed here yet.' : 'Ainda não há itens nesta categoria.';
-        blocks.push(none);
-      } else if (shown.length) {
-        const key = `${list.dataset.menuItems}:${kind}`;
-        const state = (chosen[key] ||= {});
-        const groups = bucket(shown, (item) => item.groupPt || '');
-        if (!groups.has(state.group)) state.group = [...groups.keys()][0];
-        if (groups.size > 1) {
-          blocks.push(pills('menu-groups-nav', [...groups].map(([group, rows]) => ({ key: group, label: pick(group, rows[0].groupEn) })),
-            state.group, (group) => { state.group = group; render(); }));
-        }
-        const sections = bucket(groups.get(state.group), (item) => item.sectionPt);
-        if (!sections.has(state.section)) state.section = [...sections.keys()][0];
-        if (sections.size > 1) {
-          blocks.push(pills('menu-sections-nav', [...sections].map(([section, rows]) => ({ key: section, label: pick(section, rows[0].sectionEn) })),
-            state.section, (section) => { state.section = section; render(); }));
-        }
-        const rows = sections.get(state.section);
+      const groups = bucket(own, (item) => item.groupPt || '');
+      const state = (chosen[list.dataset.menuItems] ||= {});
+      if (!groups.has(state.group)) state.group = [...groups.keys()][0];
+      if (groups.size > 1) {
+        blocks.push(pills('menu-groups-nav', [...groups].map(([group, rows]) => ({ key: group, label: pick(group, rows[0].groupEn) })),
+          state.group, (group) => { state.group = group; render(); }));
+      }
+      bucket(groups.get(state.group), (item) => item.sectionPt).forEach((rows, section) => {
         const block = document.createElement('section');
         block.className = 'menu-section';
         const heading = document.createElement('h4');
-        heading.textContent = pick(state.section, rows[0].sectionEn);
+        heading.textContent = pick(section, rows[0].sectionEn);
         const dishes = document.createElement('ul');
         rows.forEach((item) => dishes.append(dish(item)));
         block.append(heading, dishes);
         blocks.push(block);
-      }
+      });
       list.replaceChildren(...blocks);
     });
   }
@@ -113,6 +98,5 @@
     .then((list) => { if (Array.isArray(list)) { items = list; render(); } })
     .catch(() => { /* keep the links to the full menus */ });
 
-  document.querySelectorAll('[data-menu-category]').forEach((button) => button.addEventListener('click', () => setTimeout(render, 0)));
   document.querySelectorAll('[data-language-toggle]').forEach((button) => button.addEventListener('click', () => setTimeout(render, 0)));
 })();
