@@ -13,6 +13,8 @@ public class MenuItem {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 12) private Venue venue;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 8) private Kind kind;
+    @Column(name = "group_pt", length = 60) private String groupPt;
+    @Column(name = "group_en", length = 60) private String groupEn;
     @Column(name = "section_pt", nullable = false, length = 80) private String sectionPt;
     @Column(name = "section_en", length = 80) private String sectionEn;
     @Column(name = "name_pt", nullable = false, length = 120) private String namePt;
@@ -31,9 +33,9 @@ public class MenuItem {
         this.createdAt = now;
     }
 
-    public void update(Venue venue, Kind kind, String sectionPt, String sectionEn, String namePt, String nameEn,
+    public void update(Venue venue, Kind kind, String groupPt, String groupEn, String sectionPt, String sectionEn, String namePt, String nameEn,
                        String descriptionPt, String descriptionEn, Long priceCents, boolean visible) {
-        this.venue = venue; this.kind = kind; this.sectionPt = sectionPt; this.sectionEn = sectionEn;
+        this.venue = venue; this.kind = kind; this.groupPt = groupPt; this.groupEn = groupEn; this.sectionPt = sectionPt; this.sectionEn = sectionEn;
         this.namePt = namePt; this.nameEn = nameEn; this.descriptionPt = descriptionPt; this.descriptionEn = descriptionEn;
         this.priceCents = priceCents; this.visible = visible;
     }
@@ -43,6 +45,8 @@ public class MenuItem {
     public Long getId() { return id; }
     public Venue getVenue() { return venue; }
     public Kind getKind() { return kind; }
+    public String getGroupPt() { return groupPt; }
+    public String getGroupEn() { return groupEn; }
     public String getSectionPt() { return sectionPt; }
     public String getSectionEn() { return sectionEn; }
     public String getNamePt() { return namePt; }

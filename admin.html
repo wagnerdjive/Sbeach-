@@ -84,6 +84,8 @@
             <div class="admin-form-grid">
               <label>Espaço<select name="venue"><option value="RESTAURANT">Restaurante</option><option value="BEACH">Beach Bar</option><option value="SPORTS">Sports Bar</option></select></label>
               <label>Tipo<select name="kind"><option value="FOOD">Comida</option><option value="DRINKS">Bebidas</option></select></label>
+              <label>Grupo (português, opcional)<input name="groupPt" maxlength="60" placeholder="Ex.: Sushi, Bebidas, Cocktails" /></label>
+              <label>Grupo (inglês, opcional)<input name="groupEn" maxlength="60" /></label>
               <label>Secção (português)<input name="sectionPt" required maxlength="80" placeholder="Ex.: Sushi, Entradas, Cocktails" /></label>
               <label>Secção (inglês, opcional)<input name="sectionEn" maxlength="80" /></label>
               <label>Nome (português)<input name="namePt" required maxlength="120" /></label>
@@ -95,7 +97,7 @@
             </div>
             <div class="admin-form-actions"><button class="admin-primary" type="submit">Guardar item</button><button type="button" data-cancel-menu-form>Fechar</button></div>
           </form>
-          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Espaço</th><th>Secção</th><th>Item</th><th>Preço</th><th>Estado</th><th>Acções</th></tr></thead><tbody data-menu-rows></tbody></table></div>
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Espaço</th><th>Grupo · secção</th><th>Item</th><th>Preço</th><th>Estado</th><th>Acções</th></tr></thead><tbody data-menu-rows></tbody></table></div>
           <p class="admin-empty" data-menu-empty hidden>Ainda não há itens. Enquanto um espaço não tiver itens, a página Menus mostra a ligação para o menu completo.</p>
         </div>
 

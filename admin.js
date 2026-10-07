@@ -690,7 +690,7 @@
     $('[data-menu-form-title]').textContent = item ? 'Editar item' : 'Novo item';
     const f = menuForm.elements;
     if (item) {
-      f.venue.value = item.venue; f.kind.value = item.kind; f.sectionPt.value = item.sectionPt; f.sectionEn.value = item.sectionEn ?? '';
+      f.venue.value = item.venue; f.kind.value = item.kind; f.groupPt.value = item.groupPt ?? ''; f.groupEn.value = item.groupEn ?? ''; f.sectionPt.value = item.sectionPt; f.sectionEn.value = item.sectionEn ?? '';
       f.namePt.value = item.namePt; f.nameEn.value = item.nameEn ?? ''; f.descriptionPt.value = item.descriptionPt ?? ''; f.descriptionEn.value = item.descriptionEn ?? '';
       f.price.value = item.priceCents == null ? '' : String(item.priceCents / 100); f.visible.value = String(item.visible);
     }
@@ -702,7 +702,7 @@
     submitEvent.preventDefault();
     const f = menuForm.elements, text = (field) => f[field].value.trim() || null;
     const price = f.price.value.trim();
-    const body = { venue: f.venue.value, kind: f.kind.value, sectionPt: f.sectionPt.value.trim(), sectionEn: text('sectionEn'), namePt: f.namePt.value.trim(),
+    const body = { venue: f.venue.value, kind: f.kind.value, groupPt: text('groupPt'), groupEn: text('groupEn'), sectionPt: f.sectionPt.value.trim(), sectionEn: text('sectionEn'), namePt: f.namePt.value.trim(),
       nameEn: text('nameEn'), descriptionPt: text('descriptionPt'), descriptionEn: text('descriptionEn'),
       priceCents: price === '' ? null : Math.round(Number(price) * 100), visible: f.visible.value === 'true' };
     try {
@@ -727,7 +727,7 @@
     menuEmpty.hidden = menuCache.length > 0;
     menuCache.forEach((item, index) => {
       const tr = node('tr');
-      cell(tr, menuVenueLabels[item.venue]); cell(tr, `${menuKindLabels[item.kind]} · ${item.sectionPt}`); cell(tr, item.namePt);
+      cell(tr, menuVenueLabels[item.venue]); cell(tr, `${menuKindLabels[item.kind]} · ${item.groupPt ? item.groupPt + ' · ' : ''}${item.sectionPt}`); cell(tr, item.namePt);
       cell(tr, item.priceCents == null ? '—' : money(item.priceCents)); cell(tr, item.visible ? 'Visível' : 'Oculto');
       const buttons = node('div', undefined, 'admin-row-actions');
       const up = actionButton('↑', () => moveMenuItem(index, -1)); up.disabled = index === 0; up.setAttribute('aria-label', `Mover ${item.namePt} para cima`);

@@ -20,6 +20,8 @@ public class MenuService {
     public record ItemRequest(
             @NotNull MenuItem.Venue venue,
             @NotNull MenuItem.Kind kind,
+            @Size(max = 60) String groupPt,
+            @Size(max = 60) String groupEn,
             @NotBlank @Size(max = 80) String sectionPt,
             @Size(max = 80) String sectionEn,
             @NotBlank @Size(max = 120) String namePt,
@@ -30,11 +32,11 @@ public class MenuService {
             Boolean visible) { }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record ItemResponse(Long id, MenuItem.Venue venue, MenuItem.Kind kind, String sectionPt, String sectionEn,
-                               String namePt, String nameEn, String descriptionPt, String descriptionEn,
+    public record ItemResponse(Long id, MenuItem.Venue venue, MenuItem.Kind kind, String groupPt, String groupEn,
+                               String sectionPt, String sectionEn, String namePt, String nameEn, String descriptionPt, String descriptionEn,
                                Long priceCents, Integer position, Boolean visible) {
         static ItemResponse of(MenuItem i, boolean admin) {
-            return new ItemResponse(i.getId(), i.getVenue(), i.getKind(), i.getSectionPt(), i.getSectionEn(), i.getNamePt(),
+            return new ItemResponse(i.getId(), i.getVenue(), i.getKind(), i.getGroupPt(), i.getGroupEn(), i.getSectionPt(), i.getSectionEn(), i.getNamePt(),
                     i.getNameEn(), i.getDescriptionPt(), i.getDescriptionEn(), i.getPriceCents(),
                     admin ? i.getPosition() : null, admin ? i.isVisible() : null);
         }
@@ -92,7 +94,7 @@ public class MenuService {
     }
 
     private void apply(MenuItem item, ItemRequest r) {
-        item.update(r.venue(), r.kind(), r.sectionPt().strip(), blankToNull(r.sectionEn()), r.namePt().strip(),
+        item.update(r.venue(), r.kind(), blankToNull(r.groupPt()), blankToNull(r.groupEn()), r.sectionPt().strip(), blankToNull(r.sectionEn()), r.namePt().strip(),
                 blankToNull(r.nameEn()), blankToNull(r.descriptionPt()), blankToNull(r.descriptionEn()), r.priceCents(),
                 r.visible() == null || r.visible());
     }

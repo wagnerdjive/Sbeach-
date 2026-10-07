@@ -422,7 +422,7 @@ body.refined{
 /* Menu items managed by staff */
 .refined .menu-panel.has-items:not([hidden]){display:block}
 .refined .menu-panel.has-items>div:first-child{margin-bottom:34px}
-.refined .menu-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:36px 56px;border-top:1px solid var(--line);padding-top:34px}
+.refined .menu-items{border-top:1px solid var(--line);padding-top:30px}
 .refined .menu-items[hidden]{display:none}
 .refined .menu-section h4{margin:0 0 14px;font:500 11px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--blue)}
 .refined .menu-section ul{list-style:none;margin:0;padding:0}
@@ -433,3 +433,17 @@ body.refined{
 .refined .menu-empty{margin:0;color:var(--muted);font-size:13px}
 .refined .menu-external[hidden]{display:none}
 .refined .menu-panel[hidden]{display:none}
+.refined .menu-sections-nav{display:flex;flex-wrap:wrap;gap:8px 26px;margin-bottom:30px}
+.refined .menu-sections-nav button{border:0;border-bottom:1px solid transparent;background:transparent;padding:6px 0;font:500 10px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.refined .menu-sections-nav button:hover{color:var(--blue)}
+.refined .menu-sections-nav button[aria-pressed=true]{color:var(--black);border-bottom-color:var(--sun)}
+.refined .menu-sections-nav button:focus-visible{outline:2px solid var(--sun);outline-offset:3px}
+.refined .menu-section ul{columns:2;column-gap:64px}
+.refined .menu-section li{break-inside:avoid}
+@media(max-width:700px){.refined .menu-section ul{columns:1}}
+.refined .menu-groups-nav{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.refined .menu-groups-nav button{border:1px solid var(--line);background:transparent;padding:10px 18px;font:500 10px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:background .2s,color .2s}
+.refined .menu-groups-nav button:hover{color:var(--blue);border-color:var(--blue)}
+.refined .menu-groups-nav button[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:#fff}
+.refined .menu-groups-nav button:focus-visible{outline:2px solid var(--sun);outline-offset:3px}
+.refined .menu-panel.has-items .menu-tags{display:none}
