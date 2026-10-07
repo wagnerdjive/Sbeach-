@@ -21,7 +21,7 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [ ] Pagamentos reais por M-Pesa, e-Mola e cartão
 - [x] Emissão e envio de bilhetes QR (emissão ao marcar a encomenda como paga; envio por ligação privada, automático quando houver email/SMS)
 - [x] Leitura à entrada (separador *Entrada*; validação única e contagem de entradas)
-- [ ] Relatórios de vendas
+- [x] Relatórios de vendas (separador *Relatórios*: receita, bilhetes por categoria, vendas por dia, estados e exportação CSV)
 
 ## Eventos
 

@@ -18,7 +18,7 @@
         <p class="admin-message" data-login-message role="status"></p>
       </form>
       <section class="admin-panel" data-panel hidden>
-        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button><button type="button" role="tab" data-tab="content" aria-selected="false">Conteúdo do site</button><button type="button" role="tab" data-tab="gallery" aria-selected="false">Galeria</button></div>
+        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button><button type="button" role="tab" data-tab="content" aria-selected="false">Conteúdo do site</button><button type="button" role="tab" data-tab="gallery" aria-selected="false">Galeria</button><button type="button" role="tab" data-tab="reports" aria-selected="false">Relatórios</button></div>
         <p class="admin-message" data-message role="status"></p>
 
         <div data-view="reservations">
@@ -95,6 +95,24 @@
           </form>
           <div class="photo-grid" data-photo-grid></div>
           <p class="admin-empty" data-photo-empty hidden>Ainda não há fotografias. A galeria do site fica vazia.</p>
+        </div>
+
+        <div data-view="reports" hidden>
+          <div class="admin-toolbar">
+            <label>Evento<select data-report-event></select></label>
+            <button type="button" class="admin-refresh" data-refresh-report>Actualizar</button>
+            <button type="button" class="admin-primary" data-report-csv>Descarregar encomendas (CSV)</button>
+          </div>
+          <p class="content-help">Só as encomendas <strong>pagas</strong> contam como receita. As pendentes têm bilhetes reservados mas ainda não foram pagas. O ficheiro CSV tem os contactos dos clientes: guarde-o em segurança.</p>
+          <div class="report-tiles" data-report-tiles></div>
+          <h2 class="report-heading">Por categoria de bilhete</h2>
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Categoria</th><th>Preço</th><th>Capacidade</th><th>Vendidos</th><th>Reservados</th><th>Disponíveis</th><th>Receita</th><th>Entraram</th></tr></thead><tbody data-report-types></tbody></table></div>
+          <h2 class="report-heading">Vendas por dia</h2>
+          <div class="report-days" data-report-days></div>
+          <h2 class="report-heading">Encomendas por estado</h2>
+          <div class="report-statuses" data-report-statuses></div>
+          <h2 class="report-heading">Todos os eventos</h2>
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Evento</th><th>Data</th><th>Bilhetes vendidos</th><th>Receita</th><th>Entraram</th></tr></thead><tbody data-report-all></tbody></table></div>
         </div>
 
         <div data-view="entry" hidden>

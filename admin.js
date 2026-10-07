@@ -132,7 +132,7 @@
   // ---- Tabs -------------------------------------------------------------
   const views = Object.fromEntries([...document.querySelectorAll('[data-view]')].map((node) => [node.dataset.view, node]));
   const tabs = [...document.querySelectorAll('[data-tab]')];
-  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent(), gallery: () => loadGallery() };
+  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent(), gallery: () => loadGallery(), reports: () => loadReports() };
   function showView(name) {
     tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.tab === name)));
     Object.entries(views).forEach(([key, node]) => { node.hidden = key !== name; });
@@ -460,6 +460,81 @@
     });
   }
   tabs.forEach((tab) => tab.addEventListener('click', () => { if (tab.dataset.tab !== 'entry') stopCamera(); }));
+
+  // ---- Sales reports ----------------------------------------------------------
+  const reportEvent = $('[data-report-event]'), reportTiles = $('[data-report-tiles]');
+  const dayFormat = new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', timeZone: 'UTC' });
+
+  function tile(label, value, hint) {
+    const box = node('div', undefined, 'report-tile');
+    box.append(node('span', label), node('strong', value));
+    if (hint) box.append(node('small', hint));
+    return box;
+  }
+
+  function renderReport(report) {
+    reportTiles.replaceChildren(
+      tile('Receita (paga)', money(report.revenueMinor)),
+      tile('Bilhetes vendidos', String(report.ticketsSold), `${report.paidOrders} encomenda(s) paga(s)`),
+      tile('Entraram', String(report.admitted), report.ticketsSold ? `${Math.round((report.admitted / report.ticketsSold) * 100)}% dos vendidos` : ''),
+      tile('Reservados (por pagar)', String(report.byType.reduce((sum, type) => sum + type.held, 0))));
+    const types = $('[data-report-types]');
+    types.replaceChildren();
+    report.byType.forEach((type) => {
+      const tr = types.insertRow();
+      cell(tr, type.name); cell(tr, money(type.priceMinor)); cell(tr, type.capacity); cell(tr, type.sold); cell(tr, type.held);
+      cell(tr, type.available); cell(tr, money(type.revenueMinor)); cell(tr, type.admitted);
+    });
+    const days = $('[data-report-days]');
+    days.replaceChildren();
+    if (!report.byDay.length) days.append(node('p', 'Ainda não há vendas pagas.', 'admin-empty'));
+    const peak = Math.max(1, ...report.byDay.map((day) => day.tickets));
+    report.byDay.forEach((day) => {
+      const bar = node('div', undefined, 'report-bar');
+      bar.style.setProperty('--w', `${Math.max(2, Math.round((day.tickets / peak) * 100))}%`);
+      bar.append(node('span', dayFormat.format(new Date(`${day.date}T00:00:00Z`))), node('i'), node('strong', `${day.tickets} bilhete(s) · ${money(day.revenueMinor)}`));
+      days.append(bar);
+    });
+    const statuses = $('[data-report-statuses]');
+    statuses.replaceChildren();
+    if (!report.byStatus.length) statuses.append(node('p', 'Sem encomendas.', 'admin-empty'));
+    report.byStatus.forEach((row) => {
+      const chip = node('span', undefined, 'report-chip');
+      chip.append(badge(row.status, orderStatusLabels), document.createTextNode(` ${row.orders} encomenda(s) · ${row.tickets} bilhete(s)`));
+      statuses.append(chip);
+    });
+  }
+
+  async function loadReports() {
+    const all = await api('/api/admin/reports/events');
+    const previous = reportEvent.value;
+    reportEvent.replaceChildren(...all.map((report) => new Option(`${report.title} — ${showDate(report.startsAt)}`, report.eventId)));
+    if (previous && all.some((report) => String(report.eventId) === previous)) reportEvent.value = previous;
+    const rows = $('[data-report-all]');
+    rows.replaceChildren();
+    all.forEach((report) => {
+      const tr = rows.insertRow();
+      cell(tr, report.title); cell(tr, showDate(report.startsAt)); cell(tr, report.ticketsSold); cell(tr, money(report.revenueMinor)); cell(tr, report.admitted);
+    });
+    const current = all.find((report) => String(report.eventId) === reportEvent.value);
+    if (current) renderReport(current);
+    else { reportTiles.replaceChildren(); $('[data-report-types]').replaceChildren(); $('[data-report-days]').replaceChildren(); $('[data-report-statuses]').replaceChildren(); }
+  }
+
+  reportEvent.addEventListener('change', () => loadReports().catch((error) => say(message, error.message)));
+  $('[data-refresh-report]').addEventListener('click', () => loadReports().then(() => say(message, '')).catch((error) => say(message, error.message)));
+  $('[data-report-csv]').addEventListener('click', async () => {
+    if (!reportEvent.value) { say(message, 'Escolha um evento.'); return; }
+    try {
+      const response = await fetch(`${apiOrigin}/api/admin/reports/events/${reportEvent.value}/orders.csv`, { headers: { Authorization: authHeader } });
+      if (!response.ok) throw new Error('Não foi possível gerar o ficheiro.');
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement('a');
+      link.href = url; link.download = `encomendas-evento-${reportEvent.value}.csv`;
+      document.body.append(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (error) { say(message, error.message); }
+  });
 
   // ---- Gallery ---------------------------------------------------------------
   const photoForm = $('[data-photo-form]'), photoGrid = $('[data-photo-grid]'), photoEmpty = $('[data-photo-empty]');

@@ -76,6 +76,10 @@ Marking an order paid issues one ticket per seat. Each has a random 26-character
 
 At the gate, *Entrada* in the staff panel validates a code for the chosen event with `POST /api/admin/check-in` (`{"eventId","code"}`), which always answers 200 with `ADMITTED`, `ALREADY_USED`, `WRONG_EVENT`, `VOID` or `NOT_FOUND`. Admission is a single conditional `UPDATE`, so two scanners reading one code at once admit only one person (tested with 20 concurrent scans). `GET /api/admin/events/{id}/entry-stats` gives admitted vs. issued per ticket type. A wrong-event scan does not consume the ticket. Cancelling a paid order and voiding tickets is not built: it needs a refund flow.
 
+### Sales reports
+
+*Relatórios* in the staff panel shows, per event: revenue, tickets sold, how many people came in, stock held by unpaid orders, a breakdown by ticket type (price, capacity, sold, held, available, revenue, admitted), tickets and revenue per day (Maputo time), and orders per status, plus a table of all events. Only **paid** orders count as revenue. `GET /api/admin/reports/events` and `/events/{id}` return the data; `GET /api/admin/reports/events/{id}/orders.csv` downloads every order (reference, date, status, name, phone, email, tickets, total in MZN) as a UTF-8 CSV that opens in Excel. The CSV contains customers' contact details, so it is staff-only and never cached, and any cell that could run as a spreadsheet formula (starting with `=`, `+`, `-` or `@`) is defused with a leading apostrophe; phone numbers are validated to digits and `+ ( ) . -`, so they keep their leading `+`. Refunds do not exist yet, so nothing is subtracted from revenue.
+
 Stock is taken with single conditional `UPDATE` statements, so concurrent buyers cannot oversell (covered by a 40-buyer test for 10 tickets). Expiry cleanup is not covered by an automated test yet.
 
 ## Site content (CMS)
