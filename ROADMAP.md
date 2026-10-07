@@ -42,4 +42,5 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 ## Direcção visual
 
 - [x] Direcção clara e arejada, com detalhes finos (inspirada em Nikki Beach e SALT), em todas as páginas públicas — `refined.css`, `refined.js`; branch `direcao-visual-clara`, por aprovar
+- [x] Identidade de cor: azul, amarelo e preto do logótipo (`refined.css`, variáveis no topo)
 - [ ] Aprovar e juntar à `main`
