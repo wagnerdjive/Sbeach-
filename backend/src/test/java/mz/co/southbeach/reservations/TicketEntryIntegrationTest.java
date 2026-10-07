@@ -82,6 +82,10 @@ class TicketEntryIntegrationTest {
         return body(admin(post("/api/admin/check-in"), Map.of("eventId", eventId, "code", code)).andExpect(status().isOk()));
     }
 
+    private JsonNode undo(long eventId, String code) throws Exception {
+        return body(admin(post("/api/admin/check-in/undo"), Map.of("eventId", eventId, "code", code)).andExpect(status().isOk()));
+    }
+
     @Test
     void payingIssuesOneUniqueTicketPerSeatOnlyOnce() throws Exception {
         var ids = event("issue-night");
@@ -145,6 +149,24 @@ class TicketEntryIntegrationTest {
         admin(get("/api/admin/events/" + ids[0] + "/entry-stats"), "")
                 .andExpect(status().isOk()).andExpect(jsonPath("$.issued", is(1))).andExpect(jsonPath("$.admitted", is(1)))
                 .andExpect(jsonPath("$.byType[0].name", is("VIP")));
+    }
+
+    @Test
+    void staffCanTakeBackAMistakenEntryAndSeeTheLatestAdmissions() throws Exception {
+        var ids = event("undo-night");
+        var other = event("undo-other-night");
+        var code = passes(markPaid(paidOrder("undo-night", ids[1], 1)).get("ticketsUrl").asText()).get("tickets").get(0).get("code").asText();
+
+        assertThat(undo(ids[0], code).get("outcome").asText()).isEqualTo("NOT_USED");
+        assertThat(checkIn(ids[0], code).get("outcome").asText()).isEqualTo("ADMITTED");
+        admin(get("/api/admin/events/" + ids[0] + "/entry-recent"), "").andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code", is(code))).andExpect(jsonPath("$[0].ticketType", is("VIP")));
+        assertThat(undo(other[0], code).get("outcome").asText()).isEqualTo("NOT_FOUND");
+        assertThat(undo(ids[0], code).get("outcome").asText()).isEqualTo("UNDONE");
+        assertThat(checkIn(ids[0], code).get("outcome").asText()).isEqualTo("ADMITTED");
+        admin(get("/api/admin/events/" + ids[0] + "/entry-recent"), "").andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(1)));
+        mvc.perform(post("/api/admin/check-in/undo").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"eventId\":" + ids[0] + ",\"code\":\"" + code + "\"}")).andExpect(status().isUnauthorized());
     }
 
     @Test

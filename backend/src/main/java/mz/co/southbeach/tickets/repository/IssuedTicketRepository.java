@@ -23,6 +23,14 @@ public interface IssuedTicketRepository extends JpaRepository<IssuedTicket, Long
             + "where t.id = :id and t.status = mz.co.southbeach.tickets.domain.TicketStatus.VALID")
     int markUsed(Long id, Instant now);
 
+    /** Takes back an admission recorded by mistake: only a ticket that is currently used goes back to valid. */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update IssuedTicket t set t.status = mz.co.southbeach.tickets.domain.TicketStatus.VALID, t.usedAt = null "
+            + "where t.id = :id and t.status = mz.co.southbeach.tickets.domain.TicketStatus.USED")
+    int markValidAgain(Long id);
+
+    java.util.List<IssuedTicket> findTop15ByEventIdAndStatusOrderByUsedAtDesc(Long eventId, mz.co.southbeach.tickets.domain.TicketStatus status);
+
     /** Voids every still-valid ticket of an order; tickets already used at the gate are left as they are. Returns how many were voided. */
     @Modifying(flushAutomatically = true)
     @Query("update IssuedTicket t set t.status = mz.co.southbeach.tickets.domain.TicketStatus.VOID "

@@ -27,6 +27,14 @@ public class AdminEntryController {
         return entry.checkIn(request.eventId(), request.code());
     }
 
+    @PostMapping("/check-in/undo")
+    public EntryService.Result undo(@Valid @RequestBody CheckInRequest request) {
+        return entry.undo(request.eventId(), request.code());
+    }
+
+    @GetMapping("/events/{id}/entry-recent")
+    public java.util.List<EntryService.Recent> recent(@PathVariable Long id) { return entry.recent(id); }
+
     @GetMapping("/events/{id}/entry-stats")
     public EntryService.Stats stats(@PathVariable Long id) { return entry.stats(id); }
 }
