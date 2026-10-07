@@ -596,7 +596,8 @@ body.refined{
   .refined :is(.subpage-hero,.reservation-hero,.tickets-hero){min-height:clamp(400px,58svh,520px);padding:64px 0 84px}
   .refined :is(.subpage-hero-shade,.reservation-hero-shade,.tickets-hero-shade){background:linear-gradient(180deg,rgba(5,7,10,.45),rgba(5,7,10,.62))}
   .refined .subpage-hero-copy h1,.refined .reservation-hero-copy h1,.refined .tickets-hero-content h1{font-size:clamp(40px,11.5vw,52px)}
-  .refined .event-card-media{aspect-ratio:3/2}
+  /* Only events without a poster get the shorter placeholder; posters are tall (4:5) and must not be cropped */
+  .refined .event-card-media:not(:has(.event-card-poster)){aspect-ratio:3/2}
   .refined .menu-tabs button{white-space:nowrap;letter-spacing:.1em;font-size:10px;padding:13px 2px}
   .refined .menu-groups-nav{gap:0 18px;flex-wrap:wrap;justify-content:flex-start}
   .refined .menu-groups-nav button{white-space:nowrap;font-size:11px;letter-spacing:.14em}
