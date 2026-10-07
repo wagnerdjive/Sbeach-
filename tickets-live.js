@@ -170,7 +170,7 @@
   }
 
   const wanted = new URLSearchParams(location.search).get('evento');
-  const backLink = el('a', { className: 'live-back', href: 'events.html' });
+  const backLink = el('a', { className: 'live-back', href: 'events.html#bilhetes' });
 
   function show(nodes) {
     refreshers.push(() => { backLink.textContent = t('back'); });
@@ -194,7 +194,7 @@
       show([el('p', { className: 'live-missing', textContent: t('missing') })]);
         return;
       }
-      if (!response.ok) return;
+      if (!response.ok) { document.documentElement.classList.remove('sale-view'); return; }
       const event = await response.json();
       // Re-render after a purchase to show fresh stock, but keep the confirmation message visible.
       const keep = refresh ? root.querySelector('.live-message')?.textContent : '';
@@ -205,7 +205,7 @@
         const status = root.querySelector('.live-message');
         status.textContent = keep; status.classList.toggle('ok', keepOk);
       }
-    } catch (_) { /* keep the demo preview when the API is unreachable */ }
+    } catch (_) { document.documentElement.classList.remove('sale-view'); /* keep the demo preview when the API is unreachable */ }
   }
 
   document.querySelector('[data-language-toggle]')?.addEventListener('click', () => setTimeout(() => refreshers.forEach((run) => run()), 0));

@@ -495,3 +495,14 @@ body.refined{
 .refined .drink-card .eyebrow{margin:20px 0 6px}
 .refined .drink-card h3{margin:0;font:400 27px/1.15 var(--display);font-size-adjust:.46}
 .refined .popular-more{margin:52px 0 0}
+
+/* Coming from an event card: open straight on the sale area, no intro panel and no demo preview */
+.sale-view .tickets-hero,.sale-view .ticket-preview{display:none}
+.sale-view .live-tickets{padding-top:56px}
+.sale-view .live-tickets[hidden]{display:block;min-height:78vh}
+.sale-view .live-tickets[hidden]>*{display:none}
+/* Smooth, continuous page changes: the header stays put and the content cross-fades (ignored by browsers without support) */
+@view-transition{navigation:auto}
+.refined .site-header{view-transition-name:site-header}
+@media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}
+#bilhetes{scroll-margin-top:96px}

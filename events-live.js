@@ -61,6 +61,8 @@
       list.hidden = false;
       // The list replaces the "no events" notice and the "coming soon" teaser.
       document.querySelectorAll('.event-state, .ticketing-teaser').forEach((section) => { section.hidden = true; });
+      // Coming back from a sale screen: land on the list, not on the page's intro.
+      if (location.hash === '#bilhetes') list.scrollIntoView();
     } catch (_) { /* keep the static page when the API is unreachable */ }
   }
 
