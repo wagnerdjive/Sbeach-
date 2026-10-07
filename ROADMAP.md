@@ -10,7 +10,8 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [x] Verificar disponibilidade real e evitar conflitos (capacidade por espaço e horário, de forma atómica)
 - [x] Painel para a equipa (rever, confirmar e cancelar pedidos)
 - [x] Mensagens por WhatsApp enviadas pela equipa (botão *WhatsApp* nas reservas e encomendas; abre a conversa com a mensagem pronta)
-- [ ] Envio automático por WhatsApp (WhatsApp Business API) — pendente: conta Meta Business, número e modelos de mensagem aprovados
+- [x] Envio automático por WhatsApp em texto simples (Cloud API; reservas confirmadas/canceladas, lembretes e bilhete pago; só chega a quem escreveu ao número nas últimas 24 h; desligado por omissão — ver `WHATSAPP.md`)
+- [ ] Envio por WhatsApp com modelos aprovados (fora da janela de 24 h) — pendente: submeter os 6 modelos de `WHATSAPP.md` à Meta e acrescentar o envio por modelo
 - [ ] Confirmações e lembretes por email/SMS — pendente: escolher fornecedor e configurar conta (código base pronto: email por SMTP e interface `SmsGateway`, desligados por omissão)
 - [ ] Publicar a API e configurar a base de dados de produção — pendente: escolher alojamento
 
