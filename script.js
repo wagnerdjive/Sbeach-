@@ -7,16 +7,22 @@ menuButton?.addEventListener('click', () => {
   menuButton.setAttribute('aria-expanded', String(!isOpen));
   menuButton.setAttribute('aria-label', isOpen ? (isEnglish ? 'Open menu' : 'Abrir menu') : (isEnglish ? 'Close menu' : 'Fechar menu'));
   nav?.classList.toggle('is-open', !isOpen);
+  document.documentElement.classList.toggle('menu-open', !isOpen);
+  // The spaces list is useful straight away on a phone, so open it with the menu.
+  if (!isOpen) nav?.querySelectorAll('details.nav-group').forEach((group) => { group.open = true; });
 });
 
-nav?.querySelectorAll('a').forEach((link) => {
-  link.addEventListener('click', () => {
-    nav.classList.remove('is-open');
-    menuButton?.setAttribute('aria-expanded', 'false');
-    menuButton?.setAttribute('aria-label', document.documentElement.lang === 'en' ? 'Open menu' : 'Abrir menu');
-    nav.querySelectorAll('details[open]').forEach((group) => group.removeAttribute('open'));
-  });
-});
+function closeMenu() {
+  nav?.classList.remove('is-open');
+  document.documentElement.classList.remove('menu-open');
+  menuButton?.setAttribute('aria-expanded', 'false');
+  menuButton?.setAttribute('aria-label', document.documentElement.lang === 'en' ? 'Open menu' : 'Abrir menu');
+  nav?.querySelectorAll('details[open]').forEach((group) => group.removeAttribute('open'));
+}
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && nav?.classList.contains('is-open')) { closeMenu(); menuButton?.focus(); } });
+window.matchMedia('(min-width: 701px)').addEventListener?.('change', (query) => { if (query.matches) closeMenu(); });
+
+nav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
 
 const year = document.querySelector('#year');
 if (year) year.textContent = String(new Date().getFullYear());
