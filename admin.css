@@ -26,3 +26,4 @@
 .report-heading{font:500 20px var(--serif);margin:26px 0 10px}.report-days{display:grid;gap:6px;background:#fff;border:1px solid rgba(32,37,31,.1);padding:14px 16px}.report-bar{display:grid;grid-template-columns:70px 1fr auto;gap:12px;align-items:center;font-size:12px}.report-bar i{display:block;height:14px;width:var(--w);background:#92774d;min-width:4px}.report-bar strong{font-weight:600}.report-statuses{display:flex;flex-wrap:wrap;gap:10px}.report-chip{background:#fff;border:1px solid rgba(32,37,31,.1);padding:8px 12px;font-size:12px}
 @media(max-width:600px){.report-bar{grid-template-columns:60px 1fr}.report-bar strong{grid-column:1/-1}}
 .admin-badge.REFUNDED{background:#e9d9f0}
+.whatsapp-button{border-color:#25a05a!important;color:#146c3a!important}.whatsapp-button:not(:disabled):hover{background:#25a05a!important;color:#fff!important}.whatsapp-button:disabled{opacity:.4}
