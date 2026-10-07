@@ -6,7 +6,12 @@
 
 ## Integração com a API
 
-`tickets-live.js` consulta `GET /api/events`. Se a API devolver eventos publicados com categorias, a página mostra esses eventos (preços, disponibilidade, quantidades) e um formulário que cria uma encomenda em `POST /api/orders`, a qual reserva os bilhetes durante 15 minutos. **Não há pagamento**: a página diz-o ao cliente e a equipa conclui a compra por contacto. Se a API não responder ou não houver eventos publicados, continua a aparecer a prévia de demonstração. Para o desenvolvimento local, publique um evento pela API administrativa (ver `backend/README.md`).
+O fluxo do visitante tem dois passos:
+
+1. **`events.html`** (`events-live.js`) mostra a lista de eventos publicados, cada um com cartaz, data, local, preço mínimo ("a partir de") e estado (esgotado ou venda em breve). Se não houver eventos publicados ou a API não responder, mantém-se a página estática com "Sem eventos anunciados".
+2. **`tickets.html?evento=<slug>`** (`tickets-live.js`) é o ecrã de venda desse evento: categorias, quantidades, total e formulário que cria uma encomenda em `POST /api/orders`, a qual reserva os bilhetes durante 15 minutos. Há uma ligação "← Todos os eventos" e, se o evento não existir, uma mensagem. Sem `?evento=`, a página redirecciona para a lista quando há eventos; sem eventos ou sem API, mostra a prévia de demonstração.
+
+**Não há pagamento**: a página diz-o ao cliente e a equipa conclui a compra por contacto. Para o desenvolvimento local, publique um evento pela API administrativa (ver `backend/README.md`) ou pelo painel `admin.html`.
 
 ## O que é necessário para vender bilhetes reais
 

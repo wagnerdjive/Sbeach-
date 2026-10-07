@@ -26,6 +26,7 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 
 - [x] Página estática com arquivo e formulário para eventos privados
 - [x] Área de gestão para a equipa publicar eventos e actualizar datas, textos e bilhetes (`admin.html`: eventos, categorias, encomendas)
+- [x] Lista de eventos em `events.html` e ecrã de venda por evento (`tickets.html?evento=`)
 - [x] Cartaz do evento: carregar no painel e mostrar na página de bilhetes
 
 ## Conteúdo do site

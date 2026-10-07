@@ -17,7 +17,8 @@
       conflict: 'Já não há bilhetes suficientes ou a venda terminou. Os valores foram actualizados.',
       bad: 'Verifique os dados e a quantidade escolhida e tente novamente.',
       down: 'Não foi possível reservar agora. Tente novamente ou contacte a equipa.',
-      less: 'Diminuir quantidade', more: 'Aumentar quantidade'
+      less: 'Diminuir quantidade', more: 'Aumentar quantidade',
+      back: '← Todos os eventos', missing: 'Este evento não está disponível.'
     },
     en: {
       label: 'ON SALE', total: 'Total', tickets: 'Selected tickets', none: 'Choose how many tickets you want.',
@@ -28,7 +29,8 @@
       conflict: 'There are not enough tickets left or the sale has ended. Figures have been refreshed.',
       bad: 'Check your details and the quantities and try again.',
       down: 'We could not reserve right now. Try again or contact the team.',
-      less: 'Decrease quantity', more: 'Increase quantity'
+      less: 'Decrease quantity', more: 'Increase quantity',
+      back: '← All events', missing: 'This event is not available.'
     }
   };
   const holdMinutes = 15;
@@ -167,24 +169,42 @@
     return wrapper;
   }
 
+  const wanted = new URLSearchParams(location.search).get('evento');
+  const backLink = el('a', { className: 'live-back', href: 'events.html' });
+
+  function show(nodes) {
+    refreshers.push(() => { backLink.textContent = t('back'); });
+    root.replaceChildren(backLink, ...nodes);
+    refreshers.forEach((run) => run());
+    root.hidden = false;
+    preview.hidden = true;
+  }
+
   async function load(refresh = false) {
     try {
-      const response = await fetch(`${apiOrigin}/api/events`, { headers: { Accept: 'application/json' } });
+      if (!wanted) {
+        // The sale screen belongs to one event: with no event chosen, send the visitor to the list.
+        const response = await fetch(`${apiOrigin}/api/events`, { headers: { Accept: 'application/json' } });
+        if (response.ok && (await response.json()).some((event) => event.ticketTypes.length > 0)) location.replace('events.html#bilhetes');
+        return;
+      }
+      const response = await fetch(`${apiOrigin}/api/events/${encodeURIComponent(wanted)}`, { headers: { Accept: 'application/json' } });
+      if (response.status === 404) {
+        refreshers.length = 0;
+      show([el('p', { className: 'live-missing', textContent: t('missing') })]);
+        return;
+      }
       if (!response.ok) return;
-      const events = (await response.json()).filter((event) => event.ticketTypes.length > 0);
-      if (!events.length) return;
+      const event = await response.json();
       // Re-render after a purchase to show fresh stock, but keep the confirmation message visible.
       const keep = refresh ? root.querySelector('.live-message')?.textContent : '';
       const keepOk = refresh && root.querySelector('.live-message.ok') !== null;
       refreshers.length = 0;
-      root.replaceChildren(...events.map(buildEvent));
+      show([buildEvent(event)]);
       if (keep) {
         const status = root.querySelector('.live-message');
         status.textContent = keep; status.classList.toggle('ok', keepOk);
       }
-      refreshers.forEach((run) => run());
-      root.hidden = false;
-      preview.hidden = true;
     } catch (_) { /* keep the demo preview when the API is unreachable */ }
   }
 
