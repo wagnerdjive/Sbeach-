@@ -38,7 +38,8 @@ public class TicketPassService {
         List<TicketPassResponse.Pass> passes = issued.stream().map(t -> {
             var event = eventsById.get(t.getEventId());
             return new TicketPassResponse.Pass(t.getCode(), t.getStatus(), typeNames.get(t.getTicketTypeId()),
-                    event.getTitle(), event.getStartsAt(), event.getLocation());
+                    event.getTitle(), event.getStartsAt(), event.getEndsAt(), event.getLocation(),
+                    event.getPosterVersion() == null ? null : "/api/events/" + event.getSlug() + "/poster?v=" + event.getPosterVersion());
         }).toList();
         return new TicketPassResponse(order.getReference(), order.getStatus(), passes);
     }
