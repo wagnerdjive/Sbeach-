@@ -82,6 +82,10 @@ class TicketEntryIntegrationTest {
         return body(admin(post("/api/admin/check-in"), Map.of("eventId", eventId, "code", code)).andExpect(status().isOk()));
     }
 
+    private JsonNode peek(long eventId, String code) throws Exception {
+        return body(admin(post("/api/admin/check-in/peek"), Map.of("eventId", eventId, "code", code)).andExpect(status().isOk()));
+    }
+
     private JsonNode undo(long eventId, String code) throws Exception {
         return body(admin(post("/api/admin/check-in/undo"), Map.of("eventId", eventId, "code", code)).andExpect(status().isOk()));
     }
@@ -169,6 +173,23 @@ class TicketEntryIntegrationTest {
         assertThat(checkIn(ids[0], code).get("outcome").asText()).isEqualTo("ADMITTED");
         admin(get("/api/admin/events/" + ids[0] + "/entry-recent"), "").andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(1)));
         mvc.perform(post("/api/admin/check-in/undo").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"eventId\":" + ids[0] + ",\"code\":\"" + code + "\"}")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void verifyOnlyReadingNeverUsesTheTicket() throws Exception {
+        var ids = event("peek-night");
+        var other = event("peek-other-night");
+        var code = passes(markPaid(paidOrder("peek-night", ids[1], 1)).get("ticketsUrl").asText()).get("tickets").get(0).get("code").asText();
+
+        assertThat(peek(ids[0], code).get("outcome").asText()).isEqualTo("VALID");
+        assertThat(peek(ids[0], code).get("outcome").asText()).isEqualTo("VALID"); // still valid after being looked at
+        assertThat(peek(other[0], code).get("outcome").asText()).isEqualTo("WRONG_EVENT");
+        assertThat(peek(ids[0], "ZZZZZZZZZZZZZZZZZZZZZZZZZZ").get("outcome").asText()).isEqualTo("NOT_FOUND");
+        assertThat(checkIn(ids[0], code).get("outcome").asText()).isEqualTo("ADMITTED");
+        assertThat(peek(ids[0], code).get("outcome").asText()).isEqualTo("ALREADY_USED");
+        admin(get("/api/admin/events/" + ids[0] + "/entry-stats"), "").andExpect(jsonPath("$.admitted", is(1)));
+        mvc.perform(post("/api/admin/check-in/peek").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"eventId\":" + ids[0] + ",\"code\":\"" + code + "\"}")).andExpect(status().isUnauthorized());
     }
 

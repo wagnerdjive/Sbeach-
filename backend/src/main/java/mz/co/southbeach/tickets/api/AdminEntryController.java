@@ -27,6 +27,12 @@ public class AdminEntryController {
         return entry.checkIn(request.eventId(), request.code());
     }
 
+    /** Reads a ticket without using it, for "verify only" scanning. */
+    @PostMapping("/check-in/peek")
+    public EntryService.Result peek(@Valid @RequestBody CheckInRequest request) {
+        return entry.peek(request.eventId(), request.code());
+    }
+
     @PostMapping("/check-in/undo")
     public EntryService.Result undo(@Valid @RequestBody CheckInRequest request) {
         return entry.undo(request.eventId(), request.code());

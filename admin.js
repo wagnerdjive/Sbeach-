@@ -453,7 +453,8 @@
     VOID: ['bad', 'BILHETE ANULADO', () => 'Encomenda reembolsada ou cancelada.'],
     NOT_FOUND: ['bad', 'CÓDIGO DESCONHECIDO', () => 'Confira o código ou peça outro bilhete.'],
     UNDONE: ['warn', 'ENTRADA DESFEITA', (r) => `${r.ticketType || 'Bilhete'} pode voltar a ser lido.`],
-    NOT_USED: ['warn', 'AINDA NÃO ENTROU', () => 'Este bilhete não tem entrada registada.']
+    NOT_USED: ['warn', 'AINDA NÃO ENTROU', () => 'Este bilhete não tem entrada registada.'],
+    VALID: ['info', 'BILHETE VÁLIDO', (r) => `${r.ticketType || ''} · ainda não entrou`]
   };
 
   // Sound and vibration give feedback without looking at the screen. The choice is remembered on this device.
@@ -520,25 +521,44 @@
     target.className = `${target === scanResult ? 'scan-result' : 'entry-result'} ${kind}`;
     target.replaceChildren(node('strong', title), node('span', detail || ''), ...(extra ? [extra] : []));
   }
-  function present(kind, title, detail, undoCode) {
-    const makeUndo = () => (undoCode ? actionButton('Foi engano? Desfazer', () => undoEntry(undoCode)) : null);
-    show(entryResult, kind, title, detail, makeUndo());
-    show(scanResult, kind, title, detail, makeUndo());
-    beep(kind);
+  function idleResult() {
+    entryResult.className = 'entry-result idle'; entryResult.replaceChildren(node('strong', 'Pronto para ler'), node('span', 'Aponte a câmara ao QR do bilhete ou escreva o código.'));
+    scanResult.className = 'scan-result idle'; scanResult.replaceChildren();
+  }
+  function clearResult() { clearTimeout(resetTimer); idleResult(); pausedUntil = 0; lastScan = { code: '', at: 0 }; entryForm.elements.code.focus({ preventScroll: true }); }
+  function present(kind, title, detail, action, secondary) {
+    const buttons = () => [action, secondary].filter(Boolean).map((item, index) => {
+      const button = actionButton(item.label, item.run);
+      if (index === 0 && kind === 'info') button.className = 'result-main';
+      return button;
+    });
+    const row = () => { const wrap = node('div', undefined, 'result-actions'); wrap.append(...buttons()); return buttons().length ? wrap : null; };
+    show(entryResult, kind, title, detail, row());
+    show(scanResult, kind, title, detail, row());
+    beep(kind === 'info' ? 'ok' : kind);
     clearTimeout(resetTimer);
-    resetTimer = setTimeout(() => {
-      entryResult.className = 'entry-result idle'; entryResult.replaceChildren(node('strong', 'Pronto para ler'), node('span', 'Aponte a câmara ao QR do bilhete ou escreva o código.'));
-      scanResult.className = 'scan-result idle'; scanResult.replaceChildren();
-    }, kind === 'ok' ? 4500 : 6500);
+    if (kind === 'info') { pausedUntil = performance.now() + 120000; return; } // waits for a decision: no auto-reset, camera paused
+    resetTimer = setTimeout(idleResult, kind === 'ok' ? 4500 : 6500);
   }
 
+  async function admit(code) {
+    const result = await api('/api/admin/check-in', { method: 'POST', body: JSON.stringify({ eventId: Number(entryEvent.value), code }) });
+    const [kind, title, detail] = outcomes[result.outcome] || ['bad', result.outcome, () => ''];
+    present(kind, title, detail(result), result.outcome === 'ADMITTED' ? { label: 'Foi engano? Desfazer', run: () => undoEntry(code) } : null);
+    pausedUntil = performance.now() + 1200;
+    await refreshGate();
+  }
+
+  // Reading a ticket never uses it: the answer comes with a button, and the entry is only recorded when staff tap it.
   async function validate(code) {
     if (!entryEvent.value) { say(message, 'Escolha o evento.'); return; }
     try {
-      const result = await api('/api/admin/check-in', { method: 'POST', body: JSON.stringify({ eventId: Number(entryEvent.value), code }) });
+      const result = await api('/api/admin/check-in/peek', { method: 'POST', body: JSON.stringify({ eventId: Number(entryEvent.value), code }) });
       const [kind, title, detail] = outcomes[result.outcome] || ['bad', result.outcome, () => ''];
-      present(kind, title, detail(result), result.outcome === 'ADMITTED' ? code : null);
-      await refreshGate();
+      const valid = result.outcome === 'VALID';
+      present(kind, title, detail(result),
+        valid ? { label: 'Confirmar entrada', run: () => admit(code).catch((error) => present('bad', 'ERRO', error.message)) } : null,
+        valid ? { label: 'Ler outro', run: clearResult } : null);
     } catch (error) { present('bad', 'ERRO', error.message); }
   }
 
@@ -622,6 +642,17 @@
     catch (_) { torchButton.hidden = true; }
   });
   tabs.forEach((tab) => tab.addEventListener('click', () => { if (tab.dataset.tab !== 'entry') stopCamera(); }));
+
+  // On a phone the tables become stacked cards; each cell needs its column name for that.
+  function labelCells() {
+    document.querySelectorAll('table.admin-table').forEach((table) => {
+      const names = [...table.querySelectorAll('thead th')].map((th) => th.textContent.trim());
+      table.querySelectorAll('tbody tr').forEach((row) => [...row.cells].forEach((cell, index) => { if (!cell.dataset.label && names[index]) cell.dataset.label = names[index]; }));
+    });
+  }
+  let labelQueued = false;
+  new MutationObserver(() => { if (labelQueued) return; labelQueued = true; requestAnimationFrame(() => { labelQueued = false; labelCells(); }); })
+    .observe(document.body, { childList: true, subtree: true });
 
   // ---- Sales reports ----------------------------------------------------------
   const reportEvent = $('[data-report-event]'), reportTiles = $('[data-report-tiles]');

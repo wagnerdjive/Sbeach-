@@ -15,7 +15,7 @@ import java.util.Locale;
 /** Gate validation: a ticket admits one person once, at the event it was issued for. */
 @Service
 public class EntryService {
-    public enum Outcome { ADMITTED, ALREADY_USED, VOID, WRONG_EVENT, NOT_FOUND, UNDONE, NOT_USED }
+    public enum Outcome { ADMITTED, ALREADY_USED, VOID, WRONG_EVENT, NOT_FOUND, UNDONE, NOT_USED, VALID }
 
     public record Result(Outcome outcome, String ticketType, String eventTitle, Instant usedAt) { }
     public record TypeStats(Long ticketTypeId, String name, long issued, long admitted) { }
@@ -51,6 +51,25 @@ public class EntryService {
         if (tickets.markUsed(ticket.getId(), now) == 1) return new Result(Outcome.ADMITTED, typeName, null, now);
         var current = tickets.findById(ticket.getId()).orElseThrow();
         return new Result(current.getStatus() == TicketStatus.VOID ? Outcome.VOID : Outcome.ALREADY_USED, typeName, null, current.getUsedAt());
+    }
+
+    /** Looks a ticket up exactly as {@link #checkIn} would judge it, but admits nobody: a still-valid ticket answers VALID and stays valid. */
+    @Transactional(readOnly = true)
+    public Result peek(Long eventId, String rawCode) {
+        events.findById(eventId).orElseThrow(() -> new TicketNotFoundException("Event"));
+        var code = rawCode == null ? "" : rawCode.trim().toUpperCase(Locale.ROOT);
+        var found = tickets.findByCode(code);
+        if (found.isEmpty()) return new Result(Outcome.NOT_FOUND, null, null, null);
+        var ticket = found.get();
+        var typeName = types.findById(ticket.getTicketTypeId()).map(t -> t.getName()).orElse(null);
+        if (!ticket.getEventId().equals(eventId)) {
+            return new Result(Outcome.WRONG_EVENT, typeName, events.findById(ticket.getEventId()).map(e -> e.getTitle()).orElse(null), null);
+        }
+        return switch (ticket.getStatus()) {
+            case VOID -> new Result(Outcome.VOID, typeName, null, null);
+            case USED -> new Result(Outcome.ALREADY_USED, typeName, null, ticket.getUsedAt());
+            default -> new Result(Outcome.VALID, typeName, null, null);
+        };
     }
 
     /** Takes back an entry that was recorded by mistake, so the ticket can be read again. */

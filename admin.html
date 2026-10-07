@@ -4,11 +4,11 @@
     <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Painel da equipa — South Beach</title>
-    <link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="admin.css" />
+    <meta name="theme-color" content="#faf8f3" /><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" /><link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="admin.css" />
     <script src="translations.js" defer></script><script src="api-config.js" defer></script><script src="cms.js" defer></script><script src="assets/vendor/jsQR.js" defer></script><script src="admin.js" defer></script>
   </head>
   <body class="admin-page">
-    <header class="admin-header"><a class="admin-brand" href="index.html">SOUTH <em>BEACH</em></a><span>Painel da equipa</span><button type="button" class="admin-logout" data-logout hidden>Terminar sessão</button></header>
+    <header class="admin-header"><a class="admin-brand" href="index.html" aria-label="South Beach — ver o site"><img src="assets/img/f436ca_3797381906234141943c822ba6e77602.png" alt="South Beach" /></a><span>Painel da equipa</span><button type="button" class="admin-logout" data-logout hidden>Terminar sessão</button></header>
     <main class="admin-main">
       <form class="admin-login" data-login>
         <h1>Entrar</h1>
@@ -192,7 +192,7 @@
               <button type="button" class="gate-scan" data-entry-camera>Ler bilhete com a câmara</button>
               <form class="entry-form" data-entry-form>
                 <label>Ou escreva / leia o código<input name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="64" required placeholder="Código do bilhete" /></label>
-                <button class="admin-primary" type="submit">Validar</button>
+                <button class="admin-primary" type="submit">Verificar</button>
               </form>
             </div>
             <div class="entry-result idle" data-entry-result role="status" aria-live="assertive"><strong>Pronto para ler</strong><span>Aponte a câmara ao QR do bilhete ou escreva o código.</span></div>
