@@ -160,7 +160,7 @@
   // ---- Tabs -------------------------------------------------------------
   const views = Object.fromEntries([...document.querySelectorAll('[data-view]')].map((node) => [node.dataset.view, node]));
   const tabs = [...document.querySelectorAll('[data-tab]')];
-  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent(), menu: () => loadMenu(), archive: () => loadArchive(), gallery: () => loadGallery(), reports: () => loadReports() };
+  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => gate.load(), gateusers: () => loadGateUsers(), content: () => loadContent(), menu: () => loadMenu(), archive: () => loadArchive(), gallery: () => loadGallery(), reports: () => loadReports() };
   function showView(name) {
     tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.tab === name)));
     Object.entries(views).forEach(([key, node]) => { node.hidden = key !== name; });
@@ -436,212 +436,111 @@
     }
   }
 
-  // ---- Entry (gate) ---------------------------------------------------------
-  const entryEvent = $('[data-entry-event]'), entryForm = $('[data-entry-form]'), entryResult = $('[data-entry-result]');
-  const cameraButton = $('[data-entry-camera]');
-  const gateAdmitted = $('[data-gate-admitted]'), gateIssued = $('[data-gate-issued]'), gateBar = $('[data-gate-bar]');
-  const gateTypes = $('[data-gate-types]'), gateLog = $('[data-gate-log]'), gateEmpty = $('[data-gate-empty]');
-  const scan = $('[data-scan]'), scanVideo = $('[data-scan-video]'), scanCanvas = $('[data-scan-canvas]');
-  const scanResult = $('[data-scan-result]'), scanHint = $('[data-scan-hint]'), scanCount = $('[data-scan-count]');
-  const torchButton = $('[data-scan-torch]'), soundButton = $('[data-scan-sound]');
-  const currentEventName = () => entryEvent.selectedOptions[0]?.text.split(' — ')[0] || '';
-  const timeOf = (iso) => new Intl.DateTimeFormat('pt-PT', { timeZone: 'Africa/Maputo', timeStyle: 'short' }).format(new Date(iso));
-  const outcomes = {
-    ADMITTED: ['ok', 'ENTRADA AUTORIZADA', (r) => r.ticketType || ''],
-    ALREADY_USED: ['bad', 'JÁ UTILIZADO', (r) => `Entrou às ${timeOf(r.usedAt)}${r.ticketType ? ` · ${r.ticketType}` : ''}`],
-    WRONG_EVENT: ['bad', 'BILHETE DE OUTRO EVENTO', (r) => `Este bilhete é para «${r.eventTitle || 'outro evento'}». Está a validar «${currentEventName()}». Não entra.`],
-    VOID: ['bad', 'BILHETE ANULADO', () => 'Encomenda reembolsada ou cancelada.'],
-    NOT_FOUND: ['bad', 'CÓDIGO DESCONHECIDO', () => 'Confira o código ou peça outro bilhete.'],
-    UNDONE: ['warn', 'ENTRADA DESFEITA', (r) => `${r.ticketType || 'Bilhete'} pode voltar a ser lido.`],
-    NOT_USED: ['warn', 'AINDA NÃO ENTROU', () => 'Este bilhete não tem entrada registada.'],
-    VALID: ['info', 'BILHETE VÁLIDO', (r) => `${r.ticketType || ''} · ainda não entrou`]
-  };
+  // ---- Entry (gate): the same screen door staff use on entrada.html -------------
+  const gate = window.SouthBeachGate.mount($('[data-view="entry"]'), { api });
+  tabs.forEach((tab) => tab.addEventListener('click', () => { if (tab.dataset.tab !== 'entry') gate.stop(); }));
 
-  // Sound and vibration give feedback without looking at the screen. The choice is remembered on this device.
-  let soundOn = (() => { try { return localStorage.getItem('gateSound') !== 'off'; } catch (_) { return true; } })();
-  let audio = null;
-  function beep(kind) {
-    if (kind === 'warn') kind = 'bad';
-    try { navigator.vibrate?.(kind === 'ok' ? 90 : [140, 70, 140]); } catch (_) { /* not supported */ }
-    if (!soundOn) return;
-    try {
-      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-      const tones = kind === 'ok' ? [[880, 0, 0.14]] : [[240, 0, 0.18], [200, 0.24, 0.22]];
-      tones.forEach(([freq, start, length]) => {
-        const osc = audio.createOscillator(), gain = audio.createGain();
-        osc.type = 'sine'; osc.frequency.value = freq; gain.gain.value = 0.18;
-        osc.connect(gain); gain.connect(audio.destination);
-        osc.start(audio.currentTime + start); osc.stop(audio.currentTime + start + length);
-      });
-    } catch (_) { /* no audio available */ }
-  }
-  function paintSound() { soundButton.setAttribute('aria-pressed', String(soundOn)); soundButton.textContent = soundOn ? 'Som ligado' : 'Som desligado'; }
-  soundButton.addEventListener('click', () => { soundOn = !soundOn; try { localStorage.setItem('gateSound', soundOn ? 'on' : 'off'); } catch (_) { /* ignore */ } paintSound(); if (soundOn) beep('ok'); });
-  paintSound();
+  // ---- Door-staff accesses -------------------------------------------------------
+  const gateUserForm = $('[data-gate-user-form]'), gateUserRows = $('[data-gate-user-rows]'), gateUsersEmpty = $('[data-gate-users-empty]');
+  const credentialBox = $('[data-gate-credential]');
+  let editingGateUserId = null, eventsForGate = [];
+  const gateLink = () => `${location.origin}/entrada.html`;
 
-  async function refreshGate() {
-    if (!entryEvent.value) return;
-    const id = entryEvent.value;
-    const [stats, recent] = await Promise.all([api(`/api/admin/events/${id}/entry-stats`), api(`/api/admin/events/${id}/entry-recent`)]);
-    gateAdmitted.textContent = stats.admitted; gateIssued.textContent = stats.issued;
-    gateBar.style.width = stats.issued ? `${Math.round((stats.admitted / stats.issued) * 100)}%` : '0%';
-    scanCount.textContent = `${stats.admitted} de ${stats.issued} entraram`;
-    gateTypes.replaceChildren(...stats.byType.map((type) => node('span', `${type.name} ${type.admitted}/${type.issued}`, 'gate-type')));
-    gateLog.replaceChildren(...recent.map((entry) => {
-      const li = node('li');
-      li.append(node('span', timeOf(entry.usedAt), 'gate-log-time'), node('span', entry.ticketType, 'gate-log-type'), node('code', `…${entry.code.slice(-6)}`));
-      li.append(actionButton('Desfazer', async () => {
-        if (!confirm(`Desfazer a entrada do bilhete …${entry.code.slice(-6)} (${entry.ticketType})? Ele poderá voltar a ser lido.`)) return;
-        await undoEntry(entry.code);
-      }));
-      return li;
-    }));
-    gateEmpty.hidden = recent.length > 0;
+  function closeGateUserForm() { gateUserForm.hidden = true; gateUserForm.reset(); editingGateUserId = null; }
+  $('[data-cancel-gate-user]').addEventListener('click', closeGateUserForm);
+  $('[data-copy-gate-link]').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(gateLink()); say(message, 'Ligação copiada.', true); } catch (_) { say(message, gateLink()); }
+  });
+
+  function fillGateEvents(selected) {
+    const select = gateUserForm.elements.eventId;
+    select.replaceChildren(new Option('Todos os eventos publicados', ''), ...eventsForGate.filter((event) => event.status !== 'CANCELLED').map((event) => new Option(`${event.title} — ${showDate(event.startsAt)}`, String(event.id))));
+    select.value = selected == null ? '' : String(selected);
   }
 
-  async function loadEntry() {
-    const events = await api('/api/admin/events');
-    const previous = entryEvent.value;
-    const open = events.filter((event) => event.status !== 'CANCELLED').sort((x, y) => new Date(x.startsAt) - new Date(y.startsAt));
-    entryEvent.replaceChildren(...open.map((event) => new Option(`${event.title} — ${showDate(event.startsAt)}`, event.id)));
-    if (previous) entryEvent.value = previous;
-    else { // the event that is on now or next
-      const now = Date.now(), next = open.find((event) => new Date(event.endsAt || event.startsAt).getTime() + 6 * 3600e3 >= now);
-      if (next) entryEvent.value = String(next.id);
-    }
-    scanEventName();
-    await refreshGate();
-    entryForm.elements.code.focus();
-  }
-  const scanEventName = () => { $('[data-scan-event]').textContent = entryEvent.selectedOptions[0]?.text.split(' — ')[0] || ''; };
-
-  // Shows the answer on the page and in the camera view; ok answers fade back to "ready" by themselves.
-  let resetTimer = null;
-  function show(target, kind, title, detail, extra) {
-    target.className = `${target === scanResult ? 'scan-result' : 'entry-result'} ${kind}`;
-    target.replaceChildren(node('strong', title), node('span', detail || ''), ...(extra ? [extra] : []));
-  }
-  function idleResult() {
-    entryResult.className = 'entry-result idle'; entryResult.replaceChildren(node('strong', 'Pronto para ler'), node('span', 'Aponte a câmara ao QR do bilhete ou escreva o código.'));
-    scanResult.className = 'scan-result idle'; scanResult.replaceChildren();
-  }
-  function clearResult() { clearTimeout(resetTimer); idleResult(); pausedUntil = 0; lastScan = { code: '', at: 0 }; entryForm.elements.code.focus({ preventScroll: true }); }
-  function present(kind, title, detail, action, secondary) {
-    const buttons = () => [action, secondary].filter(Boolean).map((item, index) => {
-      const button = actionButton(item.label, item.run);
-      if (index === 0 && kind === 'info') button.className = 'result-main';
-      return button;
-    });
-    const row = () => { const wrap = node('div', undefined, 'result-actions'); wrap.append(...buttons()); return buttons().length ? wrap : null; };
-    show(entryResult, kind, title, detail, row());
-    show(scanResult, kind, title, detail, row());
-    beep(kind === 'info' ? 'ok' : kind);
-    clearTimeout(resetTimer);
-    if (kind === 'info') { pausedUntil = performance.now() + 120000; return; } // waits for a decision: no auto-reset, camera paused
-    resetTimer = setTimeout(idleResult, kind === 'ok' ? 4500 : 6500);
+  function openGateUserForm(user) {
+    closeGateUserForm(); credentialBox.hidden = true;
+    editingGateUserId = user ? user.id : null;
+    $('[data-gate-user-title]').textContent = user ? 'Editar acesso de porta' : 'Novo acesso de porta';
+    fillGateEvents(user?.eventId);
+    gateUserForm.elements.label.value = user?.label ?? '';
+    gateUserForm.elements.validUntil.value = user ? toLocalInput(user.validUntil) : '';
+    gateUserForm.hidden = false; gateUserForm.elements.label.focus();
   }
 
-  async function admit(code) {
-    const result = await api('/api/admin/check-in', { method: 'POST', body: JSON.stringify({ eventId: Number(entryEvent.value), code }) });
-    const [kind, title, detail] = outcomes[result.outcome] || ['bad', result.outcome, () => ''];
-    present(kind, title, detail(result), result.outcome === 'ADMITTED' ? { label: 'Foi engano? Desfazer', run: () => undoEntry(code) } : null);
-    pausedUntil = performance.now() + 1200;
-    await refreshGate();
+  // The code is only known right now: show it big, with ways to hand it over, and never again.
+  function showCredential(user, heading) {
+    const link = gateLink(), code = user.password;
+    credentialBox.replaceChildren(
+      node('h2', heading),
+      node('p', 'Entregue estes dados à pessoa da porta. O código não volta a aparecer: se o perder, gere um novo.', 'admin-hint'),
+      (() => { const dl = node('dl', undefined, 'credential-grid');
+        dl.append(node('dt', 'Endereço'), node('dd', link), node('dt', 'Utilizador'), node('dd', user.username, 'credential-value'), node('dt', 'Código'), node('dd', code, 'credential-value credential-code'));
+        return dl; })());
+    const text = `Acesso à entrada do South Beach\nEndereço: ${link}\nUtilizador: ${user.username}\nCódigo: ${code}`;
+    const actions = node('div', undefined, 'admin-row-actions');
+    actions.append(
+      actionButton('Copiar tudo', async () => { try { await navigator.clipboard.writeText(text); say(message, 'Dados copiados.', true); } catch (_) { say(message, 'Não foi possível copiar. Seleccione e copie à mão.'); } }),
+      Object.assign(node('a', 'Enviar por WhatsApp', 'admin-refresh whatsapp-button'), { href: `https://wa.me/?text=${encodeURIComponent(text)}`, target: '_blank', rel: 'noopener noreferrer' }),
+      actionButton('Fechar', () => { credentialBox.hidden = true; credentialBox.replaceChildren(); }));
+    credentialBox.append(actions);
+    credentialBox.hidden = false; credentialBox.scrollIntoView({ block: 'nearest' });
   }
 
-  // Reading a ticket never uses it: the answer comes with a button, and the entry is only recorded when staff tap it.
-  async function validate(code) {
-    if (!entryEvent.value) { say(message, 'Escolha o evento.'); return; }
-    try {
-      const result = await api('/api/admin/check-in/peek', { method: 'POST', body: JSON.stringify({ eventId: Number(entryEvent.value), code }) });
-      const [kind, title, detail] = outcomes[result.outcome] || ['bad', result.outcome, () => ''];
-      const valid = result.outcome === 'VALID';
-      present(kind, title, detail(result),
-        valid ? { label: 'Confirmar entrada', run: () => admit(code).catch((error) => present('bad', 'ERRO', error.message)) } : null,
-        valid ? { label: 'Ler outro', run: clearResult } : null);
-    } catch (error) { present('bad', 'ERRO', error.message); }
-  }
-
-  async function undoEntry(code) {
-    try {
-      const result = await api('/api/admin/check-in/undo', { method: 'POST', body: JSON.stringify({ eventId: Number(entryEvent.value), code }) });
-      const [kind, title, detail] = outcomes[result.outcome] || ['bad', result.outcome, () => ''];
-      present(kind, title, detail(result));
-      await refreshGate();
-    } catch (error) { present('bad', 'ERRO', error.message); }
-  }
-
-  entryEvent.addEventListener('change', () => { scanEventName(); refreshGate().catch((error) => say(message, error.message)); });
-  entryForm.addEventListener('submit', async (submitEvent) => {
+  gateUserForm.addEventListener('submit', async (submitEvent) => {
     submitEvent.preventDefault();
-    const input = entryForm.elements.code;
-    const code = input.value.trim();
-    input.value = '';
-    if (code) await validate(code);
-    input.focus();
-  });
-
-  // ---- Camera reading: the browser's own detector where it exists, jsQR everywhere else (Safari on iPhone included).
-  let stream = null, frameHandle = null, lastScan = { code: '', at: 0 }, pausedUntil = 0, lastFrame = 0, detector = null, torchOn = false;
-  async function startCamera() {
-    if (!entryEvent.value) { say(message, 'Escolha o evento.'); return; }
-    if (!navigator.mediaDevices?.getUserMedia || !window.isSecureContext) {
-      present('warn', 'CÂMARA INDISPONÍVEL', 'A câmara só funciona numa ligação segura (https). Use o campo de código ou um leitor de QR.');
-      return;
-    }
+    const f = gateUserForm.elements;
+    const body = { label: f.label.value.trim(), eventId: f.eventId.value ? Number(f.eventId.value) : null, validUntil: toInstant(f.validUntil.value) };
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
-    } catch (_) {
-      present('warn', 'SEM ACESSO À CÂMARA', 'Permita a câmara nas definições do navegador, ou use o campo de código.');
-      return;
-    }
-    scanVideo.srcObject = stream;
-    await scanVideo.play().catch(() => {});
-    scan.hidden = false; document.documentElement.classList.add('scan-open');
-    if (audio?.state === 'suspended') audio.resume();
-    // Touching the screen once also unlocks sound on iPhone.
-    try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume?.(); } catch (_) { /* ignore */ }
-    const track = stream.getVideoTracks()[0];
-    torchButton.hidden = !track.getCapabilities?.().torch;
-    torchOn = false; torchButton.textContent = 'Lanterna';
-    detector = 'BarcodeDetector' in window ? new BarcodeDetector({ formats: ['qr_code'] }) : null;
-    scanHint.textContent = 'Aponte ao QR do bilhete';
-    frameHandle = requestAnimationFrame(tick);
-  }
-  function stopCamera() {
-    cancelAnimationFrame(frameHandle); frameHandle = null;
-    stream?.getTracks().forEach((track) => track.stop()); stream = null;
-    scanVideo.srcObject = null; scan.hidden = true; document.documentElement.classList.remove('scan-open');
-  }
-  async function tick(now) {
-    frameHandle = requestAnimationFrame(tick);
-    if (now - lastFrame < 110 || now < pausedUntil || scanVideo.readyState < 2) return; // about nine reads per second
-    lastFrame = now;
-    let code = null;
-    try {
-      if (detector) code = (await detector.detect(scanVideo))[0]?.rawValue;
-      else if (window.jsQR) {
-        const width = 640, height = Math.round(width * (scanVideo.videoHeight / scanVideo.videoWidth)) || 480;
-        scanCanvas.width = width; scanCanvas.height = height;
-        const context = scanCanvas.getContext('2d', { willReadFrequently: true });
-        context.drawImage(scanVideo, 0, 0, width, height);
-        code = window.jsQR(context.getImageData(0, 0, width, height).data, width, height, { inversionAttempts: 'dontInvert' })?.data;
+      if (editingGateUserId) {
+        const current = gateUsersCache.find((user) => user.id === editingGateUserId);
+        await api(`/api/admin/gate-users/${editingGateUserId}`, { method: 'PUT', body: JSON.stringify({ ...body, active: current ? current.active : true }) });
+        closeGateUserForm(); await loadGateUsers(); say(message, 'Acesso guardado.', true);
+      } else {
+        const created = await api('/api/admin/gate-users', { method: 'POST', body: JSON.stringify(body) });
+        closeGateUserForm(); await loadGateUsers(); say(message, '');
+        showCredential(created, 'Acesso criado');
       }
-    } catch (_) { return; } // a frame without a readable code
-    code = code?.trim();
-    // The same QR stays in view for a while: ignore repeats for four seconds.
-    if (!code || (code === lastScan.code && Date.now() - lastScan.at < 4000)) return;
-    lastScan = { code, at: Date.now() }; pausedUntil = performance.now() + 1600;
-    await validate(code);
-  }
-  cameraButton.addEventListener('click', startCamera);
-  $('[data-scan-close]').addEventListener('click', stopCamera);
-  document.addEventListener('keydown', (keyEvent) => { if (keyEvent.key === 'Escape' && !scan.hidden) stopCamera(); });
-  torchButton.addEventListener('click', async () => {
-    try { torchOn = !torchOn; await stream.getVideoTracks()[0].applyConstraints({ advanced: [{ torch: torchOn }] }); torchButton.textContent = torchOn ? 'Lanterna ligada' : 'Lanterna'; }
-    catch (_) { torchButton.hidden = true; }
+    } catch (error) { say(message, error.message); }
   });
-  tabs.forEach((tab) => tab.addEventListener('click', () => { if (tab.dataset.tab !== 'entry') stopCamera(); }));
+  $('[data-new-gate-user]').addEventListener('click', () => openGateUserForm(null));
+  $('[data-refresh-gate-users]').addEventListener('click', () => loadGateUsers().then(() => say(message, '')).catch((error) => say(message, error.message)));
+
+  let gateUsersCache = [];
+  function renderGateUsers() {
+    gateUserRows.replaceChildren();
+    gateUsersEmpty.hidden = gateUsersCache.length > 0;
+    gateUsersCache.forEach((user) => {
+      const tr = node('tr');
+      const state = !user.active ? ['Pausado', 'DRAFT'] : user.usable ? ['Activo', 'PAID'] : ['Expirado', 'EXPIRED'];
+      cell(tr, user.label); cell(tr, user.username); cell(tr, user.eventTitle || 'Todos os eventos'); cell(tr, user.validUntil ? showDate(user.validUntil) : 'Sem prazo');
+      cell(tr, user.lastUsedAt ? showDate(user.lastUsedAt) : 'Nunca');
+      const stateCell = tr.insertCell(); stateCell.append(badge(state[1], { [state[1]]: state[0] }));
+      const buttons = node('div', undefined, 'admin-row-actions');
+      buttons.append(
+        actionButton('Editar', () => openGateUserForm(user)),
+        actionButton(user.active ? 'Pausar' : 'Reactivar', async () => {
+          try { await api(`/api/admin/gate-users/${user.id}`, { method: 'PUT', body: JSON.stringify({ label: user.label, eventId: user.eventId, validUntil: user.validUntil, active: !user.active }) }); await loadGateUsers(); say(message, user.active ? 'Acesso pausado: deixa de funcionar já.' : 'Acesso reactivado.', true); }
+          catch (error) { say(message, error.message); }
+        }),
+        actionButton('Novo código', async () => {
+          if (!confirm(`Gerar um novo código para “${user.label}”? O código actual deixa de funcionar de imediato.`)) return;
+          try { const renewed = await api(`/api/admin/gate-users/${user.id}/renew-code`, { method: 'POST' }); await loadGateUsers(); showCredential(renewed, 'Novo código gerado'); }
+          catch (error) { say(message, error.message); }
+        }),
+        actionButton('Remover', async () => {
+          if (!confirm(`Remover o acesso “${user.label}”? Deixa de funcionar de imediato.`)) return;
+          try { await api(`/api/admin/gate-users/${user.id}`, { method: 'DELETE' }); await loadGateUsers(); say(message, 'Acesso removido.', true); }
+          catch (error) { say(message, error.message); }
+        }));
+      const actions = node('td'); actions.append(buttons); tr.append(actions);
+      gateUserRows.append(tr);
+    });
+  }
+  async function loadGateUsers() {
+    [gateUsersCache, eventsForGate] = await Promise.all([api('/api/admin/gate-users'), api('/api/admin/events')]);
+    renderGateUsers();
+  }
 
   // On a phone the tables become stacked cards; each cell needs its column name for that.
   function labelCells() {

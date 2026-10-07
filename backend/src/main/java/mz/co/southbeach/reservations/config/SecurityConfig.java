@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/tickets/*", "/api/tickets/qr/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/content", "/api/media/*", "/api/gallery", "/api/menu", "/api/past-events", "/api/past-events/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                        .requestMatchers("/api/gate/**").hasAnyRole("GATE", "ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
                 .httpBasic(Customizer.withDefaults())
@@ -46,16 +47,23 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    /** One login service for both kinds of staff: the admin from the environment, then door-staff accounts from the database. */
     @Bean
-    UserDetailsService adminUserDetailsService(
+    UserDetailsService userDetailsService(
             PasswordEncoder encoder,
+            mz.co.southbeach.gate.GateUserRepository gateUsers,
+            java.time.Clock clock,
             @Value("${app.security.admin-username}") String username,
             @Value("${app.security.admin-password}") String password) {
         if (password == null || password.length() < 16) {
             throw new IllegalStateException("Set APP_ADMIN_PASSWORD to a unique password with at least 16 characters.");
         }
-        var admin = User.withUsername(username).password(encoder.encode(password)).roles("ADMIN").build();
-        return new InMemoryUserDetailsManager(admin);
+        var admin = new InMemoryUserDetailsManager(User.withUsername(username).password(encoder.encode(password)).roles("ADMIN").build());
+        var gate = new mz.co.southbeach.gate.GateUserDetailsService(gateUsers, clock);
+        return name -> {
+            try { return admin.loadUserByUsername(name); }
+            catch (org.springframework.security.core.userdetails.UsernameNotFoundException notAdmin) { return gate.loadUserByUsername(name); }
+        };
     }
 
     @Bean

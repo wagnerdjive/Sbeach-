@@ -180,3 +180,14 @@ html.scan-open{overflow:hidden}
 .entry-form .admin-primary{background:var(--blue);border:1px solid var(--blue);color:#fff;border-radius:0;letter-spacing:.14em;text-transform:uppercase}.entry-form .admin-primary:hover{background:var(--black);border-color:var(--black)}
 @media (max-width:760px){.admin-brand img{height:44px}}
 .report-tile strong,.gate-count strong,.scan-top strong,.entry-result.idle strong{font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1}
+
+/* ---- Door-staff accesses ---- */
+.admin-credential{background:#fff;border:1px solid var(--blue);border-left:8px solid var(--blue);padding:22px 24px;margin:0 0 22px}
+.admin-credential h2{margin:0 0 6px;font:400 30px var(--display)}
+.credential-grid{display:grid;grid-template-columns:auto 1fr;gap:10px 22px;margin:14px 0 18px}
+.credential-grid dt{font:600 10px 'DM Sans',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding-top:6px}
+.credential-grid dd{margin:0;word-break:break-all}
+.credential-value{font:600 18px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em}
+.credential-code{font-size:30px;color:var(--blue-deep);letter-spacing:.18em}
+.gate-page .admin-main{max-width:880px;margin:0 auto}
+@media (max-width:760px){.credential-grid{grid-template-columns:1fr;gap:2px}.credential-grid dd{margin-bottom:10px}.credential-code{font-size:26px}.admin-credential{padding:18px 16px}}

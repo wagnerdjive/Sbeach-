@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-MZ">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#faf8f3" />
+    <title>Entrada — South Beach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" />
+    <link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="admin.css" />
+    <script src="api-config.js" defer></script><script src="assets/vendor/jsQR.js" defer></script><script src="gate.js" defer></script><script src="entrada.js" defer></script>
+  </head>
+  <body class="admin-page gate-page">
+    <header class="admin-header"><a class="admin-brand" href="index.html" aria-label="South Beach"><img src="assets/img/f436ca_3797381906234141943c822ba6e77602.png" alt="South Beach" /></a><span>Controlo de entrada</span><button type="button" class="admin-logout" data-logout hidden>Sair</button></header>
+    <main class="admin-main">
+      <form class="admin-login" data-login>
+        <h1>Entrada</h1>
+        <p class="admin-hint">Entre com o utilizador e o código que a organização lhe deu.</p>
+        <label>Utilizador<input name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="porta-xxxxx" /></label>
+        <label>Código de acesso<input name="password" type="password" autocomplete="current-password" autocapitalize="characters" spellcheck="false" required /></label>
+        <button class="button button-dark" type="submit">Entrar</button>
+        <p class="admin-message" data-login-message role="status"></p>
+      </form>
+      <section data-panel hidden><div data-gate-root></div></section>
+    </main>
+  </body>
+</html>

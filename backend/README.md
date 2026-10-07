@@ -131,3 +131,12 @@ Corra-o também contra a API de produção quando esta existir. Os horários de 
 ## Imagens do site
 
 As imagens que vêm com as páginas estão em `assets/img/` (copiadas do site antigo, sem depender dele). Cada uma — logótipo, imagens de fundo e fotografias — pode ser substituída no painel (*Conteúdo do site*, escolha a página); as fotografias da galeria que vieram de origem apontam para esses ficheiros (`assets/img/…` é um endereço aceite pela API). Para publicar, a pasta `assets/` tem de ir junto com as páginas.
+
+## Acessos de porta (validação de bilhetes por quem não é admin)
+
+Quem valida bilhetes à porta não precisa da conta de administrador. No painel, o separador *Acessos de porta* cria contas que **só** podem ler e admitir bilhetes: cada uma recebe um utilizador (`porta-xxxxx`) e um código de 10 caracteres, mostrado uma só vez (guardado só em hash). A pessoa entra em `entrada.html`, que mostra apenas o ecrã de leitura (câmara, código escrito, confirmação manual, últimas entradas e desfazer).
+
+- Pode estar presa a **um evento** e ter **data de fim**; pode ser **pausada**, ter o **código renovado** (o anterior deixa de funcionar) ou ser **removida**, e o efeito é imediato.
+- Na API, estas contas só chegam a `/api/gate/**` (eventos abertos, ler `check-in/peek`, confirmar `check-in`, `undo`, contagens e últimas entradas). Tudo o que é `/api/admin/**` responde 403. O administrador também pode usar as rotas `/api/gate/**`.
+- A gestão das contas está em `/api/admin/gate-users` (só admin).
+- O código é gerado com um alfabeto sem caracteres ambíguos (sem 0/O, 1/I/L); ao escrever, a página tolera minúsculas, espaços e traços.

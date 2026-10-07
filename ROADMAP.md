@@ -24,6 +24,7 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [ ] Pagamentos reais por M-Pesa, e-Mola e cartão
 - [x] Emissão e envio de bilhetes QR (emissão ao marcar a encomenda como paga; envio por ligação privada, automático quando houver email/SMS)
 - [x] Leitura à entrada (separador *Entrada*; validação única e contagem de entradas)
+- [x] Acessos de porta: contas só para validar bilhetes, criadas no painel (separador *Acessos de porta*), com prazo e, se quiser, presas a um evento; entram em `entrada.html` e não vêem mais nada
 - [x] Relatórios de vendas (separador *Relatórios*: receita, bilhetes por categoria, vendas por dia, estados e exportação CSV)
 
 ## Eventos

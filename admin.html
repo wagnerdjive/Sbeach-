@@ -5,7 +5,7 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>Painel da equipa — South Beach</title>
     <meta name="theme-color" content="#faf8f3" /><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" /><link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="admin.css" />
-    <script src="translations.js" defer></script><script src="api-config.js" defer></script><script src="cms.js" defer></script><script src="assets/vendor/jsQR.js" defer></script><script src="admin.js" defer></script>
+    <script src="translations.js" defer></script><script src="api-config.js" defer></script><script src="cms.js" defer></script><script src="assets/vendor/jsQR.js" defer></script><script src="gate.js" defer></script><script src="admin.js" defer></script>
   </head>
   <body class="admin-page">
     <header class="admin-header"><a class="admin-brand" href="index.html" aria-label="South Beach — ver o site"><img src="assets/img/f436ca_3797381906234141943c822ba6e77602.png" alt="South Beach" /></a><span>Painel da equipa</span><button type="button" class="admin-logout" data-logout hidden>Terminar sessão</button></header>
@@ -18,7 +18,7 @@
         <p class="admin-message" data-login-message role="status"></p>
       </form>
       <section class="admin-panel" data-panel hidden>
-        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button><button type="button" role="tab" data-tab="content" aria-selected="false">Conteúdo do site</button><button type="button" role="tab" data-tab="menu" aria-selected="false">Menus</button><button type="button" role="tab" data-tab="archive" aria-selected="false">Eventos passados</button><button type="button" role="tab" data-tab="gallery" aria-selected="false">Galeria</button><button type="button" role="tab" data-tab="reports" aria-selected="false">Relatórios</button></div>
+        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button><button type="button" role="tab" data-tab="gateusers" aria-selected="false">Acessos de porta</button><button type="button" role="tab" data-tab="content" aria-selected="false">Conteúdo do site</button><button type="button" role="tab" data-tab="menu" aria-selected="false">Menus</button><button type="button" role="tab" data-tab="archive" aria-selected="false">Eventos passados</button><button type="button" role="tab" data-tab="gallery" aria-selected="false">Galeria</button><button type="button" role="tab" data-tab="reports" aria-selected="false">Relatórios</button></div>
         <p class="admin-message" data-message role="status"></p>
 
         <div data-view="reservations">
@@ -181,32 +181,25 @@
           <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Evento</th><th>Data</th><th>Bilhetes vendidos</th><th>Receita</th><th>Entraram</th></tr></thead><tbody data-report-all></tbody></table></div>
         </div>
 
-        <div data-view="entry" hidden>
-          <section class="gate" aria-label="Controlo de entrada">
-            <div class="gate-head">
-              <label>Evento<select data-entry-event></select></label>
-              <div class="gate-count" role="status"><p><strong data-gate-admitted>0</strong><span> de <b data-gate-issued>0</b> entraram</span></p><div class="gate-bar" aria-hidden="true"><i data-gate-bar></i></div></div>
+        <div data-view="gateusers" hidden>
+          <p class="admin-hint">Crie um acesso para cada pessoa que valida bilhetes à porta. Esse acesso só abre o <a href="entrada.html" target="_blank" rel="noopener">ecrã de entrada</a>: não vê reservas, encomendas nem relatórios e não consegue alterar nada no site. O código aparece <strong>uma só vez</strong>, quando o cria ou o renova.</p>
+          <div class="admin-toolbar"><button type="button" class="admin-primary" data-new-gate-user>Novo acesso</button><button type="button" class="admin-refresh" data-refresh-gate-users>Actualizar</button><button type="button" class="admin-refresh" data-copy-gate-link>Copiar a ligação do ecrã de entrada</button></div>
+          <form class="admin-form" data-gate-user-form hidden>
+            <h2 data-gate-user-title>Novo acesso de porta</h2>
+            <div class="admin-form-grid">
+              <label class="wide">Nome (quem é, ou qual a porta)<input name="label" required maxlength="80" placeholder="Ex.: João — porta principal" /></label>
+              <label>Evento<select name="eventId"></select></label>
+              <label>Válido até (hora de Maputo, opcional)<input name="validUntil" type="datetime-local" /></label>
             </div>
-            <div class="gate-types" data-gate-types></div>
-            <div class="gate-actions">
-              <button type="button" class="gate-scan" data-entry-camera>Ler bilhete com a câmara</button>
-              <form class="entry-form" data-entry-form>
-                <label>Ou escreva / leia o código<input name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="64" required placeholder="Código do bilhete" /></label>
-                <button class="admin-primary" type="submit">Verificar</button>
-              </form>
-            </div>
-            <div class="entry-result idle" data-entry-result role="status" aria-live="assertive"><strong>Pronto para ler</strong><span>Aponte a câmara ao QR do bilhete ou escreva o código.</span></div>
-            <div class="gate-log"><h3>Últimas entradas</h3><ol data-gate-log></ol><p class="admin-empty" data-gate-empty>Ainda não entrou ninguém.</p></div>
-          </section>
-          <div class="scan" data-scan hidden role="dialog" aria-modal="true" aria-label="Leitura de bilhetes">
-            <video class="scan-video" data-scan-video playsinline muted></video>
-            <canvas data-scan-canvas hidden></canvas>
-            <div class="scan-top"><div><strong data-scan-event></strong><span data-scan-count></span></div><div class="scan-tools"><button type="button" data-scan-torch hidden>Lanterna</button><button type="button" data-scan-sound aria-pressed="true">Som</button><button type="button" data-scan-close>Fechar</button></div></div>
-            <div class="scan-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-            <p class="scan-hint" data-scan-hint>Aponte ao QR do bilhete</p>
-            <div class="scan-result idle" data-scan-result role="status" aria-live="assertive"></div>
-          </div>
+            <p class="admin-hint">Sem evento escolhido, o acesso serve para qualquer evento publicado. Com um evento, só valida bilhetes desse evento. Sem data, vale até o desactivar ou remover.</p>
+            <div class="admin-form-actions"><button class="admin-primary" type="submit">Guardar acesso</button><button type="button" data-cancel-gate-user>Fechar</button></div>
+          </form>
+          <section class="admin-credential" data-gate-credential hidden aria-live="polite"></section>
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Nome</th><th>Utilizador</th><th>Evento</th><th>Válido até</th><th>Último uso</th><th>Estado</th><th>Acções</th></tr></thead><tbody data-gate-user-rows></tbody></table></div>
+          <p class="admin-empty" data-gate-users-empty hidden>Ainda não há acessos de porta.</p>
         </div>
+
+        <div data-view="entry" hidden></div>
 
         <div data-view="orders" hidden>
           <div class="admin-toolbar">
