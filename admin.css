@@ -31,3 +31,4 @@
 .menu-group-lists{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin:0 0 26px}
 .menu-group-block{background:#fff;border:1px solid rgba(32,37,31,.1);padding:16px 18px}.menu-group-block h3{margin:0 0 10px;font:600 12px var(--sans);letter-spacing:.04em}
 .menu-group-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 0;border-top:1px solid rgba(32,37,31,.08)}.menu-group-name{flex:1;min-width:120px;font-size:13px}.menu-group-row small{color:#5d655f}
+.archive-thumb{width:72px;height:54px;object-fit:cover;display:block}.admin-file-button{cursor:pointer;display:inline-flex;align-items:center;padding:8px 14px}

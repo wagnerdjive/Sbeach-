@@ -449,3 +449,24 @@ body.refined{
 .refined .menu-section{margin-bottom:58px}
 .refined .menu-section:last-child{margin-bottom:10px}
 .refined .menu-section h4{font-size:clamp(26px,3vw,34px)}
+
+/* Opening hours on the about page */
+.refined .hours-section{text-align:center;padding-top:20px;padding-bottom:80px}
+.refined .hours-section p:last-child{margin:18px auto 0;max-width:720px;font:400 clamp(18px,2.2vw,23px)/1.9 var(--display);font-size-adjust:.46;color:var(--ink)}
+
+/* Past events archive and album pages */
+.refined .past-event-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:34px 26px;margin-top:10px}
+.refined .past-event-grid a{display:grid;gap:6px;text-decoration:none;color:var(--ink)}
+.refined .past-event-cover{aspect-ratio:4/3;background:var(--paper-deep);overflow:hidden}
+.refined .past-event-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+.refined .past-event-grid a:hover .past-event-cover img{transform:scale(1.04)}
+.refined .past-event-grid strong{margin-top:12px;font:400 25px/1.15 var(--display);font-size-adjust:.46}
+.refined .past-event-grid span{font:500 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.refined .past-event-head{padding-top:110px;padding-bottom:30px;text-align:center}
+.refined .past-event-head h1{margin:6px 0 14px;font:400 clamp(40px,6vw,76px)/1.04 var(--display);font-size-adjust:.46;letter-spacing:-.01em}
+.refined .past-event-back{display:inline-block;margin-bottom:34px}
+.refined .past-event-meta{margin:0 0 22px;font:500 11px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--blue)}
+.refined .past-event-text{max-width:680px;margin:0 auto}
+.refined .past-event-text p{margin:0 0 6px;font-size:14px;line-height:1.9;color:var(--muted)}
+.refined .past-event-album{padding-top:34px;padding-bottom:100px}
+.refined .past-event-note{text-align:center;color:var(--muted);font-size:13px}

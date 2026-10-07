@@ -38,6 +38,9 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [x] Páginas informativas, menus, galeria e contactos
 - [x] Gestão das fotos da galeria (adicionar, ordenar, ocultar e remover; separador *Galeria*)
 - [x] Menus geridos no painel (separador *Menus*: pratos e bebidas por espaço, com secção, preço, ordem e visibilidade; divisões criadas e ordenadas no painel; os menus reais do site antigo estão importados)
+- [x] Arquivo de eventos passados com detalhes e álbum de fotografias (separador *Eventos passados*: criar, ordenar, capa, enviar várias fotos; página `past-event.html`)
+- [x] Conteúdo do site antigo importado: 12 eventos, 369 fotografias de álbuns e 22 fotografias na galeria (`backend/tools/import_old_site.py`)
+- [x] Horários de funcionamento e ligações às redes sociais editáveis no painel (*Conteúdo do site*)
 - [x] CMS para editar o conteúdo sem alterar ficheiros do site (textos PT/EN, imagens e ligações; separador *Conteúdo do site*)
 
 ## Direcção visual

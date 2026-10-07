@@ -160,7 +160,7 @@
   // ---- Tabs -------------------------------------------------------------
   const views = Object.fromEntries([...document.querySelectorAll('[data-view]')].map((node) => [node.dataset.view, node]));
   const tabs = [...document.querySelectorAll('[data-tab]')];
-  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent(), menu: () => loadMenu(), gallery: () => loadGallery(), reports: () => loadReports() };
+  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent(), menu: () => loadMenu(), archive: () => loadArchive(), gallery: () => loadGallery(), reports: () => loadReports() };
   function showView(name) {
     tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.tab === name)));
     Object.entries(views).forEach(([key, node]) => { node.hidden = key !== name; });
@@ -851,6 +851,160 @@
     [groupsCache, menuCache] = await Promise.all([api('/api/admin/menu-groups'), api('/api/admin/menu')]);
     renderGroups(); renderMenu();
   }
+
+  // ---- Past events archive ----------------------------------------------------
+  const archiveForm = $('[data-archive-form]'), archiveRows = $('[data-archive-rows]'), archiveEmpty = $('[data-archive-empty]');
+  const archivePreview = $('[data-archive-preview]'), archivePreviewImage = archivePreview.querySelector('img');
+  const albumPanel = $('[data-album-panel]'), albumGrid = $('[data-album-grid]'), albumEmpty = $('[data-album-empty]');
+  let archiveCache = [], editingArchiveId = null, albumEvent = null;
+  const archiveImage = (url) => (url && url.startsWith('/api/') ? `${apiOrigin}${url}` : url);
+
+  function closeArchiveForm() { archiveForm.hidden = true; archiveForm.reset(); archivePreview.hidden = true; editingArchiveId = null; }
+  $('[data-cancel-archive]').addEventListener('click', closeArchiveForm);
+
+  function openArchiveForm(event) {
+    closeArchiveForm();
+    editingArchiveId = event ? event.id : null;
+    $('[data-archive-form-title]').textContent = event ? 'Editar evento passado' : 'Novo evento passado';
+    const f = archiveForm.elements;
+    if (event) {
+      f.titlePt.value = event.titlePt; f.titleEn.value = event.titleEn ?? ''; f.dateTextPt.value = event.dateTextPt ?? ''; f.dateTextEn.value = event.dateTextEn ?? '';
+      f.timeText.value = event.timeText ?? ''; f.location.value = event.location ?? ''; f.descriptionPt.value = event.descriptionPt ?? ''; f.descriptionEn.value = event.descriptionEn ?? '';
+      f.coverUrl.value = event.coverUrl ?? ''; f.visible.value = String(event.visible);
+      if (event.coverUrl) { archivePreviewImage.src = archiveImage(event.coverUrl); archivePreview.hidden = false; }
+    }
+    archiveForm.hidden = false; f.titlePt.focus();
+  }
+
+  async function uploadImage(file) {
+    if (file.size > 3 * 1024 * 1024) throw new Error(`“${file.name}” tem mais de 3 MB.`);
+    const upload = new FormData(); upload.append('file', file);
+    return (await api('/api/admin/media', { method: 'POST', body: upload })).url;
+  }
+
+  archiveForm.elements.file.addEventListener('change', async () => {
+    const file = archiveForm.elements.file.files[0];
+    if (!file) return;
+    try {
+      const url = await uploadImage(file);
+      archiveForm.elements.coverUrl.value = url; archivePreviewImage.src = archiveImage(url); archivePreview.hidden = false;
+      say(message, 'Capa carregada. Guarde o evento.', true);
+    } catch (error) { say(message, error.message); }
+    archiveForm.elements.file.value = '';
+  });
+  archiveForm.elements.coverUrl.addEventListener('change', () => {
+    const value = archiveForm.elements.coverUrl.value.trim();
+    archivePreview.hidden = !value; if (value) archivePreviewImage.src = archiveImage(value);
+  });
+
+  const archiveBody = (event, overrides = {}) => ({
+    titlePt: event.titlePt, titleEn: event.titleEn, dateTextPt: event.dateTextPt, dateTextEn: event.dateTextEn, timeText: event.timeText,
+    location: event.location, descriptionPt: event.descriptionPt, descriptionEn: event.descriptionEn, coverUrl: event.coverUrl, visible: event.visible, ...overrides });
+
+  archiveForm.addEventListener('submit', async (submitEvent) => {
+    submitEvent.preventDefault();
+    const f = archiveForm.elements, text = (field) => f[field].value.trim() || null;
+    const body = { titlePt: f.titlePt.value.trim(), titleEn: text('titleEn'), dateTextPt: text('dateTextPt'), dateTextEn: text('dateTextEn'), timeText: text('timeText'),
+      location: text('location'), descriptionPt: text('descriptionPt'), descriptionEn: text('descriptionEn'), coverUrl: text('coverUrl'), visible: f.visible.value === 'true' };
+    try {
+      await api(editingArchiveId ? `/api/admin/past-events/${editingArchiveId}` : '/api/admin/past-events', { method: editingArchiveId ? 'PUT' : 'POST', body: JSON.stringify(body) });
+      closeArchiveForm(); await loadArchive(); say(message, 'Evento guardado.', true);
+    } catch (error) { say(message, error.message); }
+  });
+  $('[data-new-archive]').addEventListener('click', () => openArchiveForm(null));
+  $('[data-refresh-archive]').addEventListener('click', () => loadArchive().then(() => say(message, '')).catch((error) => say(message, error.message)));
+
+  async function moveArchive(index, delta) {
+    const target = index + delta;
+    if (target < 0 || target >= archiveCache.length) return;
+    const ids = archiveCache.map((event) => event.id);
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    try { archiveCache = await api('/api/admin/past-event-order', { method: 'PUT', body: JSON.stringify({ ids }) }); renderArchive(); say(message, 'Ordem guardada.', true); }
+    catch (error) { say(message, error.message); }
+  }
+
+  function renderArchive() {
+    archiveRows.replaceChildren();
+    archiveEmpty.hidden = archiveCache.length > 0;
+    archiveCache.forEach((event, index) => {
+      const tr = node('tr');
+      const cover = tr.insertCell();
+      if (event.coverUrl) { const image = node('img'); image.src = archiveImage(event.coverUrl); image.alt = ''; image.loading = 'lazy'; image.className = 'archive-thumb'; cover.append(image); }
+      else cover.textContent = '—';
+      cell(tr, event.titlePt); cell(tr, event.dateTextPt ?? '—'); cell(tr, event.photoCount); cell(tr, event.visible ? 'Visível' : 'Oculto');
+      const buttons = node('div', undefined, 'admin-row-actions');
+      const up = actionButton('↑', () => moveArchive(index, -1)); up.disabled = index === 0; up.setAttribute('aria-label', `Mover ${event.titlePt} para cima`);
+      const down = actionButton('↓', () => moveArchive(index, 1)); down.disabled = index === archiveCache.length - 1; down.setAttribute('aria-label', `Mover ${event.titlePt} para baixo`);
+      const remove = actionButton('Remover', async () => {
+        if (!confirm(`Remover “${event.titlePt}” e as ${event.photoCount} fotografias do álbum? Não pode ser desfeito.`)) return;
+        try { await api(`/api/admin/past-events/${event.id}`, { method: 'DELETE' }); if (albumEvent?.id === event.id) closeAlbum(); await loadArchive(); say(message, 'Evento removido.', true); }
+        catch (error) { say(message, error.message); }
+      });
+      buttons.append(up, down, actionButton('Editar', () => openArchiveForm(event)), actionButton('Fotografias', () => openAlbum(event.id)), remove);
+      const actions = node('td'); actions.append(buttons); tr.append(actions);
+      archiveRows.append(tr);
+    });
+  }
+
+  async function loadArchive() { archiveCache = await api('/api/admin/past-events'); renderArchive(); if (albumEvent) await refreshAlbum(); }
+
+  // ---- Album of one past event
+  function closeAlbum() { albumPanel.hidden = true; albumEvent = null; albumGrid.replaceChildren(); }
+  $('[data-close-album]').addEventListener('click', closeAlbum);
+
+  async function openAlbum(id) { closeArchiveForm(); albumEvent = { id }; await refreshAlbum(); albumPanel.hidden = false; albumPanel.scrollIntoView({ block: 'nearest' }); }
+
+  async function refreshAlbum() {
+    albumEvent = await api(`/api/admin/past-events/${albumEvent.id}`);
+    $('[data-album-title]').textContent = `Fotografias — ${albumEvent.titlePt} (${albumEvent.photos.length})`;
+    albumEmpty.hidden = albumEvent.photos.length > 0;
+    albumGrid.replaceChildren();
+    albumEvent.photos.forEach((photo, index) => {
+      const image = node('img'); image.src = archiveImage(photo.imageUrl); image.alt = `Fotografia ${index + 1}`; image.loading = 'lazy';
+      const isCover = albumEvent.coverUrl === photo.imageUrl;
+      const buttons = node('div', undefined, 'admin-row-actions');
+      const up = actionButton('↑', () => moveAlbumPhoto(index, -1)); up.disabled = index === 0; up.setAttribute('aria-label', `Mover fotografia ${index + 1} para trás`);
+      const down = actionButton('↓', () => moveAlbumPhoto(index, 1)); down.disabled = index === albumEvent.photos.length - 1; down.setAttribute('aria-label', `Mover fotografia ${index + 1} para a frente`);
+      const cover = actionButton(isCover ? 'Capa ✓' : 'Usar como capa', async () => {
+        try { await api(`/api/admin/past-events/${albumEvent.id}`, { method: 'PUT', body: JSON.stringify(archiveBody(albumEvent, { coverUrl: photo.imageUrl })) }); await loadArchive(); say(message, 'Capa actualizada.', true); }
+        catch (error) { say(message, error.message); }
+      });
+      cover.disabled = isCover;
+      const remove = actionButton('Remover', async () => {
+        if (!confirm('Remover esta fotografia do álbum?')) return;
+        try { await api(`/api/admin/past-event-photos/${photo.id}`, { method: 'DELETE' }); await loadArchive(); say(message, 'Fotografia removida.', true); }
+        catch (error) { say(message, error.message); }
+      });
+      buttons.append(up, down, cover, remove);
+      const card = node('article', undefined, 'photo-card');
+      card.append(image, node('p', `${index + 1}${isCover ? ' · CAPA' : ''}`, 'photo-tags'), buttons);
+      albumGrid.append(card);
+    });
+  }
+
+  async function moveAlbumPhoto(index, delta) {
+    const target = index + delta, photos = albumEvent.photos;
+    if (target < 0 || target >= photos.length) return;
+    const ids = photos.map((photo) => photo.id);
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    try { await api(`/api/admin/past-events/${albumEvent.id}/photo-order`, { method: 'PUT', body: JSON.stringify({ ids }) }); await refreshAlbum(); say(message, 'Ordem guardada.', true); }
+    catch (error) { say(message, error.message); }
+  }
+
+  $('[data-album-files]').addEventListener('change', async (changeEvent) => {
+    const files = [...changeEvent.target.files];
+    changeEvent.target.value = '';
+    let done = 0;
+    for (const file of files) {
+      try {
+        const url = await uploadImage(file);
+        await api(`/api/admin/past-events/${albumEvent.id}/photos`, { method: 'POST', body: JSON.stringify({ imageUrl: url }) });
+        done += 1; say(message, `A carregar… ${done} de ${files.length}`, true);
+      } catch (error) { say(message, `${error.message} (${done} de ${files.length} carregadas)`); break; }
+    }
+    await loadArchive();
+    if (done === files.length && files.length) say(message, `${done} fotografias adicionadas.`, true);
+  });
 
   // ---- Site content (CMS) ---------------------------------------------------
   const contentPage = $('[data-content-page]'), contentFields = $('[data-content-fields]'), contentEmpty = $('[data-content-empty]');

@@ -117,3 +117,13 @@ This service stores and manages requests and enforces seat capacity on confirmat
 O separador *Menus* do painel gere os pratos e bebidas de cada espaço (Restaurante, Beach Bar, Sports Bar): secção, nome e descrição em português e inglês, preço em MZN (opcional), ordem e visibilidade. A página `menus.html` lê `GET /api/menu`; a equipa usa `/api/admin/menu` e `PUT /api/admin/menu-order`. Um espaço sem itens continua a mostrar a ligação para o menu completo.
 
 As *divisões* de cada menu (À Lá Carte, Sushi, Tapas, Bebidas, Cocktails…) são geridas no mesmo separador: criam-se por espaço, ordenam-se com as setas (`/api/admin/menu-groups`, `PUT /api/admin/menu-group-order`) e cada item escolhe a sua num menu. Uma divisão só se remove depois de ficar sem itens.
+
+## Eventos passados e importação do site antigo
+
+O separador *Eventos passados* do painel gere o arquivo: título, data (texto livre), horário, local, descrição (PT/EN), capa, ordem, visibilidade e o álbum de cada evento (envio de várias fotografias, ordem, "usar como capa", remoção). Os visitantes veem a lista em `events.html` (`GET /api/past-events`) e cada evento em `past-event.html?e=<endereço>` (`GET /api/past-events/{slug}`).
+
+`backend/tools/import_old_site.py` traz para a API os 12 eventos, 369 fotografias de álbuns e 22 fotografias de espaços do antigo `southbeach.co.mz` (dados em `old-site-events.json`; as imagens são descarregadas, reduzidas a 1600 px e guardadas na base de dados). Pode repetir-se sem duplicar:
+
+    python3 backend/tools/import_old_site.py --api http://localhost:8080 --user admin --password '<APP_ADMIN_PASSWORD>'
+
+Corra-o também contra a API de produção quando esta existir. Os horários de funcionamento (`site.hours`) e as ligações Instagram/Facebook (`site.instagram`, `site.facebook`) editam-se em *Conteúdo do site*.
