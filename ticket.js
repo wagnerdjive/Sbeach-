@@ -9,10 +9,10 @@
 
   const copy = {
     pt: { title: 'Os seus bilhetes', loading: 'A carregar…', invalid: 'Esta ligação não é válida. Confirme a mensagem que recebeu ou contacte o South Beach.', down: 'Não foi possível carregar os bilhetes. Tente novamente dentro de instantes.',
-      unpaid: 'A encomenda {ref} ainda aguarda a confirmação do pagamento. Os bilhetes aparecem aqui assim que a equipa a confirmar.', cancelled: 'A encomenda {ref} foi cancelada ou expirou, por isso não tem bilhetes.',
+      refunded: 'A encomenda {ref} foi reembolsada: os bilhetes abaixo estão anulados e já não dão entrada.', unpaid: 'A encomenda {ref} ainda aguarda a confirmação do pagamento. Os bilhetes aparecem aqui assim que a equipa a confirmar.', cancelled: 'A encomenda {ref} foi cancelada ou expirou, por isso não tem bilhetes.',
       ready: 'Encomenda {ref} · mostre o código QR à entrada, no telemóvel ou impresso. Cada código admite uma só pessoa, uma só vez.', used: 'JÁ UTILIZADO', valid: 'VÁLIDO', voided: 'ANULADO', print: 'Imprimir ou guardar em PDF', ticket: 'Bilhete' },
     en: { title: 'Your tickets', loading: 'Loading…', invalid: 'This link is not valid. Check the message you received or contact South Beach.', down: 'We could not load your tickets. Please try again shortly.',
-      unpaid: 'Order {ref} is still waiting for payment confirmation. Your tickets will appear here as soon as the team confirms it.', cancelled: 'Order {ref} was cancelled or expired, so it has no tickets.',
+      refunded: 'Order {ref} was refunded: the tickets below are void and no longer admit anyone.', unpaid: 'Order {ref} is still waiting for payment confirmation. Your tickets will appear here as soon as the team confirms it.', cancelled: 'Order {ref} was cancelled or expired, so it has no tickets.',
       ready: 'Order {ref} · show the QR code at the entrance, on your phone or printed. Each code admits one person, once.', used: 'ALREADY USED', valid: 'VALID', voided: 'VOIDED', print: 'Print or save as PDF', ticket: 'Ticket' }
   };
   const lang = () => { try { return localStorage.getItem('southBeachLanguage') === 'en' ? 'en' : 'pt'; } catch (_) { return navigator.language?.startsWith('en') ? 'en' : 'pt'; } };
@@ -32,8 +32,9 @@
       if (!response.ok) { note.textContent = t('down'); return; }
       const pass = await response.json();
       if (pass.orderStatus === 'PENDING') { note.textContent = t('unpaid', pass.orderReference); return; }
-      if (pass.orderStatus !== 'PAID') { note.textContent = t('cancelled', pass.orderReference); return; }
-      note.textContent = t('ready', pass.orderReference);
+      if (pass.orderStatus === 'PAID') note.textContent = t('ready', pass.orderReference);
+      else if (pass.orderStatus === 'REFUNDED') note.textContent = t('refunded', pass.orderReference); // the voided tickets are still listed below
+      else { note.textContent = t('cancelled', pass.orderReference); return; }
       pass.tickets.forEach((ticket, index) => {
         const stateText = ticket.status === 'USED' ? t('used') : ticket.status === 'VOID' ? t('voided') : t('valid');
         list.append(el('article', { className: `pass-card pass-${ticket.status.toLowerCase()}` },

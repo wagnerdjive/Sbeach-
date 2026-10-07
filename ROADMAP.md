@@ -18,6 +18,7 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [x] Página de bilhetes ligada à API (eventos publicados, quantidades, reserva de bilhetes; sem pagamento)
 - [x] Backend de eventos e vendas (eventos, encomendas com reserva de stock e expiração; sem pagamento)
 - [x] Lotes, preços e inventário (categorias com preço, capacidade, janela de venda e limite por encomenda)
+- [x] Anular e reembolsar encomendas pagas (registo do reembolso feito pela equipa; bilhetes anulados e lugares devolvidos)
 - [ ] Pagamentos reais por M-Pesa, e-Mola e cartão
 - [x] Emissão e envio de bilhetes QR (emissão ao marcar a encomenda como paga; envio por ligação privada, automático quando houver email/SMS)
 - [x] Leitura à entrada (separador *Entrada*; validação única e contagem de entradas)

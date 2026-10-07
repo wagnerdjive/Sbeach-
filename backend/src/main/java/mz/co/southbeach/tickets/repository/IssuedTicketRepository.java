@@ -23,6 +23,14 @@ public interface IssuedTicketRepository extends JpaRepository<IssuedTicket, Long
             + "where t.id = :id and t.status = mz.co.southbeach.tickets.domain.TicketStatus.VALID")
     int markUsed(Long id, Instant now);
 
+    /** Voids every still-valid ticket of an order; tickets already used at the gate are left as they are. Returns how many were voided. */
+    @Modifying(flushAutomatically = true)
+    @Query("update IssuedTicket t set t.status = mz.co.southbeach.tickets.domain.TicketStatus.VOID "
+            + "where t.orderId = :orderId and t.status = mz.co.southbeach.tickets.domain.TicketStatus.VALID")
+    int voidValidOfOrder(Long orderId);
+
+    long countByOrderIdAndStatus(Long orderId, mz.co.southbeach.tickets.domain.TicketStatus status);
+
     /** Rows of [ticketTypeId, issued, used]. */
     @Query("select t.ticketTypeId, count(t), sum(case when t.status = mz.co.southbeach.tickets.domain.TicketStatus.USED then 1 else 0 end) "
             + "from IssuedTicket t where t.eventId = :eventId and t.status <> mz.co.southbeach.tickets.domain.TicketStatus.VOID group by t.ticketTypeId")

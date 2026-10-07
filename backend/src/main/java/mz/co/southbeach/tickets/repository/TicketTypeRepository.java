@@ -34,6 +34,11 @@ public interface TicketTypeRepository extends JpaRepository<TicketType, Long> {
     @Query("update TicketType t set t.held = t.held - :quantity, t.sold = t.sold + :quantity where t.id = :id and t.held >= :quantity")
     int sell(Long id, int quantity);
 
+    /** Returns sold seats to stock after a refund. */
+    @Modifying(flushAutomatically = true, clearAutomatically = false)
+    @Query("update TicketType t set t.sold = t.sold - :quantity where t.id = :id and t.sold >= :quantity")
+    int unsell(Long id, int quantity);
+
     /** Lowering capacity below what is sold or held is refused (0 rows). */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update TicketType t set t.capacity = :capacity where t.id = :id and t.sold + t.held <= :capacity")

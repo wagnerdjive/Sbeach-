@@ -12,7 +12,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OrderResponse(
         String reference, OrderStatus status, long totalMinor, String currency, Instant expiresAt, Instant createdAt,
-        List<Line> items, String fullName, String phone, String email, String ticketsUrl
+        List<Line> items, String fullName, String phone, String email, String ticketsUrl, String refundNote
 ) {
     public record Line(Long ticketTypeId, int quantity, long unitPriceMinor) { }
 
@@ -25,6 +25,6 @@ public record OrderResponse(
         return new OrderResponse(o.getReference(), o.getStatus(), o.getTotalMinor(), o.getCurrency(), o.getExpiresAt(),
                 o.getCreatedAt(),
                 items.stream().map(i -> new Line(i.getTicketTypeId(), i.getQuantity(), i.getUnitPriceMinor())).toList(),
-                admin ? o.getFullName() : null, admin ? o.getPhone() : null, admin ? o.getEmail() : null, admin ? ticketsUrl : null);
+                admin ? o.getFullName() : null, admin ? o.getPhone() : null, admin ? o.getEmail() : null, admin ? ticketsUrl : null, admin ? o.getRefundNote() : null);
     }
 }

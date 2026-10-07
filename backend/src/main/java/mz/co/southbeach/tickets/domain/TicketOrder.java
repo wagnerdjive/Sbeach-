@@ -17,6 +17,8 @@ public class TicketOrder {
     @Column(nullable = false, length = 3) private String currency;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 16) private OrderStatus status;
     @Column(name = "access_token", length = 40) private String accessToken;
+    @Column(name = "refunded_at") private Instant refundedAt;
+    @Column(name = "refund_note", length = 200) private String refundNote;
     @Column(name = "expires_at", nullable = false) private Instant expiresAt;
     @Column(name = "created_at", nullable = false) private Instant createdAt;
     @Column(name = "updated_at", nullable = false) private Instant updatedAt;
@@ -30,10 +32,16 @@ public class TicketOrder {
         this.status = OrderStatus.PENDING; this.createdAt = now; this.updatedAt = now;
     }
 
+    public void markRefunded(String note, Instant now) {
+        this.status = OrderStatus.REFUNDED; this.refundNote = note; this.refundedAt = now; this.updatedAt = now;
+    }
+
     public void assignAccessToken(String token) { this.accessToken = token; }
 
     public void setStatus(OrderStatus status, Instant now) { this.status = status; this.updatedAt = now; }
 
+    public String getRefundNote() { return refundNote; }
+    public Instant getRefundedAt() { return refundedAt; }
     public String getAccessToken() { return accessToken; }
     public Long getId() { return id; }
     public String getReference() { return reference; }

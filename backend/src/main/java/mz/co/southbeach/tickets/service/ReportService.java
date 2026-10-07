@@ -29,7 +29,7 @@ public class ReportService {
     public record DayRow(LocalDate date, long tickets, long revenueMinor) { }
     public record StatusRow(OrderStatus status, long orders, long tickets) { }
     public record SalesReport(Long eventId, String title, Instant startsAt, long paidOrders, long ticketsSold, long revenueMinor,
-                              long admitted, List<TypeRow> byType, List<DayRow> byDay, List<StatusRow> byStatus) { }
+                              long refundedMinor, long admitted, List<TypeRow> byType, List<DayRow> byDay, List<StatusRow> byStatus) { }
 
     private final EventRepository events;
     private final TicketTypeRepository types;
@@ -59,7 +59,7 @@ public class ReportService {
     private SalesReport build(Event event) {
         var eventTypes = types.findByEventIdOrderByIdAsc(event.getId());
         if (eventTypes.isEmpty()) {
-            return new SalesReport(event.getId(), event.getTitle(), event.getStartsAt(), 0, 0, 0, 0, List.of(), List.of(), List.of());
+            return new SalesReport(event.getId(), event.getTitle(), event.getStartsAt(), 0, 0, 0, 0, 0, List.of(), List.of(), List.of());
         }
         var typeIds = eventTypes.stream().map(TicketType::getId).toList();
 
@@ -88,7 +88,7 @@ public class ReportService {
 
         return new SalesReport(event.getId(), event.getTitle(), event.getStartsAt(), paidOrderIds.size(),
                 byType.stream().mapToLong(t -> t.sold()).sum(), byType.stream().mapToLong(TypeRow::revenueMinor).sum(),
-                byType.stream().mapToLong(TypeRow::admitted).sum(), byType, byDay, byStatus);
+                items.refundedValue(typeIds), byType.stream().mapToLong(TypeRow::admitted).sum(), byType, byDay, byStatus);
     }
 
     /** All orders of an event as CSV (Excel-friendly, UTF-8 with BOM). Cells that a spreadsheet could run as a formula are neutralised. */

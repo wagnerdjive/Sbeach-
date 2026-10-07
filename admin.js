@@ -148,7 +148,7 @@
   const toInstant = (local) => (local ? new Date(`${local}:00+02:00`).toISOString() : null);
   const toLocalInput = (iso) => (iso ? new Date(new Date(iso).getTime() + 2 * 3600 * 1000).toISOString().slice(0, 16) : '');
   const eventStatusLabels = { DRAFT: 'Rascunho', PUBLISHED: 'Publicado', CANCELLED: 'Cancelado' };
-  const orderStatusLabels = { PENDING: 'Pendente', PAID: 'Paga', EXPIRED: 'Expirada', CANCELLED: 'Cancelada' };
+  const orderStatusLabels = { PENDING: 'Pendente', PAID: 'Paga', EXPIRED: 'Expirada', CANCELLED: 'Cancelada', REFUNDED: 'Reembolsada' };
 
   function badge(status, labels) {
     const span = document.createElement('span');
@@ -376,6 +376,21 @@
         });
         actions.append(button);
       }
+      if (order.status === 'PAID') {
+        const refund = actionButton('Reembolsar', async () => {
+          if (!confirm(`Só confirme depois de ter devolvido ${money(order.totalMinor)} a ${order.fullName}.\n\nOs bilhetes da encomenda ${order.reference} ficam anulados e os lugares voltam à venda. Não pode ser desfeito.`)) return;
+          const note = prompt('Nota do reembolso (opcional, ex.: motivo e como foi devolvido):', '');
+          if (note === null) return;
+          refund.disabled = true;
+          try {
+            await api(`/api/admin/orders/${encodeURIComponent(order.reference)}/refund`, { method: 'POST', body: JSON.stringify({ note: note.trim() || null }) });
+            await loadOrders();
+            say(message, `${order.reference}: reembolsada. Bilhetes anulados.`, true);
+          } catch (error) { say(message, error.message); refund.disabled = false; }
+        });
+        actions.append(refund);
+      }
+      if (order.refundNote) actions.append(node('small', order.refundNote, 'content-key'));
       if (order.ticketsUrl) {
         actions.append(actionButton('Copiar ligação dos bilhetes', async () => {
           try { await navigator.clipboard.writeText(order.ticketsUrl); say(message, 'Ligação copiada. Envie-a ao cliente.', true); }
@@ -476,6 +491,7 @@
     reportTiles.replaceChildren(
       tile('Receita (paga)', money(report.revenueMinor)),
       tile('Bilhetes vendidos', String(report.ticketsSold), `${report.paidOrders} encomenda(s) paga(s)`),
+      ...(report.refundedMinor ? [tile('Reembolsado', money(report.refundedMinor), 'já descontado da receita')] : []),
       tile('Entraram', String(report.admitted), report.ticketsSold ? `${Math.round((report.admitted / report.ticketsSold) * 100)}% dos vendidos` : ''),
       tile('Reservados (por pagar)', String(report.byType.reduce((sum, type) => sum + type.held, 0))));
     const types = $('[data-report-types]');

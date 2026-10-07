@@ -99,6 +99,15 @@ public class AdminTicketingController {
         return adminView(result.order(), result.items());
     }
 
+    public record RefundRequest(@jakarta.validation.constraints.Size(max = 200) String note) { }
+
+    /** Records a refund staff already paid out (cash, bank, mobile money). It voids the tickets and frees the seats. */
+    @PostMapping("/orders/{reference}/refund")
+    public OrderResponse refund(@PathVariable String reference, @Valid @RequestBody(required = false) RefundRequest request) {
+        var result = orders.refund(reference, request == null ? null : request.note());
+        return adminView(result.order(), result.items());
+    }
+
     private OrderResponse adminView(mz.co.southbeach.tickets.domain.TicketOrder order, java.util.List<mz.co.southbeach.tickets.domain.TicketOrderItem> lines) {
         var url = order.getStatus() == OrderStatus.PAID && order.getAccessToken() != null
                 ? mz.co.southbeach.tickets.notification.TicketNotifier.ticketsUrl(siteUrl, order.getAccessToken()) : null;

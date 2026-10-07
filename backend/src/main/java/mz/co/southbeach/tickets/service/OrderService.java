@@ -136,9 +136,36 @@ public class OrderService {
         var lines = items.findByOrderId(order.getId());
         if (order.getStatus() == OrderStatus.CANCELLED) return new Placed(order, lines);
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new TicketConflictException("Only pending orders can be cancelled here; " + order.getStatus() + " orders need a refund flow.");
+            throw new TicketConflictException("Only pending orders can be cancelled here; " + order.getStatus() + " orders cannot be cancelled here; use a refund for paid orders.");
         }
         release(order, lines, OrderStatus.CANCELLED);
+        return new Placed(order, lines);
+    }
+
+    /**
+     * Records a refund that staff already made outside the system: the order becomes REFUNDED, its tickets stop admitting
+     * people and the seats go back on sale. Refused once anyone has used a ticket of the order.
+     */
+    @Transactional
+    public Placed refund(String reference, String note) {
+        var order = find(reference);
+        var lines = items.findByOrderId(order.getId());
+        if (order.getStatus() == OrderStatus.REFUNDED) return new Placed(order, lines);
+        if (order.getStatus() != OrderStatus.PAID) {
+            throw new TicketConflictException("Only paid orders can be refunded; this one is " + order.getStatus() + ".");
+        }
+        // Void first, then look for used tickets: a scanner admitting at the same moment either wins (we roll back)
+        // or finds the ticket already void.
+        tickets.voidValidOfOrder(order.getId());
+        if (tickets.countByOrderIdAndStatus(order.getId(), mz.co.southbeach.tickets.domain.TicketStatus.USED) > 0) {
+            throw new TicketConflictException("Some tickets of this order were already used at the entrance, so it cannot be refunded.");
+        }
+        for (var line : lines) {
+            if (types.unsell(line.getTicketTypeId(), line.getQuantity()) == 0) {
+                throw new IllegalStateException("Sold stock missing for order " + reference);
+            }
+        }
+        order.markRefunded(note == null || note.isBlank() ? null : note.strip(), clock.instant());
         return new Placed(order, lines);
     }
 
