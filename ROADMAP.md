@@ -9,6 +9,8 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [x] Endpoints protegidos para consultar, confirmar ou cancelar
 - [x] Verificar disponibilidade real e evitar conflitos (capacidade por espaço e horário, de forma atómica)
 - [x] Painel para a equipa (rever, confirmar e cancelar pedidos)
+- [x] Mensagens por WhatsApp enviadas pela equipa (botão *WhatsApp* nas reservas e encomendas; abre a conversa com a mensagem pronta)
+- [ ] Envio automático por WhatsApp (WhatsApp Business API) — pendente: conta Meta Business, número e modelos de mensagem aprovados
 - [ ] Confirmações e lembretes por email/SMS — pendente: escolher fornecedor e configurar conta (código base pronto: email por SMTP e interface `SmsGateway`, desligados por omissão)
 - [ ] Publicar a API e configurar a base de dados de produção — pendente: escolher alojamento
 

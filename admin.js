@@ -46,6 +46,34 @@
     return button;
   }
 
+  // ---- WhatsApp -------------------------------------------------------------
+  // Opens a chat with the customer in the staff member's own WhatsApp (app or web) with the message already written;
+  // staff read it, adjust it if they want, and press send. Nothing is sent from the server.
+  const MOZAMBIQUE = '258';
+  function whatsappNumber(phone) {
+    // Leading zeros are a dialling prefix (00 258…) or a local trunk zero (082…), never part of the number.
+    let digits = String(phone || '').replace(/\D/g, '').replace(/^0+/, '');
+    if (digits.length === 9 && digits.startsWith('8')) digits = MOZAMBIQUE + digits; // local Mozambican number without +258
+    return digits.length >= 10 && digits.length <= 15 ? digits : null;
+  }
+  function whatsappButton(phone, text) {
+    const number = whatsappNumber(phone);
+    const button = actionButton('WhatsApp', () => window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank', 'noopener'));
+    button.className = 'whatsapp-button';
+    if (!number) { button.disabled = true; button.title = 'Número sem indicativo de país: não é possível abrir o WhatsApp.'; }
+    else button.title = `Abrir conversa com ${phone}`;
+    return button;
+  }
+  const dmy = (isoDate) => isoDate.split('-').reverse().join('/');
+  function reservationMessage(r) {
+    const when = `${dmy(r.requestedDate)} às ${String(r.requestedTime).slice(0, 5)}`;
+    const who = `${r.partySize} pessoa${r.partySize === 1 ? '' : 's'}`;
+    const place = r.venue === 'NO_PREFERENCE' ? 'South Beach' : venueLabels[r.venue];
+    if (r.status === 'CONFIRMED') return `Olá ${r.fullName}! A sua reserva ${r.reference} no South Beach está confirmada para ${when} (${who}, ${place}). Até breve! Para alterar, responda a esta mensagem.`;
+    if (r.status === 'CANCELLED') return `Olá ${r.fullName}. A sua reserva ${r.reference} (${dmy(r.requestedDate)}) no South Beach foi cancelada. Se quiser reservar outra data, responda a esta mensagem.`;
+    return `Olá ${r.fullName}! Recebemos o seu pedido de reserva ${r.reference} para ${when} (${who}, ${place}). Vamos confirmar a disponibilidade consigo em breve.`;
+  }
+
   async function changeStatus(reservation, status, venue, buttons) {
     buttons.forEach((button) => { button.disabled = true; });
     try {
@@ -77,7 +105,7 @@
       cell(tr, '').append(badge);
       const actions = document.createElement('div');
       cell(tr, '', 'admin-actions').append(actions);
-      if (r.status === 'CANCELLED') continue;
+      if (r.status === 'CANCELLED') { actions.append(whatsappButton(r.phone, reservationMessage(r))); continue; }
       const buttons = [];
       let venueSelect = null;
       if (r.status === 'PENDING') {
@@ -92,7 +120,7 @@
       buttons.push(actionButton('Cancelar', () => {
         if (confirm(`Cancelar a reserva ${r.reference} de ${r.fullName}?`)) changeStatus(r, 'CANCELLED', null, buttons);
       }));
-      actions.append(...buttons);
+      actions.append(...buttons, whatsappButton(r.phone, reservationMessage(r)));
     }
   }
 
@@ -340,6 +368,7 @@
   async function loadOrders() {
     eventsCache = await api('/api/admin/events');
     const names = new Map(eventsCache.flatMap((event) => event.ticketTypes.map((type) => [type.id, `${type.name} (${event.title})`])));
+    const eventOfType = new Map(eventsCache.flatMap((event) => event.ticketTypes.map((type) => [type.id, event.title])));
     const query = orderFilter.value ? `?status=${encodeURIComponent(orderFilter.value)}&size=100` : '?size=100';
     const page = await api('/api/admin/orders' + query);
     orderRows.replaceChildren();
@@ -389,6 +418,13 @@
           } catch (error) { say(message, error.message); refund.disabled = false; }
         });
         actions.append(refund);
+      }
+      if (order.status === 'PENDING' || order.status === 'PAID') {
+        const title = eventOfType.get(order.items[0]?.ticketTypeId) || 'South Beach';
+        const text = order.status === 'PAID' && order.ticketsUrl
+          ? `Olá ${order.fullName}! Recebemos o seu pagamento (encomenda ${order.reference}, ${title}). Os seus bilhetes com QR estão aqui: ${order.ticketsUrl} — mostre o QR à entrada. Até breve no South Beach!`
+          : `Olá ${order.fullName}! Reservámos os seus bilhetes para ${title} (encomenda ${order.reference}, total ${money(order.totalMinor)}) até às ${new Intl.DateTimeFormat('pt-PT', { timeZone: 'Africa/Maputo', timeStyle: 'short' }).format(new Date(order.expiresAt))}. Como prefere pagar? M-Pesa, e-Mola ou numerário no local.`;
+        actions.append(whatsappButton(order.phone, text));
       }
       if (order.refundNote) actions.append(node('small', order.refundNote, 'content-key'));
       if (order.ticketsUrl) {
