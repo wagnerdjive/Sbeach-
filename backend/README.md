@@ -127,3 +127,7 @@ O separador *Eventos passados* do painel gere o arquivo: título, data (texto li
     python3 backend/tools/import_old_site.py --api http://localhost:8080 --user admin --password '<APP_ADMIN_PASSWORD>'
 
 Corra-o também contra a API de produção quando esta existir. Os horários de funcionamento (`site.hours`) e as ligações Instagram/Facebook (`site.instagram`, `site.facebook`) editam-se em *Conteúdo do site*.
+
+## Imagens do site
+
+As imagens que vêm com as páginas estão em `assets/img/` (copiadas do site antigo, sem depender dele). Cada uma — logótipo, imagens de fundo e fotografias — pode ser substituída no painel (*Conteúdo do site*, escolha a página); as fotografias da galeria que vieram de origem apontam para esses ficheiros (`assets/img/…` é um endereço aceite pela API). Para publicar, a pasta `assets/` tem de ir junto com as páginas.

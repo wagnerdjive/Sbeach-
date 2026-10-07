@@ -41,6 +41,7 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [x] Arquivo de eventos passados com detalhes e álbum de fotografias (separador *Eventos passados*: criar, ordenar, capa, enviar várias fotos; página `past-event.html`)
 - [x] Conteúdo do site antigo importado: 12 eventos, 369 fotografias de álbuns e 22 fotografias na galeria (`backend/tools/import_old_site.py`)
 - [x] Horários de funcionamento e ligações às redes sociais editáveis no painel (*Conteúdo do site*)
+- [x] Imagens do site alojadas no próprio site (`assets/img`), sem dependência do servidor de imagens do site antigo; logótipo, fundos e fotografias editáveis em *Conteúdo do site*
 - [x] CMS para editar o conteúdo sem alterar ficheiros do site (textos PT/EN, imagens e ligações; separador *Conteúdo do site*)
 
 ## Direcção visual

@@ -100,4 +100,13 @@ class GalleryIntegrationTest {
         admin(delete("/api/admin/gallery/" + id), null).andExpect(status().isNoContent());
         mvc.perform(get(url)).andExpect(status().isNotFound()); // the stored file went with the last photo using it
     }
+
+    @Test
+    void imagesShippedWithTheSiteAreAcceptedButPathTricksAreNot() throws Exception {
+        long id = body(admin(post("/api/admin/gallery"), photo("assets/img/f436ca_d9fb55418bc34b64a73f395579f6d962.jpg", "Do site"))).get("id").asLong();
+        admin(delete("/api/admin/gallery/" + id), null).andExpect(status().isNoContent());
+        for (String bad : new String[] {"../assets/img/a.jpg", "assets/img/../../secret.jpg", "assets/img/a.svg", "/assets/img/a.jpg", "assets/img/a/b.jpg", "assets/other/a.jpg"}) {
+            admin(post("/api/admin/gallery"), photo(bad, "Mau")).andExpect(status().isBadRequest());
+        }
+    }
 }

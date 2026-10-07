@@ -5,9 +5,9 @@ public final class ImageTypes {
     private ImageTypes() { }
 
     private static final java.util.regex.Pattern URL = java.util.regex.Pattern.compile(
-            "^(https://[^\\s\"'<>()\\\\]{4,480}|/api/media/\\d{1,18})$");
+            "^(https://[^\\s\"'<>()\\\\]{4,480}|/api/media/\\d{1,18}|assets/img/[A-Za-z0-9_~.-]{1,120}\\.(jpg|jpeg|png|webp))$");
 
-    /** An https address or one of our own uploaded files; anything else (http, data:, javascript:) is refused. */
+    /** An https address, one of our own uploaded files or an image shipped with the site (assets/img/…); anything else (http, data:, javascript:) is refused. */
     public static boolean isAllowedUrl(String value) {
         return value != null && URL.matcher(value).matches();
     }
