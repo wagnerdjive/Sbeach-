@@ -111,3 +111,7 @@ Build a container with `docker build -t south-beach-reservations backend/` from 
 ## Scope
 
 This service stores and manages requests and enforces seat capacity on confirmation, but has no table-level inventory, opening hours or public availability endpoint. It does not yet send confirmations/reminders, or integrate with email/SMS. The team must review a request before confirming it.
+
+## Menus
+
+O separador *Menus* do painel gere os pratos e bebidas de cada espaço (Restaurante, Beach Bar, Sports Bar): secção, nome e descrição em português e inglês, preço em MZN (opcional), ordem e visibilidade. A página `menus.html` lê `GET /api/menu`; a equipa usa `/api/admin/menu` e `PUT /api/admin/menu-order`. Um espaço sem itens continua a mostrar a ligação para o menu completo.

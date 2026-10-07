@@ -190,7 +190,7 @@ window.SouthBeachTranslations = {
     'TRÊS MENUS, UM DESTINO': 'THREE MENUS, ONE DESTINATION',
     'O que lhe': 'What are you',
     'apetece hoje?': 'in the mood for today?',
-    'Os menus e preços completos são mantidos nas páginas actuais do South Beach. Abra a área pretendida para consultar a versão publicada.': 'Full menus and prices are maintained on South Beach’s current pages. Choose a space to view the published menu.',
+    'Escolha o espaço para ver os pratos, as bebidas e os preços. Se um menu ainda não estiver aqui, abra a versão publicada.': 'Choose a space to see the dishes, drinks and prices. If a menu is not here yet, open the published version.',
     'MENU DO RESTAURANTE': 'RESTAURANT MENU',
     'Sabores do mar': 'Flavours of the sea',
     'e muito mais.': 'and much more.',

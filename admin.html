@@ -18,7 +18,7 @@
         <p class="admin-message" data-login-message role="status"></p>
       </form>
       <section class="admin-panel" data-panel hidden>
-        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button><button type="button" role="tab" data-tab="content" aria-selected="false">Conteúdo do site</button><button type="button" role="tab" data-tab="gallery" aria-selected="false">Galeria</button><button type="button" role="tab" data-tab="reports" aria-selected="false">Relatórios</button></div>
+        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button><button type="button" role="tab" data-tab="content" aria-selected="false">Conteúdo do site</button><button type="button" role="tab" data-tab="menu" aria-selected="false">Menus</button><button type="button" role="tab" data-tab="gallery" aria-selected="false">Galeria</button><button type="button" role="tab" data-tab="reports" aria-selected="false">Relatórios</button></div>
         <p class="admin-message" data-message role="status"></p>
 
         <div data-view="reservations">
@@ -75,6 +75,28 @@
           <p class="content-help">Escreva texto simples. Uma nova linha é uma quebra de linha e <code>*palavra*</code> fica em itálico (cor de destaque). Se alterar o português e deixar o inglês igual à tradução original, o site usa o português nas duas línguas — actualize também o inglês. “Repor original” volta ao texto da página.</p>
           <div data-content-fields></div>
           <p class="admin-empty" data-content-empty hidden>Esta página não tem campos editáveis.</p>
+        </div>
+
+        <div data-view="menu" hidden>
+          <div class="admin-toolbar"><button type="button" class="admin-primary" data-new-menu-item>Adicionar prato ou bebida</button><button type="button" class="admin-refresh" data-refresh-menu>Actualizar</button><a class="admin-refresh" href="menus.html" target="_blank" rel="noopener">Ver os menus</a></div>
+          <form class="admin-form" data-menu-form hidden>
+            <h2 data-menu-form-title>Novo item</h2>
+            <div class="admin-form-grid">
+              <label>Espaço<select name="venue"><option value="RESTAURANT">Restaurante</option><option value="BEACH">Beach Bar</option><option value="SPORTS">Sports Bar</option></select></label>
+              <label>Tipo<select name="kind"><option value="FOOD">Comida</option><option value="DRINKS">Bebidas</option></select></label>
+              <label>Secção (português)<input name="sectionPt" required maxlength="80" placeholder="Ex.: Sushi, Entradas, Cocktails" /></label>
+              <label>Secção (inglês, opcional)<input name="sectionEn" maxlength="80" /></label>
+              <label>Nome (português)<input name="namePt" required maxlength="120" /></label>
+              <label>Nome (inglês, opcional)<input name="nameEn" maxlength="120" /></label>
+              <label class="wide">Descrição (português, opcional)<textarea name="descriptionPt" rows="2" maxlength="400"></textarea></label>
+              <label class="wide">Descrição (inglês, opcional)<textarea name="descriptionEn" rows="2" maxlength="400"></textarea></label>
+              <label>Preço em MZN (vazio = sem preço)<input name="price" type="number" min="0" step="0.01" inputmode="decimal" /></label>
+              <label><span>Visível no site</span><select name="visible"><option value="true">Sim</option><option value="false">Não (oculto)</option></select></label>
+            </div>
+            <div class="admin-form-actions"><button class="admin-primary" type="submit">Guardar item</button><button type="button" data-cancel-menu-form>Fechar</button></div>
+          </form>
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Espaço</th><th>Secção</th><th>Item</th><th>Preço</th><th>Estado</th><th>Acções</th></tr></thead><tbody data-menu-rows></tbody></table></div>
+          <p class="admin-empty" data-menu-empty hidden>Ainda não há itens. Enquanto um espaço não tiver itens, a página Menus mostra a ligação para o menu completo.</p>
         </div>
 
         <div data-view="gallery" hidden>

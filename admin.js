@@ -160,7 +160,7 @@
   // ---- Tabs -------------------------------------------------------------
   const views = Object.fromEntries([...document.querySelectorAll('[data-view]')].map((node) => [node.dataset.view, node]));
   const tabs = [...document.querySelectorAll('[data-tab]')];
-  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent(), gallery: () => loadGallery(), reports: () => loadReports() };
+  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent(), menu: () => loadMenu(), gallery: () => loadGallery(), reports: () => loadReports() };
   function showView(name) {
     tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.tab === name)));
     Object.entries(views).forEach(([key, node]) => { node.hidden = key !== name; });
@@ -675,6 +675,75 @@
   }
 
   async function loadGallery() { photosCache = await api('/api/admin/gallery'); renderGallery(); }
+
+  // ---- Menus ------------------------------------------------------------------
+  const menuForm = $('[data-menu-form]'), menuRows = $('[data-menu-rows]'), menuEmpty = $('[data-menu-empty]');
+  const menuVenueLabels = { RESTAURANT: 'Restaurante', BEACH: 'Beach Bar', SPORTS: 'Sports Bar' }, menuKindLabels = { FOOD: 'Comida', DRINKS: 'Bebidas' };
+  let menuCache = [], editingMenuId = null;
+
+  function closeMenuForm() { menuForm.hidden = true; menuForm.reset(); editingMenuId = null; }
+  $('[data-cancel-menu-form]').addEventListener('click', closeMenuForm);
+
+  function openMenuForm(item) {
+    closeForms(); closeMenuForm();
+    editingMenuId = item ? item.id : null;
+    $('[data-menu-form-title]').textContent = item ? 'Editar item' : 'Novo item';
+    const f = menuForm.elements;
+    if (item) {
+      f.venue.value = item.venue; f.kind.value = item.kind; f.sectionPt.value = item.sectionPt; f.sectionEn.value = item.sectionEn ?? '';
+      f.namePt.value = item.namePt; f.nameEn.value = item.nameEn ?? ''; f.descriptionPt.value = item.descriptionPt ?? ''; f.descriptionEn.value = item.descriptionEn ?? '';
+      f.price.value = item.priceCents == null ? '' : String(item.priceCents / 100); f.visible.value = String(item.visible);
+    }
+    menuForm.hidden = false;
+    f.namePt.focus();
+  }
+
+  menuForm.addEventListener('submit', async (submitEvent) => {
+    submitEvent.preventDefault();
+    const f = menuForm.elements, text = (field) => f[field].value.trim() || null;
+    const price = f.price.value.trim();
+    const body = { venue: f.venue.value, kind: f.kind.value, sectionPt: f.sectionPt.value.trim(), sectionEn: text('sectionEn'), namePt: f.namePt.value.trim(),
+      nameEn: text('nameEn'), descriptionPt: text('descriptionPt'), descriptionEn: text('descriptionEn'),
+      priceCents: price === '' ? null : Math.round(Number(price) * 100), visible: f.visible.value === 'true' };
+    try {
+      await api(editingMenuId ? `/api/admin/menu/${editingMenuId}` : '/api/admin/menu', { method: editingMenuId ? 'PUT' : 'POST', body: JSON.stringify(body) });
+      closeMenuForm(); await loadMenu(); say(message, 'Item guardado.', true);
+    } catch (error) { say(message, error.message); }
+  });
+  $('[data-new-menu-item]').addEventListener('click', () => openMenuForm(null));
+  $('[data-refresh-menu]').addEventListener('click', () => loadMenu().then(() => say(message, '')).catch((error) => say(message, error.message)));
+
+  async function moveMenuItem(index, delta) {
+    const target = index + delta;
+    if (target < 0 || target >= menuCache.length) return;
+    const ids = menuCache.map((item) => item.id);
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    try { menuCache = await api('/api/admin/menu-order', { method: 'PUT', body: JSON.stringify({ ids }) }); renderMenu(); say(message, 'Ordem guardada.', true); }
+    catch (error) { say(message, error.message); }
+  }
+
+  function renderMenu() {
+    menuRows.replaceChildren();
+    menuEmpty.hidden = menuCache.length > 0;
+    menuCache.forEach((item, index) => {
+      const tr = node('tr');
+      cell(tr, menuVenueLabels[item.venue]); cell(tr, `${menuKindLabels[item.kind]} · ${item.sectionPt}`); cell(tr, item.namePt);
+      cell(tr, item.priceCents == null ? '—' : money(item.priceCents)); cell(tr, item.visible ? 'Visível' : 'Oculto');
+      const buttons = node('div', undefined, 'admin-row-actions');
+      const up = actionButton('↑', () => moveMenuItem(index, -1)); up.disabled = index === 0; up.setAttribute('aria-label', `Mover ${item.namePt} para cima`);
+      const down = actionButton('↓', () => moveMenuItem(index, 1)); down.disabled = index === menuCache.length - 1; down.setAttribute('aria-label', `Mover ${item.namePt} para baixo`);
+      const remove = actionButton('Remover', async () => {
+        if (!confirm(`Remover “${item.namePt}” do menu?`)) return;
+        try { await api(`/api/admin/menu/${item.id}`, { method: 'DELETE' }); await loadMenu(); say(message, 'Item removido.', true); }
+        catch (error) { say(message, error.message); }
+      });
+      buttons.append(up, down, actionButton('Editar', () => openMenuForm(item)), remove);
+      const actions = node('td'); actions.append(buttons); tr.append(actions);
+      menuRows.append(tr);
+    });
+  }
+
+  async function loadMenu() { menuCache = await api('/api/admin/menu'); renderMenu(); }
 
   // ---- Site content (CMS) ---------------------------------------------------
   const contentPage = $('[data-content-page]'), contentFields = $('[data-content-fields]'), contentEmpty = $('[data-content-empty]');

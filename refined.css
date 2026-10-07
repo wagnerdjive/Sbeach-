@@ -418,3 +418,17 @@ body.refined{
 .refined .event-card-media{background:linear-gradient(135deg,var(--black),var(--blue))}
 .refined .reservation-form input:focus,.refined .reservation-form select:focus,.refined .reservation-form textarea:focus{outline:0}
 .refined .primary-nav a.nav-book[aria-current=page]{color:#fff}
+
+/* Menu items managed by staff */
+.refined .menu-panel.has-items{display:block}
+.refined .menu-panel.has-items>div:first-child{margin-bottom:34px}
+.refined .menu-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:36px 56px;border-top:1px solid var(--line);padding-top:34px}
+.refined .menu-items[hidden]{display:none}
+.refined .menu-section h4{margin:0 0 14px;font:500 11px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--blue)}
+.refined .menu-section ul{list-style:none;margin:0;padding:0}
+.refined .menu-section li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 18px;padding:12px 0;border-bottom:1px solid var(--line)}
+.refined .menu-dish-name{font:400 22px/1.2 var(--display);font-size-adjust:.46;color:var(--ink)}
+.refined .menu-dish-price{font:500 12px var(--sans);letter-spacing:.06em;color:var(--black);white-space:nowrap;padding-top:6px}
+.refined .menu-section li p{flex-basis:100%;margin:0;font-size:12px;line-height:1.7;color:var(--muted)}
+.refined .menu-empty{margin:0;color:var(--muted);font-size:13px}
+.refined .menu-external[hidden]{display:none}
