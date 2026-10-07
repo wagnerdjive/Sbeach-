@@ -139,7 +139,10 @@ class TicketEntryIntegrationTest {
 
         mvc.perform(post("/api/admin/check-in").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"eventId\":" + ids[0] + ",\"code\":\"" + code + "\"}")).andExpect(status().isUnauthorized());
-        assertThat(checkIn(other[0], code).get("outcome").asText()).isEqualTo("WRONG_EVENT");
+        var wrong = checkIn(other[0], code);
+        assertThat(wrong.get("outcome").asText()).isEqualTo("WRONG_EVENT");
+        assertThat(wrong.get("eventTitle").asText()).isNotEmpty();
+        assertThat(undo(other[0], code).get("outcome").asText()).isEqualTo("NOT_FOUND"); // the other gate cannot touch it either
         assertThat(checkIn(ids[0], "  " + code.toLowerCase() + " ").get("outcome").asText()).isEqualTo("ADMITTED");
         var second = checkIn(ids[0], code);
         assertThat(second.get("outcome").asText()).isEqualTo("ALREADY_USED");

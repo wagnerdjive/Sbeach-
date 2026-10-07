@@ -444,11 +444,12 @@
   const scan = $('[data-scan]'), scanVideo = $('[data-scan-video]'), scanCanvas = $('[data-scan-canvas]');
   const scanResult = $('[data-scan-result]'), scanHint = $('[data-scan-hint]'), scanCount = $('[data-scan-count]');
   const torchButton = $('[data-scan-torch]'), soundButton = $('[data-scan-sound]');
+  const currentEventName = () => entryEvent.selectedOptions[0]?.text.split(' — ')[0] || '';
   const timeOf = (iso) => new Intl.DateTimeFormat('pt-PT', { timeZone: 'Africa/Maputo', timeStyle: 'short' }).format(new Date(iso));
   const outcomes = {
     ADMITTED: ['ok', 'ENTRADA AUTORIZADA', (r) => r.ticketType || ''],
     ALREADY_USED: ['bad', 'JÁ UTILIZADO', (r) => `Entrou às ${timeOf(r.usedAt)}${r.ticketType ? ` · ${r.ticketType}` : ''}`],
-    WRONG_EVENT: ['bad', 'OUTRO EVENTO', (r) => `Este bilhete é de: ${r.eventTitle || 'outro evento'}`],
+    WRONG_EVENT: ['bad', 'BILHETE DE OUTRO EVENTO', (r) => `Este bilhete é para «${r.eventTitle || 'outro evento'}». Está a validar «${currentEventName()}». Não entra.`],
     VOID: ['bad', 'BILHETE ANULADO', () => 'Encomenda reembolsada ou cancelada.'],
     NOT_FOUND: ['bad', 'CÓDIGO DESCONHECIDO', () => 'Confira o código ou peça outro bilhete.'],
     UNDONE: ['warn', 'ENTRADA DESFEITA', (r) => `${r.ticketType || 'Bilhete'} pode voltar a ser lido.`],
