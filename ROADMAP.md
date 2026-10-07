@@ -36,3 +36,8 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [x] Páginas informativas, menus, galeria e contactos
 - [x] Gestão das fotos da galeria (adicionar, ordenar, ocultar e remover; separador *Galeria*)
 - [x] CMS para editar o conteúdo sem alterar ficheiros do site (textos PT/EN, imagens e ligações; separador *Conteúdo do site*)
+
+## Direcção visual
+
+- [x] Página inicial: direcção clara e arejada, com detalhes finos (inspirada em Nikki Beach e SALT) — `home.css`, `home.js`; por aprovar
+- [ ] Estender a direcção às restantes páginas, depois de aprovada a página inicial
