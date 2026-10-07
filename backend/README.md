@@ -84,7 +84,11 @@ Staff edit the website's text, images and links in *Conteúdo do site* in the st
 
 Text is plain text: a new line is a line break and `*word*` is italic accent; no HTML is ever interpreted. Links must be `https://`, `tel:`, `mailto:` or a page of this site, and images `https://` or an uploaded file (`POST /api/admin/media`, JPEG/PNG/WebP up to 3 MB, stored in the database and served at `/api/media/{id}`). If staff change the Portuguese but not the English, English visitors see the Portuguese text, and the editor warns about it.
 
-Not editable yet: menus beyond their page text, the gallery images, text inside links with arrows (buttons), navigation and footer, the opening of events/tickets pages, and adding or removing sections. New editable spots are added by marking the element in the HTML.
+Not editable yet: menus beyond their page text, text inside links with arrows (buttons), navigation and footer, the opening of events/tickets pages, and adding or removing sections. New editable spots are added by marking the element in the HTML.
+
+## Gallery photos
+
+The gallery page shows photos managed in the *Galeria* tab: staff add photos (upload up to 3 MB, or an https address), set a Portuguese and optional English caption, the group (*Espaços* or *Eventos passados*) and the grid format (normal, wide, tall), hide a photo without deleting it, reorder with the arrows and remove it. `GET /api/gallery` is public (visible photos in order); `GET|POST /api/admin/gallery`, `PUT|DELETE /api/admin/gallery/{id}` and `PUT /api/admin/gallery-order` (`{"ids": [...]}`, every photo exactly once) are staff-only. The nine photos that were in `gallery.html` are seeded by migration `V8`, and stay in the HTML as the fallback if the API is down. Removing a photo, or replacing its image, also deletes its uploaded file when no other photo uses it. An English caption left empty falls back to the site's existing translation, then to the Portuguese one.
 
 ## Production database
 

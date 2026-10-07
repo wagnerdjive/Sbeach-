@@ -132,7 +132,7 @@
   // ---- Tabs -------------------------------------------------------------
   const views = Object.fromEntries([...document.querySelectorAll('[data-view]')].map((node) => [node.dataset.view, node]));
   const tabs = [...document.querySelectorAll('[data-tab]')];
-  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent() };
+  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent(), gallery: () => loadGallery() };
   function showView(name) {
     tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.tab === name)));
     Object.entries(views).forEach(([key, node]) => { node.hidden = key !== name; });
@@ -460,6 +460,94 @@
     });
   }
   tabs.forEach((tab) => tab.addEventListener('click', () => { if (tab.dataset.tab !== 'entry') stopCamera(); }));
+
+  // ---- Gallery ---------------------------------------------------------------
+  const photoForm = $('[data-photo-form]'), photoGrid = $('[data-photo-grid]'), photoEmpty = $('[data-photo-empty]');
+  const photoPreview = $('[data-photo-preview]'), photoPreviewImage = photoPreview.querySelector('img');
+  const categoryLabels = { SPACES: 'Espaços', EVENTS: 'Eventos passados' }, sizeLabels = { NORMAL: 'Normal', WIDE: 'Larga', TALL: 'Alta' };
+  let photosCache = [], editingPhotoId = null, uploadedUrl = null;
+  const imageSrc = (url) => (url && url.startsWith('/api/') ? `${apiOrigin}${url}` : url);
+
+  function closePhotoForm() { photoForm.hidden = true; photoForm.reset(); uploadedUrl = null; photoPreview.hidden = true; }
+  document.querySelectorAll('[data-cancel-form]').forEach((button) => button.addEventListener('click', closePhotoForm));
+
+  function openPhotoForm(photo) {
+    closeForms(); closePhotoForm();
+    editingPhotoId = photo ? photo.id : null;
+    $('[data-photo-form-title]').textContent = photo ? 'Editar fotografia' : 'Nova fotografia';
+    const f = photoForm.elements;
+    if (photo) {
+      f.imageUrl.value = photo.imageUrl; f.captionPt.value = photo.captionPt; f.captionEn.value = photo.captionEn ?? '';
+      f.category.value = photo.category; f.size.value = photo.size; f.visible.value = String(photo.visible);
+      photoPreviewImage.src = imageSrc(photo.imageUrl); photoPreview.hidden = false;
+    }
+    photoForm.hidden = false;
+    f.captionPt.focus();
+  }
+
+  photoForm.elements.file.addEventListener('change', async () => {
+    const file = photoForm.elements.file.files[0];
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) { say(message, 'A imagem deve ter até 3 MB.'); photoForm.elements.file.value = ''; return; }
+    const upload = new FormData(); upload.append('file', file);
+    try {
+      uploadedUrl = (await api('/api/admin/media', { method: 'POST', body: upload })).url;
+      photoForm.elements.imageUrl.value = uploadedUrl;
+      photoPreviewImage.src = imageSrc(uploadedUrl); photoPreview.hidden = false;
+      say(message, 'Imagem carregada. Preencha a legenda e guarde.', true);
+    } catch (error) { say(message, error.message); }
+    photoForm.elements.file.value = '';
+  });
+  photoForm.elements.imageUrl.addEventListener('change', () => {
+    const value = photoForm.elements.imageUrl.value.trim();
+    photoPreview.hidden = !value; if (value) photoPreviewImage.src = imageSrc(value);
+  });
+
+  photoForm.addEventListener('submit', async (submitEvent) => {
+    submitEvent.preventDefault();
+    const f = photoForm.elements;
+    const body = { imageUrl: f.imageUrl.value.trim(), category: f.category.value, size: f.size.value, captionPt: f.captionPt.value.trim(),
+      captionEn: f.captionEn.value.trim() || null, visible: f.visible.value === 'true' };
+    if (!body.imageUrl) { say(message, 'Carregue uma imagem ou indique o endereço https.'); return; }
+    try {
+      await api(editingPhotoId ? `/api/admin/gallery/${editingPhotoId}` : '/api/admin/gallery', { method: editingPhotoId ? 'PUT' : 'POST', body: JSON.stringify(body) });
+      closePhotoForm(); await loadGallery(); say(message, 'Fotografia guardada.', true);
+    } catch (error) { say(message, error.message); }
+  });
+  $('[data-new-photo]').addEventListener('click', () => openPhotoForm(null));
+  $('[data-refresh-gallery]').addEventListener('click', () => loadGallery().then(() => say(message, '')).catch((error) => say(message, error.message)));
+
+  async function move(index, delta) {
+    const target = index + delta;
+    if (target < 0 || target >= photosCache.length) return;
+    const ids = photosCache.map((photo) => photo.id);
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    try { photosCache = await api('/api/admin/gallery-order', { method: 'PUT', body: JSON.stringify({ ids }) }); renderGallery(); say(message, 'Ordem guardada.', true); }
+    catch (error) { say(message, error.message); }
+  }
+
+  function renderGallery() {
+    photoGrid.replaceChildren();
+    photoEmpty.hidden = photosCache.length > 0;
+    photosCache.forEach((photo, index) => {
+      const image = node('img'); image.src = imageSrc(photo.imageUrl); image.alt = photo.captionPt; image.loading = 'lazy';
+      const tags = node('p', `${categoryLabels[photo.category]} · ${sizeLabels[photo.size]}${photo.visible ? '' : ' · OCULTA'}`, 'photo-tags');
+      const buttons = node('div', undefined, 'admin-row-actions');
+      const up = actionButton('↑', () => move(index, -1)); up.disabled = index === 0; up.setAttribute('aria-label', `Mover ${photo.captionPt} para cima`);
+      const down = actionButton('↓', () => move(index, 1)); down.disabled = index === photosCache.length - 1; down.setAttribute('aria-label', `Mover ${photo.captionPt} para baixo`);
+      const remove = actionButton('Remover', async () => {
+        if (!confirm(`Remover “${photo.captionPt}” da galeria?`)) return;
+        try { await api(`/api/admin/gallery/${photo.id}`, { method: 'DELETE' }); await loadGallery(); say(message, 'Fotografia removida.', true); }
+        catch (error) { say(message, error.message); }
+      });
+      buttons.append(up, down, actionButton('Editar', () => openPhotoForm(photo)), remove);
+      const card = node('article', undefined, photo.visible ? 'photo-card' : 'photo-card photo-hidden');
+      card.append(image, node('h3', photo.captionPt), tags, buttons);
+      photoGrid.append(card);
+    });
+  }
+
+  async function loadGallery() { photosCache = await api('/api/admin/gallery'); renderGallery(); }
 
   // ---- Site content (CMS) ---------------------------------------------------
   const contentPage = $('[data-content-page]'), contentFields = $('[data-content-fields]'), contentEmpty = $('[data-content-empty]');

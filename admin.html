@@ -18,7 +18,7 @@
         <p class="admin-message" data-login-message role="status"></p>
       </form>
       <section class="admin-panel" data-panel hidden>
-        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button><button type="button" role="tab" data-tab="content" aria-selected="false">Conteúdo do site</button></div>
+        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button><button type="button" role="tab" data-tab="content" aria-selected="false">Conteúdo do site</button><button type="button" role="tab" data-tab="gallery" aria-selected="false">Galeria</button></div>
         <p class="admin-message" data-message role="status"></p>
 
         <div data-view="reservations">
@@ -75,6 +75,26 @@
           <p class="content-help">Escreva texto simples. Uma nova linha é uma quebra de linha e <code>*palavra*</code> fica em itálico (cor de destaque). Se alterar o português e deixar o inglês igual à tradução original, o site usa o português nas duas línguas — actualize também o inglês. “Repor original” volta ao texto da página.</p>
           <div data-content-fields></div>
           <p class="admin-empty" data-content-empty hidden>Esta página não tem campos editáveis.</p>
+        </div>
+
+        <div data-view="gallery" hidden>
+          <div class="admin-toolbar"><button type="button" class="admin-primary" data-new-photo>Adicionar fotografia</button><button type="button" class="admin-refresh" data-refresh-gallery>Actualizar</button><a class="admin-refresh" href="gallery.html" target="_blank" rel="noopener">Ver a galeria</a></div>
+          <form class="admin-form" data-photo-form hidden>
+            <h2 data-photo-form-title>Nova fotografia</h2>
+            <div class="admin-form-grid">
+              <label class="wide">Imagem (JPEG, PNG ou WebP, até 3 MB)<input name="file" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+              <label class="wide">…ou endereço https da imagem<input name="imageUrl" type="text" maxlength="480" placeholder="https://…" /></label>
+              <div class="wide admin-poster-preview" data-photo-preview hidden><img alt="Pré-visualização" /></div>
+              <label>Legenda (português)<input name="captionPt" required maxlength="120" /></label>
+              <label>Legenda (inglês, opcional)<input name="captionEn" maxlength="120" /></label>
+              <label>Grupo<select name="category"><option value="SPACES">Espaços</option><option value="EVENTS">Eventos passados</option></select></label>
+              <label>Formato na grelha<select name="size"><option value="NORMAL">Normal</option><option value="WIDE">Larga</option><option value="TALL">Alta</option></select></label>
+              <label><span>Visível no site</span><select name="visible"><option value="true">Sim</option><option value="false">Não (oculta)</option></select></label>
+            </div>
+            <div class="admin-form-actions"><button class="admin-primary" type="submit">Guardar fotografia</button><button type="button" data-cancel-form>Fechar</button></div>
+          </form>
+          <div class="photo-grid" data-photo-grid></div>
+          <p class="admin-empty" data-photo-empty hidden>Ainda não há fotografias. A galeria do site fica vazia.</p>
         </div>
 
         <div data-view="entry" hidden>

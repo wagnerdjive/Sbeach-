@@ -16,7 +16,6 @@ public class ContentService {
     public record Entry(String pt, String en) { }
 
     private static final Pattern KEY = Pattern.compile("^[a-z0-9][a-z0-9._-]{0,118}$");
-    private static final Pattern IMAGE = Pattern.compile("^(https://[^\\s\"'<>()\\\\]{4,480}|/api/media/\\d{1,18})$");
     private static final Pattern LINK = Pattern.compile(
             "^(https?://[^\\s\"'<>\\\\]{4,480}|tel:\\+?[0-9 ()-]{5,30}|mailto:[^\\s\"'<>\\\\]{3,200}|[a-z0-9-]+\\.html(#[a-z0-9-]*)?|#[a-z0-9-]+)$");
     private static final int MAX_ENTRIES = 100, MAX_TEXT = 2000;
@@ -56,7 +55,7 @@ public class ContentService {
                 return;
             }
             if (key.endsWith(".image") || key.endsWith(".bg")) {
-                if (pt == null || !IMAGE.matcher(pt).matches()) throw new TicketRequestException("Image '" + key + "' must be an https address or an uploaded image.");
+                if (pt == null || !ImageTypes.isAllowedUrl(pt)) throw new TicketRequestException("Image '" + key + "' must be an https address or an uploaded image.");
                 en = null;
             } else if (key.endsWith(".href")) {
                 if (pt == null || !LINK.matcher(pt).matches()) throw new TicketRequestException("Link '" + key + "' must be http(s), tel:, mailto: or a page of this site.");

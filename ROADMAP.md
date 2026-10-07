@@ -33,4 +33,5 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 ## Conteúdo do site
 
 - [x] Páginas informativas, menus, galeria e contactos
+- [x] Gestão das fotos da galeria (adicionar, ordenar, ocultar e remover; separador *Galeria*)
 - [x] CMS para editar o conteúdo sem alterar ficheiros do site (textos PT/EN, imagens e ligações; separador *Conteúdo do site*)

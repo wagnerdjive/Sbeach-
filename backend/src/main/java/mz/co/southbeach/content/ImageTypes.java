@@ -4,6 +4,14 @@ package mz.co.southbeach.content;
 public final class ImageTypes {
     private ImageTypes() { }
 
+    private static final java.util.regex.Pattern URL = java.util.regex.Pattern.compile(
+            "^(https://[^\\s\"'<>()\\\\]{4,480}|/api/media/\\d{1,18})$");
+
+    /** An https address or one of our own uploaded files; anything else (http, data:, javascript:) is refused. */
+    public static boolean isAllowedUrl(String value) {
+        return value != null && URL.matcher(value).matches();
+    }
+
     public static String detect(byte[] b) {
         if (b.length >= 3 && (b[0] & 0xFF) == 0xFF && (b[1] & 0xFF) == 0xD8 && (b[2] & 0xFF) == 0xFF) return "image/jpeg";
         if (b.length >= 8 && (b[0] & 0xFF) == 0x89 && b[1] == 'P' && b[2] == 'N' && b[3] == 'G'

@@ -63,9 +63,10 @@ menuCategoryButtons.forEach((button) => {
 if (menuCategoryButtons.length) activateMenuCategory('food');
 
 const galleryFilters = [...document.querySelectorAll('[data-gallery-filter]')];
-const galleryCards = [...document.querySelectorAll('[data-gallery-item]')];
+// Cards are looked up on use: gallery-live.js replaces them with the photos managed by staff.
+const getGalleryCards = () => [...document.querySelectorAll('[data-gallery-item]')];
 function filterGallery(filter) {
-  galleryCards.forEach((card) => {
+  getGalleryCards().forEach((card) => {
     card.hidden = filter !== 'all' && card.dataset.galleryItem !== filter;
   });
   galleryFilters.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.galleryFilter === filter)));
@@ -85,13 +86,13 @@ if (lightbox) {
     lightboxImage.alt = source.dataset.title;
     lightboxTitle.textContent = source.dataset.title;
   }
-  document.querySelectorAll('[data-lightbox-open]').forEach((button) => {
-    button.addEventListener('click', () => {
-      currentImages = galleryCards.filter((card) => !card.hidden).map((card) => card.querySelector('[data-lightbox-open]'));
-      currentIndex = currentImages.indexOf(button);
-      showLightboxImage(currentIndex);
-      lightbox.showModal();
-    });
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-lightbox-open]');
+    if (!button) return;
+    currentImages = getGalleryCards().filter((card) => !card.hidden).map((card) => card.querySelector('[data-lightbox-open]'));
+    currentIndex = currentImages.indexOf(button);
+    showLightboxImage(currentIndex);
+    lightbox.showModal();
   });
   lightbox.querySelector('[data-lightbox-close]')?.addEventListener('click', () => lightbox.close());
   lightbox.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => showLightboxImage(currentIndex - 1));
