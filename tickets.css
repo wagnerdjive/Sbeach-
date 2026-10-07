@@ -6,3 +6,5 @@
 .live-message{font-size:11px;line-height:1.7;margin:12px 0 0;color:#8a3a2e}.live-message.ok{color:#2f6a46}.ticket-option-action small{display:block;font-size:10px;color:var(--muted);text-align:right}.ticket-option[data-unavailable] {opacity:.6}
 @media(max-width:800px){.live-event .ticket-layout{grid-template-columns:1fr}}
 .ticket-preview[hidden]{display:none}
+.live-event-head.has-poster{display:grid;grid-template-columns:minmax(150px,280px) 1fr;gap:24px;align-items:start}.live-poster{width:100%;height:auto;display:block;border:1px solid rgba(32,37,31,.1);background:#fff}
+@media(max-width:600px){.live-event-head.has-poster{grid-template-columns:1fr}.live-poster{max-width:320px}}

@@ -68,6 +68,18 @@ public class ApiExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, exception.getMessage(), Map.of());
     }
 
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public ApiErrorResponse handleTooLarge(Exception exception) {
+        return error(HttpStatus.PAYLOAD_TOO_LARGE, "The uploaded file is too large.", Map.of());
+    }
+
+    @ExceptionHandler(org.springframework.web.multipart.support.MissingServletRequestPartException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiErrorResponse handleMissingPart(Exception exception) {
+        return error(HttpStatus.BAD_REQUEST, "Choose an image file.", Map.of());
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiErrorResponse handleIntegrity(DataIntegrityViolationException exception) {

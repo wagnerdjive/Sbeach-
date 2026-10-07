@@ -42,6 +42,8 @@
               <label>Início (hora de Maputo)<input name="startsAt" type="datetime-local" required /></label>
               <label>Fim (opcional)<input name="endsAt" type="datetime-local" /></label>
               <label class="wide">Descrição (opcional)<textarea name="description" maxlength="2000" rows="3"></textarea></label>
+              <label class="wide">Cartaz do evento (JPEG, PNG ou WebP, até 2 MB)<input name="poster" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+              <div class="wide admin-poster-preview" data-poster-preview hidden><img alt="Pré-visualização do cartaz" /><button type="button" data-remove-poster>Remover cartaz</button></div>
             </div>
             <div class="admin-form-actions"><button class="admin-primary" type="submit">Guardar evento</button><button type="button" data-cancel-form>Fechar</button></div>
           </form>

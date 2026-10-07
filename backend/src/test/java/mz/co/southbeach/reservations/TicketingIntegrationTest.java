@@ -151,4 +151,52 @@ class TicketingIntegrationTest {
         assertThat(succeeded.get()).isEqualTo(10);
         mvc.perform(get("/api/events/race-night")).andExpect(jsonPath("$.ticketTypes[0].available", is(0)));
     }
+
+    private ResultActions upload(Object eventId, byte[] bytes, String name) throws Exception {
+        var file = new org.springframework.mock.web.MockMultipartFile("file", name, "image/png", bytes);
+        return mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart(org.springframework.http.HttpMethod.PUT, "/api/admin/events/" + eventId + "/poster")
+                .file(file).with(httpBasic("test-admin", "integration-test-password-17")));
+    }
+
+    private static byte[] png(int size) {
+        var bytes = new byte[size];
+        new java.util.Random(1).nextBytes(bytes);
+        System.arraycopy(new byte[]{(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A}, 0, bytes, 0, 8);
+        return bytes;
+    }
+
+    @Test
+    void posterCanBeUploadedServedAndRemoved() throws Exception {
+        var created = body(admin(post("/api/admin/events"), Map.of("slug", "poster-night", "title", "Poster", "location", "X",
+                "startsAt", "2030-05-01T17:00:00Z", "status", "PUBLISHED")).andExpect(status().isCreated()));
+        var id = created.get("id").asLong();
+        mvc.perform(get("/api/events/poster-night/poster")).andExpect(status().isNotFound());
+
+        var big = png(1_500_000);
+        upload(id, big, "cartaz.png").andExpect(status().isOk()).andExpect(jsonPath("$.posterUrl").exists());
+        var served = mvc.perform(get("/api/events/poster-night/poster")).andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().contentType("image/png"))
+                .andReturn().getResponse().getContentAsByteArray();
+        assertThat(served).isEqualTo(big);
+        mvc.perform(get("/api/events/poster-night")).andExpect(jsonPath("$.posterUrl").exists());
+        mvc.perform(get("/api/admin/events/" + id + "/poster")).andExpect(status().isUnauthorized());
+
+        upload(id, "not an image".getBytes(), "x.png").andExpect(status().isBadRequest());
+        // MockMvc skips the servlet container's multipart limit, so the service-level size check answers 400 here (413 on a real server).
+        upload(id, png(3_000_000), "huge.png").andExpect(status().is4xxClientError());
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/admin/events/" + id + "/poster")
+                .with(httpBasic("test-admin", "integration-test-password-17"))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.posterUrl").doesNotExist());
+        mvc.perform(get("/api/events/poster-night/poster")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void draftPosterIsNotPublic() throws Exception {
+        var created = body(admin(post("/api/admin/events"), Map.of("slug", "draft-poster", "title", "Draft", "location", "X",
+                "startsAt", "2030-05-01T17:00:00Z", "status", "DRAFT")).andExpect(status().isCreated()));
+        upload(created.get("id").asLong(), png(2000), "d.png").andExpect(status().isOk());
+        mvc.perform(get("/api/events/draft-poster/poster")).andExpect(status().isNotFound());
+        mvc.perform(get("/api/admin/events/" + created.get("id").asLong() + "/poster")
+                .with(httpBasic("test-admin", "integration-test-password-17"))).andExpect(status().isOk());
+    }
 }

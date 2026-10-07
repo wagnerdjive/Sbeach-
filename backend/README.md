@@ -68,6 +68,8 @@ Public: `GET /api/events`, `GET /api/events/{slug}` (published events with avail
 
 Team only: `GET|POST /api/admin/events`, `PUT /api/admin/events/{id}`, `POST /api/admin/events/{id}/ticket-types`, `PUT /api/admin/ticket-types/{id}`, `GET /api/admin/orders?status=`, `POST /api/admin/orders/{reference}/cancel` (pending orders only). Capacity cannot be lowered below sold + held.
 
+Posters: staff upload a JPEG, PNG or WebP of up to 2 MB (`POSTER_MAX_BYTES`) with `PUT /api/admin/events/{id}/poster` (multipart field `file`) and remove it with `DELETE`. The file type is checked from the file's own signature, not the browser's claim. Posters are stored in the database, so they survive hosts with ephemeral disks, and are served publicly only for published events at `GET /api/events/{slug}/poster`; staff can view any poster at `GET /api/admin/events/{id}/poster`.
+
 Stock is taken with single conditional `UPDATE` statements, so concurrent buyers cannot oversell (covered by a 40-buyer test for 10 tickets). Expiry cleanup is not covered by an automated test yet.
 
 ## Production database

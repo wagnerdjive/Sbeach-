@@ -150,11 +150,17 @@
       }
     });
 
-    const head = el('div', { className: 'live-event-head' },
+    const info = el('div', { className: 'live-event-info' },
       el('p', { className: 'eyebrow' }), el('h2', { textContent: event.title }),
       el('p', { textContent: `${when(event.startsAt)} · ${event.location}` }));
-    if (event.description) head.append(el('p', { textContent: event.description }));
-    const eyebrow = head.querySelector('.eyebrow');
+    if (event.description) info.append(el('p', { textContent: event.description }));
+    const head = el('div', { className: 'live-event-head' });
+    if (event.posterUrl) {
+      head.classList.add('has-poster');
+      head.append(el('img', { className: 'live-poster', src: apiOrigin + event.posterUrl, alt: `Cartaz — ${event.title}`, loading: 'lazy' }));
+    }
+    head.append(info);
+    const eyebrow = info.querySelector('.eyebrow');
     refreshers.push(() => { eyebrow.textContent = t('label'); });
     refreshers.push(applyLanguage);
     const wrapper = el('article', { className: 'live-event' }, head, el('div', { className: 'ticket-layout' }, options, form));

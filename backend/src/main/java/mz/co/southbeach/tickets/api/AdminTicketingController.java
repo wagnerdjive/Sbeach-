@@ -9,6 +9,8 @@ import mz.co.southbeach.tickets.api.dto.TicketTypeResponse;
 import mz.co.southbeach.tickets.domain.OrderStatus;
 import mz.co.southbeach.tickets.service.EventService;
 import mz.co.southbeach.tickets.service.OrderService;
+import mz.co.southbeach.tickets.service.PosterService;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,12 +26,34 @@ import java.util.List;
 public class AdminTicketingController {
     private final EventService events;
     private final OrderService orders;
-    private final java.time.Clock clock;
+    private final PosterService posters;
 
-    public AdminTicketingController(EventService events, OrderService orders, java.time.Clock clock) {
+    public AdminTicketingController(EventService events, OrderService orders, PosterService posters) {
         this.events = events;
         this.orders = orders;
-        this.clock = clock;
+        this.posters = posters;
+    }
+
+    /** Uploads (or replaces) the event poster as multipart field {@code file}. */
+    @PutMapping(path = "/events/{id}/poster", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public EventResponse uploadPoster(@PathVariable Long id, @RequestPart("file") MultipartFile file) throws java.io.IOException {
+        posters.store(id, file.getBytes());
+        return events.get(id);
+    }
+
+    @DeleteMapping("/events/{id}/poster")
+    public EventResponse removePoster(@PathVariable Long id) {
+        posters.remove(id);
+        return events.get(id);
+    }
+
+    @GetMapping("/events/{id}/poster")
+    public org.springframework.http.ResponseEntity<byte[]> poster(@PathVariable Long id) {
+        var poster = posters.forStaff(id);
+        return org.springframework.http.ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.parseMediaType(poster.getContentType()))
+                .cacheControl(org.springframework.http.CacheControl.noCache().cachePrivate())
+                .body(poster.getData());
     }
 
     @GetMapping("/events")

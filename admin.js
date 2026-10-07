@@ -20,7 +20,7 @@
   async function api(path, options = {}) {
     const response = await fetch(apiOrigin + path, {
       ...options,
-      headers: { Accept: 'application/json', Authorization: authHeader, ...(options.body ? { 'Content-Type': 'application/json' } : {}) }
+      headers: { Accept: 'application/json', Authorization: authHeader, ...(options.body && !(options.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}) }
     });
     if (response.status === 401) { signOut(); throw new Error('Sessão inválida. Entre novamente.'); }
     const data = await response.json().catch(() => ({}));
@@ -168,7 +168,47 @@
   let eventsCache = [];
   let editingEventId = null, typeTarget = null;
 
-  function closeForms() { eventForm.hidden = true; typeForm.hidden = true; }
+  const posterInput = eventForm.elements.poster, posterPreview = $('[data-poster-preview]');
+  const posterImage = posterPreview.querySelector('img');
+  const posterLimit = 2 * 1024 * 1024, posterTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  let objectUrls = [];
+  const trackUrl = (blob) => { const url = URL.createObjectURL(blob); objectUrls.push(url); return url; };
+  const releaseUrls = () => { objectUrls.forEach((url) => URL.revokeObjectURL(url)); objectUrls = []; };
+
+  // The poster of a draft event is not public, so staff load it with their credentials.
+  async function posterBlobUrl(eventId) {
+    const response = await fetch(`${apiOrigin}/api/admin/events/${eventId}/poster`, { headers: { Authorization: authHeader } });
+    if (!response.ok) return null;
+    return trackUrl(await response.blob());
+  }
+  function showPoster(url) {
+    posterImage.src = url || '';
+    posterPreview.hidden = !url;
+    $('[data-remove-poster]').hidden = !(editingEventId && eventsCache.find((e) => e.id === editingEventId)?.posterUrl && posterInput.files.length === 0);
+  }
+  posterInput.addEventListener('change', () => {
+    const file = posterInput.files[0];
+    if (!file) { showPoster(null); return; }
+    if (!posterTypes.includes(file.type) || file.size > posterLimit) {
+      posterInput.value = '';
+      say(message, 'O cartaz deve ser JPEG, PNG ou WebP com até 2 MB.');
+      showPoster(null);
+      return;
+    }
+    say(message, '');
+    showPoster(trackUrl(file));
+  });
+  $('[data-remove-poster]').addEventListener('click', async () => {
+    if (!editingEventId || !confirm('Remover o cartaz deste evento?')) return;
+    try {
+      await api(`/api/admin/events/${editingEventId}/poster`, { method: 'DELETE' });
+      await loadEvents();
+      showPoster(null);
+      say(message, 'Cartaz removido.', true);
+    } catch (error) { say(message, error.message); }
+  });
+
+  function closeForms() { eventForm.hidden = true; typeForm.hidden = true; releaseUrls(); }
   document.querySelectorAll('[data-cancel-form]').forEach((button) => button.addEventListener('click', closeForms));
 
   function openEventForm(event) {
@@ -183,6 +223,8 @@
     }
     eventForm.hidden = false;
     eventForm.elements.title.focus();
+    showPoster(null);
+    if (event && event.posterUrl) posterBlobUrl(event.id).then((url) => { if (editingEventId === event.id && !eventForm.hidden) showPoster(url); });
   }
 
   function openTypeForm(event, type) {
@@ -214,10 +256,19 @@
       description: f.description.value.trim() || null, startsAt: toInstant(f.startsAt.value), endsAt: toInstant(f.endsAt.value)
     };
     try {
-      await api(editingEventId ? `/api/admin/events/${editingEventId}` : '/api/admin/events', { method: editingEventId ? 'PUT' : 'POST', body: JSON.stringify(body) });
+      const saved = await api(editingEventId ? `/api/admin/events/${editingEventId}` : '/api/admin/events', { method: editingEventId ? 'PUT' : 'POST', body: JSON.stringify(body) });
+      const file = posterInput.files[0];
+      let posterError = null;
+      if (file) {
+        const upload = new FormData();
+        upload.append('file', file);
+        try { await api(`/api/admin/events/${saved.id}/poster`, { method: 'PUT', body: upload }); }
+        catch (error) { posterError = error; }
+      }
       closeForms();
       await loadEvents();
-      say(message, 'Evento guardado.', true);
+      if (posterError) say(message, `Evento guardado, mas o cartaz não foi carregado: ${posterError.message}`);
+      else say(message, file ? 'Evento e cartaz guardados.' : 'Evento guardado.', true);
     } catch (error) { say(message, error.message); }
   });
 
@@ -249,6 +300,12 @@
       const add = actionButton('Adicionar categoria', () => openTypeForm(event, null));
       actions.append(badge(event.status, eventStatusLabels), edit, add);
       const head = node('div', undefined, 'admin-event-head');
+      if (event.posterUrl) {
+        const thumb = node('img', undefined, 'admin-poster-thumb');
+        thumb.alt = `Cartaz de ${event.title}`;
+        posterBlobUrl(event.id).then((url) => { if (url) thumb.src = url; });
+        head.append(thumb);
+      }
       head.append(info, actions);
 
       const table = node('table', undefined, 'admin-table');
@@ -271,6 +328,7 @@
   }
 
   async function loadEvents() {
+    releaseUrls();
     eventsCache = await api('/api/admin/events');
     renderEvents(eventsCache);
   }

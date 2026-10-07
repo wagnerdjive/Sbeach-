@@ -16,6 +16,7 @@ public class Event {
     @Column(name = "starts_at", nullable = false) private Instant startsAt;
     @Column(name = "ends_at") private Instant endsAt;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 16) private EventStatus status;
+    @Column(name = "poster_version") private Long posterVersion;
     @Column(name = "created_at", nullable = false) private Instant createdAt;
     @Column(name = "updated_at", nullable = false) private Instant updatedAt;
 
@@ -33,6 +34,8 @@ public class Event {
         this.startsAt = startsAt; this.endsAt = endsAt; this.status = status; this.updatedAt = now;
     }
 
+    public void setPosterVersion(Long posterVersion) { this.posterVersion = posterVersion; }
+    public Long getPosterVersion() { return posterVersion; }
     public Long getId() { return id; }
     public String getSlug() { return slug; }
     public String getTitle() { return title; }

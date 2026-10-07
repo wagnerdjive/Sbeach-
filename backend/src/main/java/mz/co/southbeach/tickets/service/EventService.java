@@ -41,6 +41,12 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
+    public EventResponse get(Long id) {
+        var event = events.findById(id).orElseThrow(() -> new TicketNotFoundException("Event"));
+        return withTypes(List.of(event), true).get(0);
+    }
+
+    @Transactional(readOnly = true)
     public List<EventResponse> listAll() {
         return withTypes(events.findAllByOrderByStartsAtDesc(), true);
     }
