@@ -2,6 +2,9 @@ package mz.co.southbeach.tickets.service;
 
 import mz.co.southbeach.tickets.api.dto.OrderRequest;
 import mz.co.southbeach.tickets.domain.EventStatus;
+import mz.co.southbeach.tickets.domain.IssuedTicket;
+import mz.co.southbeach.tickets.repository.IssuedTicketRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import mz.co.southbeach.tickets.domain.OrderStatus;
 import mz.co.southbeach.tickets.domain.TicketOrder;
 import mz.co.southbeach.tickets.domain.TicketOrderItem;
@@ -33,16 +36,21 @@ public class OrderService {
     private final TicketTypeRepository types;
     private final TicketOrderRepository orders;
     private final TicketOrderItemRepository items;
+    private final IssuedTicketRepository tickets;
+    private final ApplicationEventPublisher publisher;
     private final Clock clock;
     private final Duration holdDuration;
 
     public OrderService(EventRepository events, TicketTypeRepository types, TicketOrderRepository orders,
-                        TicketOrderItemRepository items, Clock clock,
+                        TicketOrderItemRepository items, IssuedTicketRepository tickets,
+                        ApplicationEventPublisher publisher, Clock clock,
                         @Value("${app.tickets.hold-minutes}") long holdMinutes) {
         this.events = events;
         this.types = types;
         this.orders = orders;
         this.items = items;
+        this.tickets = tickets;
+        this.publisher = publisher;
         this.clock = clock;
         this.holdDuration = Duration.ofMinutes(holdMinutes);
     }
@@ -78,6 +86,7 @@ public class OrderService {
         var reference = "TK-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
         var order = orders.save(new TicketOrder(reference, request.fullName().trim(), request.phone().trim(),
                 blankToNull(request.email()), total, CURRENCY, now.plus(holdDuration), now));
+        order.assignAccessToken(TicketCodes.accessToken());
         var saved = items.saveAll(found.stream()
                 .map(t -> new TicketOrderItem(order.getId(), t.getId(), wanted.get(t.getId()), t.getPriceMinor())).toList());
         return new Placed(order, saved);
@@ -97,8 +106,28 @@ public class OrderService {
                 throw new IllegalStateException("Held stock missing for order " + reference);
             }
         }
-        order.setStatus(OrderStatus.PAID, clock.instant());
+        var now = clock.instant();
+        order.setStatus(OrderStatus.PAID, now);
+        if (order.getAccessToken() == null) order.assignAccessToken(TicketCodes.accessToken());
+        issueTickets(order, lines, now);
+        publisher.publishEvent(new OrderPaid(order));
         return new Placed(order, lines);
+    }
+
+    /** One ticket per seat, each with its own random code. Runs once, in the transaction that marks the order paid. */
+    private void issueTickets(TicketOrder order, List<TicketOrderItem> lines, java.time.Instant now) {
+        if (tickets.existsByOrderId(order.getId())) return;
+        var typeToEvent = new java.util.HashMap<Long, Long>();
+        types.findAllById(lines.stream().map(TicketOrderItem::getTicketTypeId).toList())
+                .forEach(type -> typeToEvent.put(type.getId(), type.getEventId()));
+        var issued = new java.util.ArrayList<IssuedTicket>();
+        for (var line : lines) {
+            for (int i = 0; i < line.getQuantity(); i++) {
+                issued.add(new IssuedTicket(order.getId(), line.getTicketTypeId(), typeToEvent.get(line.getTicketTypeId()),
+                        TicketCodes.ticketCode(), now));
+            }
+        }
+        tickets.saveAll(issued);
     }
 
     @Transactional

@@ -27,8 +27,11 @@ public class AdminTicketingController {
     private final EventService events;
     private final OrderService orders;
     private final PosterService posters;
+    private final String siteUrl;
 
-    public AdminTicketingController(EventService events, OrderService orders, PosterService posters) {
+    public AdminTicketingController(EventService events, OrderService orders, PosterService posters,
+                                    @org.springframework.beans.factory.annotation.Value("${app.site-url}") String siteUrl) {
+        this.siteUrl = siteUrl;
         this.events = events;
         this.orders = orders;
         this.posters = posters;
@@ -83,12 +86,28 @@ public class AdminTicketingController {
     public Page<OrderResponse> orders(@RequestParam(required = false) OrderStatus status,
                                       @PageableDefault(size = 25, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         var page = PageRequest.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), 100), pageable.getSort());
-        return orders.list(status, page).map(order -> OrderResponse.from(order, orders.linesOf(order), true));
+        return orders.list(status, page).map(order -> adminView(order, orders.linesOf(order)));
+    }
+
+    /**
+     * Staff confirm that the customer paid (cash, bank transfer, mobile money received by the team). This issues the
+     * tickets. There is deliberately no public way to mark an order paid.
+     */
+    @PostMapping("/orders/{reference}/mark-paid")
+    public OrderResponse markPaid(@PathVariable String reference) {
+        var result = orders.markPaid(reference);
+        return adminView(result.order(), result.items());
+    }
+
+    private OrderResponse adminView(mz.co.southbeach.tickets.domain.TicketOrder order, java.util.List<mz.co.southbeach.tickets.domain.TicketOrderItem> lines) {
+        var url = order.getStatus() == OrderStatus.PAID && order.getAccessToken() != null
+                ? mz.co.southbeach.tickets.notification.TicketNotifier.ticketsUrl(siteUrl, order.getAccessToken()) : null;
+        return OrderResponse.from(order, lines, true, url);
     }
 
     @PostMapping("/orders/{reference}/cancel")
     public OrderResponse cancel(@PathVariable String reference) {
         var result = orders.cancel(reference);
-        return OrderResponse.from(result.order(), result.items(), true);
+        return adminView(result.order(), result.items());
     }
 }

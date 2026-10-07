@@ -104,6 +104,7 @@
 
   function signOut() {
     authHeader = null;
+    if (typeof stopCamera === 'function') stopCamera();
     panel.hidden = true; logout.hidden = true; loginForm.hidden = false;
     rows.replaceChildren();
     document.querySelectorAll('[data-tab]').forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.tab === 'reservations')));
@@ -131,7 +132,7 @@
   // ---- Tabs -------------------------------------------------------------
   const views = Object.fromEntries([...document.querySelectorAll('[data-view]')].map((node) => [node.dataset.view, node]));
   const tabs = [...document.querySelectorAll('[data-tab]')];
-  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders() };
+  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry() };
   function showView(name) {
     tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.tab === name)));
     Object.entries(views).forEach(([key, node]) => { node.hidden = key !== name; });
@@ -352,7 +353,18 @@
       cell(tr, '').append(badge(order.status, orderStatusLabels));
       cell(tr, showDate(order.expiresAt));
       const actions = cell(tr, '');
+      actions.className = 'admin-row-actions';
       if (order.status === 'PENDING') {
+        const pay = actionButton('Marcar como paga', async () => {
+          if (!confirm(`Confirma que recebeu o pagamento de ${money(order.totalMinor)} da encomenda ${order.reference}? Isto emite os bilhetes.`)) return;
+          pay.disabled = true;
+          try {
+            await api(`/api/admin/orders/${encodeURIComponent(order.reference)}/mark-paid`, { method: 'POST' });
+            await loadOrders();
+            say(message, `${order.reference}: paga. Bilhetes emitidos — copie a ligação para os enviar ao cliente.`, true);
+          } catch (error) { say(message, error.message); pay.disabled = false; }
+        });
+        actions.append(pay);
         const button = actionButton('Cancelar', async () => {
           if (!confirm(`Cancelar a encomenda ${order.reference} e libertar os bilhetes?`)) return;
           button.disabled = true;
@@ -364,8 +376,90 @@
         });
         actions.append(button);
       }
+      if (order.ticketsUrl) {
+        actions.append(actionButton('Copiar ligação dos bilhetes', async () => {
+          try { await navigator.clipboard.writeText(order.ticketsUrl); say(message, 'Ligação copiada. Envie-a ao cliente.', true); }
+          catch (_) { prompt('Copie a ligação dos bilhetes:', order.ticketsUrl); }
+        }), actionButton('Abrir', () => window.open(order.ticketsUrl, '_blank', 'noopener')));
+      }
     }
   }
+
+  // ---- Entry (gate) ---------------------------------------------------------
+  const entryEvent = $('[data-entry-event]'), entryForm = $('[data-entry-form]'), entryResult = $('[data-entry-result]');
+  const entryStats = $('[data-entry-stats]'), cameraButton = $('[data-entry-camera]'), video = $('[data-entry-video]');
+  const outcomes = {
+    ADMITTED: ['ok', 'ENTRADA AUTORIZADA', (r) => r.ticketType],
+    ALREADY_USED: ['bad', 'JÁ UTILIZADO', (r) => `Entrou às ${showDate(r.usedAt)} · ${r.ticketType || ''}`],
+    WRONG_EVENT: ['bad', 'OUTRO EVENTO', (r) => `Este bilhete é de: ${r.eventTitle || 'outro evento'}`],
+    VOID: ['bad', 'BILHETE ANULADO', () => ''],
+    NOT_FOUND: ['bad', 'CÓDIGO DESCONHECIDO', () => 'Confira o código ou peça outro bilhete.']
+  };
+
+  async function refreshStats() {
+    if (!entryEvent.value) { entryStats.textContent = ''; return; }
+    const stats = await api(`/api/admin/events/${entryEvent.value}/entry-stats`);
+    entryStats.textContent = `Entraram ${stats.admitted} de ${stats.issued} bilhetes emitidos`;
+  }
+
+  async function loadEntry() {
+    const events = await api('/api/admin/events');
+    const previous = entryEvent.value;
+    entryEvent.replaceChildren(...events.filter((event) => event.status !== 'CANCELLED').map((event) => new Option(`${event.title} — ${showDate(event.startsAt)}`, event.id)));
+    if (previous) entryEvent.value = previous;
+    await refreshStats();
+    entryForm.elements.code.focus();
+  }
+
+  async function validate(code) {
+    if (!entryEvent.value) { say(message, 'Escolha o evento.'); return; }
+    try {
+      const result = await api('/api/admin/check-in', { method: 'POST', body: JSON.stringify({ eventId: Number(entryEvent.value), code }) });
+      const [kind, title, detail] = outcomes[result.outcome] || ['bad', result.outcome, () => ''];
+      entryResult.className = `entry-result ${kind}`;
+      entryResult.replaceChildren(node('strong', title), node('span', detail(result)));
+      await refreshStats();
+    } catch (error) { entryResult.className = 'entry-result bad'; entryResult.replaceChildren(node('strong', 'ERRO'), node('span', error.message)); }
+  }
+
+  entryEvent.addEventListener('change', () => refreshStats().catch((error) => say(message, error.message)));
+  entryForm.addEventListener('submit', async (submitEvent) => {
+    submitEvent.preventDefault();
+    const input = entryForm.elements.code;
+    const code = input.value.trim();
+    input.value = '';
+    if (code) await validate(code);
+    input.focus();
+  });
+
+  // Camera scanning needs the browser's BarcodeDetector (Chrome/Android) and a secure page (https or localhost).
+  let stream = null, scanTimer = null, lastScan = { code: '', at: 0 };
+  function stopCamera() {
+    clearInterval(scanTimer); scanTimer = null;
+    if (stream) stream.getTracks().forEach((track) => track.stop());
+    stream = null; video.hidden = true; cameraButton.textContent = 'Usar a câmara';
+  }
+  if ('BarcodeDetector' in window && navigator.mediaDevices?.getUserMedia) {
+    cameraButton.hidden = false;
+    cameraButton.addEventListener('click', async () => {
+      if (stream) { stopCamera(); return; }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = stream; video.hidden = false; await video.play();
+        cameraButton.textContent = 'Parar a câmara';
+        const detector = new BarcodeDetector({ formats: ['qr_code'] });
+        scanTimer = setInterval(async () => {
+          try {
+            const [found] = await detector.detect(video);
+            const code = found?.rawValue?.trim();
+            // The same QR stays in view for a while: ignore repeats within 4 seconds.
+            if (code && (code !== lastScan.code || Date.now() - lastScan.at > 4000)) { lastScan = { code, at: Date.now() }; await validate(code); }
+          } catch (_) { /* a frame without a readable code */ }
+        }, 400);
+      } catch (_) { say(message, 'Não foi possível abrir a câmara. Use o campo de código ou um leitor de QR.'); stopCamera(); }
+    });
+  }
+  tabs.forEach((tab) => tab.addEventListener('click', () => { if (tab.dataset.tab !== 'entry') stopCamera(); }));
   orderFilter.addEventListener('change', () => loadOrders().catch((error) => say(message, error.message)));
   $('[data-refresh-orders]').addEventListener('click', () => loadOrders().then(() => say(message, '')).catch((error) => say(message, error.message)));
 })();

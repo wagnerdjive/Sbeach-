@@ -13,6 +13,10 @@ O fluxo do visitante tem dois passos:
 
 **Não há pagamento**: a página diz-o ao cliente e a equipa conclui a compra por contacto. Para o desenvolvimento local, publique um evento pela API administrativa (ver `backend/README.md`) ou pelo painel `admin.html`.
 
+## Bilhetes QR e entrada
+
+Quando a equipa carrega em **Marcar como paga** (separador *Encomendas* do painel), o sistema emite um bilhete por pessoa, cada um com um código aleatório que é o único conteúdo do QR. A equipa copia a **ligação dos bilhetes** (`ticket.html?t=…`) e envia-a ao cliente; com email/SMS configurados, o envio é automático. A página do cliente mostra os QR, o estado (válido, já utilizado) e permite imprimir ou guardar em PDF. À porta, o separador **Entrada** valida cada código (escrito, lido por um leitor USB/Bluetooth ou pela câmara em browsers com `BarcodeDetector`, tipicamente Chrome em Android, em https) e diz se admite, se já foi usado, se é de outro evento ou se é desconhecido.
+
 ## O que é necessário para vender bilhetes reais
 
 O site actual é estático. Uma venda segura precisa de um serviço próprio e armazenamento durável, porque o browser não pode confirmar um pagamento nem proteger segredos do comerciante. Arquitectura proposta:

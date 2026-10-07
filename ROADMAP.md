@@ -19,8 +19,9 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 - [x] Backend de eventos e vendas (eventos, encomendas com reserva de stock e expiração; sem pagamento)
 - [x] Lotes, preços e inventário (categorias com preço, capacidade, janela de venda e limite por encomenda)
 - [ ] Pagamentos reais por M-Pesa, e-Mola e cartão
-- [ ] Emissão e envio de bilhetes QR
-- [ ] Leitura à entrada e relatórios
+- [x] Emissão e envio de bilhetes QR (emissão ao marcar a encomenda como paga; envio por ligação privada, automático quando houver email/SMS)
+- [x] Leitura à entrada (separador *Entrada*; validação única e contagem de entradas)
+- [ ] Relatórios de vendas
 
 ## Eventos
 

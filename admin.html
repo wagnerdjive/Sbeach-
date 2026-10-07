@@ -18,7 +18,7 @@
         <p class="admin-message" data-login-message role="status"></p>
       </form>
       <section class="admin-panel" data-panel hidden>
-        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button></div>
+        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button></div>
         <p class="admin-message" data-message role="status"></p>
 
         <div data-view="reservations">
@@ -62,6 +62,17 @@
           </form>
           <div data-events></div>
           <p class="admin-empty" data-events-empty hidden>Ainda não há eventos. Crie o primeiro com “Novo evento”.</p>
+        </div>
+
+        <div data-view="entry" hidden>
+          <div class="admin-toolbar"><label>Evento<select data-entry-event></select></label><p class="entry-stats" data-entry-stats role="status"></p></div>
+          <form class="entry-form" data-entry-form>
+            <label>Código do bilhete<input name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="64" required placeholder="Leia o QR ou escreva o código" /></label>
+            <button class="admin-primary" type="submit">Validar entrada</button>
+            <button type="button" data-entry-camera hidden>Usar a câmara</button>
+          </form>
+          <video class="entry-video" data-entry-video playsinline muted hidden></video>
+          <div class="entry-result" data-entry-result role="status" aria-live="assertive"></div>
         </div>
 
         <div data-view="orders" hidden>

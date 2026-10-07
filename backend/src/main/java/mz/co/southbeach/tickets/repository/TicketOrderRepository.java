@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TicketOrderRepository extends JpaRepository<TicketOrder, Long> {
+    Optional<TicketOrder> findByAccessToken(String accessToken);
     Optional<TicketOrder> findByReference(String reference);
     Page<TicketOrder> findByStatus(OrderStatus status, Pageable pageable);
     List<TicketOrder> findByStatusAndExpiresAtBefore(OrderStatus status, Instant instant);

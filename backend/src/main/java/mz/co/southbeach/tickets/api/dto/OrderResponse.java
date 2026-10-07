@@ -12,14 +12,19 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OrderResponse(
         String reference, OrderStatus status, long totalMinor, String currency, Instant expiresAt, Instant createdAt,
-        List<Line> items, String fullName, String phone, String email
+        List<Line> items, String fullName, String phone, String email, String ticketsUrl
 ) {
     public record Line(Long ticketTypeId, int quantity, long unitPriceMinor) { }
 
     public static OrderResponse from(TicketOrder o, List<TicketOrderItem> items, boolean admin) {
+        return from(o, items, admin, null);
+    }
+
+    /** {@code ticketsUrl} is the customer's private ticket page; staff use it to send the tickets. */
+    public static OrderResponse from(TicketOrder o, List<TicketOrderItem> items, boolean admin, String ticketsUrl) {
         return new OrderResponse(o.getReference(), o.getStatus(), o.getTotalMinor(), o.getCurrency(), o.getExpiresAt(),
                 o.getCreatedAt(),
                 items.stream().map(i -> new Line(i.getTicketTypeId(), i.getQuantity(), i.getUnitPriceMinor())).toList(),
-                admin ? o.getFullName() : null, admin ? o.getPhone() : null, admin ? o.getEmail() : null);
+                admin ? o.getFullName() : null, admin ? o.getPhone() : null, admin ? o.getEmail() : null, admin ? ticketsUrl : null);
     }
 }

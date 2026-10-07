@@ -62,13 +62,19 @@ Set `APP_ADMIN_USERNAME` and `APP_ADMIN_PASSWORD`. The latter must be at least 1
 
 ## Ticketing API
 
-Events, ticket types (batches), and orders that hold stock. Prices are integers in centavos of MZN (`150000` = 1500,00 MZN). No payment is taken: an order stays `PENDING` for `TICKET_HOLD_MINUTES` (default 15), then expires and releases its stock. A payment adapter will call `OrderService.markPaid(reference)`, which is idempotent; there is deliberately no HTTP endpoint that marks an order paid.
+Events, ticket types (batches), and orders that hold stock. Prices are integers in centavos of MZN (`150000` = 1500,00 MZN). No payment is taken: an order stays `PENDING` for `TICKET_HOLD_MINUTES` (default 15), then expires and releases its stock. Payment is confirmed in one of two ways: a future payment adapter calls `OrderService.markPaid(reference)`, or staff use `POST /api/admin/orders/{reference}/mark-paid` (the *Marcar como paga* button) after receiving the money by other means. Both are idempotent. There is no public way to mark an order paid.
 
 Public: `GET /api/events`, `GET /api/events/{slug}` (published events with availability), `POST /api/orders` (`eventSlug`, `fullName`, `phone`, optional `email`, `items: [{ticketTypeId, quantity}]`; `409` when sold out or outside the sale window).
 
 Team only: `GET|POST /api/admin/events`, `PUT /api/admin/events/{id}`, `POST /api/admin/events/{id}/ticket-types`, `PUT /api/admin/ticket-types/{id}`, `GET /api/admin/orders?status=`, `POST /api/admin/orders/{reference}/cancel` (pending orders only). Capacity cannot be lowered below sold + held.
 
 Posters: staff upload a JPEG, PNG or WebP of up to 2 MB (`POSTER_MAX_BYTES`) with `PUT /api/admin/events/{id}/poster` (multipart field `file`) and remove it with `DELETE`. The file type is checked from the file's own signature, not the browser's claim. Posters are stored in the database, so they survive hosts with ephemeral disks, and are served publicly only for published events at `GET /api/events/{slug}/poster`; staff can view any poster at `GET /api/admin/events/{id}/poster`.
+
+### QR tickets and entry
+
+Marking an order paid issues one ticket per seat. Each has a random 26-character code (130 bits, no 0/O/1/I) that is the only thing the QR contains; no personal data. The customer's private page is `ticket.html?t=<access token>` (`SITE_URL` sets the site address used in the link); the token is random and unguessable, and only staff see the link in the *Encomendas* tab, where they can copy it. When email or SMS is configured, the link is also sent automatically on payment. `GET /api/tickets/{token}` returns the tickets and `GET /api/tickets/qr/{code}` the QR image.
+
+At the gate, *Entrada* in the staff panel validates a code for the chosen event with `POST /api/admin/check-in` (`{"eventId","code"}`), which always answers 200 with `ADMITTED`, `ALREADY_USED`, `WRONG_EVENT`, `VOID` or `NOT_FOUND`. Admission is a single conditional `UPDATE`, so two scanners reading one code at once admit only one person (tested with 20 concurrent scans). `GET /api/admin/events/{id}/entry-stats` gives admitted vs. issued per ticket type. A wrong-event scan does not consume the ticket. Cancelling a paid order and voiding tickets is not built: it needs a refund flow.
 
 Stock is taken with single conditional `UPDATE` statements, so concurrent buyers cannot oversell (covered by a 40-buyer test for 10 tickets). Expiry cleanup is not covered by an automated test yet.
 

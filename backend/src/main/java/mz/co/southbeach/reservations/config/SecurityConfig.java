@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/reservations").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/events", "/api/events/*", "/api/events/*/poster").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tickets/*", "/api/tickets/qr/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
