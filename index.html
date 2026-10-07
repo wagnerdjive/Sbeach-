@@ -8,7 +8,7 @@
     <title>South Beach Maputo — Restaurante, Beach Bar & Sports Bar</title>
     <link rel="preconnect" href="https://static.wixstatic.com" />
     <link rel="stylesheet" href="styles.css" />
-    <script src="script.js" defer></script><script src="language.js" defer></script>
+    <script src="script.js" defer></script><script src="translations.js" defer></script><script src="api-config.js" defer></script><script src="cms.js" defer></script><script src="language.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Saltar para o conteúdo</a>
@@ -30,12 +30,12 @@
 
     <main id="main">
       <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-photo" role="img" aria-label="Ambiente junto ao mar no South Beach"></div>
+        <div data-cms-bg="index.bg.1.bg" class="hero-photo" role="img" aria-label="Ambiente junto ao mar no South Beach"></div>
         <div class="hero-shade"></div>
         <div class="hero-content">
-          <p class="eyebrow eyebrow-light">MAPUTO · À BEIRA-MAR</p>
-          <h1 id="hero-title">O Índico<br /><em>marca o ritmo.</em></h1>
-          <p class="hero-copy">Boa mesa, brisa do mar e espaço para estar junto. Bem-vindo ao South Beach.</p>
+          <p class="eyebrow eyebrow-light" data-cms="index.p.1">MAPUTO · À BEIRA-MAR</p>
+          <h1 id="hero-title" data-cms="index.h1.1">O Índico<br /><em>marca o ritmo.</em></h1>
+          <p class="hero-copy" data-cms="index.p.2">Boa mesa, brisa do mar e espaço para estar junto. Bem-vindo ao South Beach.</p>
           <div class="hero-actions">
             <a class="button button-light" href="https://www.southbeach.co.mz/reservations">Faça uma reserva <span aria-hidden="true">↗</span></a>
             <a class="text-link text-link-light" href="#experiencias">Descubra o espaço <span aria-hidden="true">↓</span></a>
@@ -48,54 +48,54 @@
       <section class="intro section-wrap" aria-labelledby="intro-title">
         <div class="intro-kicker"><span class="sun-mark" aria-hidden="true">✳</span><span>UM LUGAR, VÁRIOS MOMENTOS</span></div>
         <div class="intro-main">
-          <p class="eyebrow">SOUTH BEACH · MAPUTO</p>
-          <h2 id="intro-title">Encontros que<br />ficam <em>na memória.</em></h2>
+          <p class="eyebrow" data-cms="index.p.3">SOUTH BEACH · MAPUTO</p>
+          <h2 id="intro-title" data-cms="index.h2.1">Encontros que<br />ficam <em>na memória.</em></h2>
         </div>
         <div class="intro-copy">
-          <p>À beira do Índico, cada visita tem o seu próprio ritmo. Venha para uma refeição tranquila, um cocktail ao fim da tarde ou para acompanhar o jogo com os amigos.</p>
+          <p data-cms="index.p.4">À beira do Índico, cada visita tem o seu próprio ritmo. Venha para uma refeição tranquila, um cocktail ao fim da tarde ou para acompanhar o jogo com os amigos.</p>
           <a class="text-link" href="about.html">Conheça o South Beach <span aria-hidden="true">↗</span></a>
         </div>
       </section>
 
       <section class="experience-section" id="experiencias" aria-labelledby="experience-title">
         <div class="section-heading section-wrap">
-          <div><p class="eyebrow">ESCOLHA O SEU MOMENTO</p><h2 id="experience-title">Três formas<br />de <em>viver South Beach.</em></h2></div>
-          <p>Um destino à beira-mar, com ambientes para diferentes momentos do dia.</p>
+          <div><p class="eyebrow" data-cms="index.p.5">ESCOLHA O SEU MOMENTO</p><h2 id="experience-title" data-cms="index.h2.2">Três formas<br />de <em>viver South Beach.</em></h2></div>
+          <p data-cms="index.p.6">Um destino à beira-mar, com ambientes para diferentes momentos do dia.</p>
         </div>
         <div class="experience-grid section-wrap">
           <article class="experience-card card-restaurant">
             <a class="card-image" href="restaurant.html" aria-label="Explorar o restaurante">
-              <img src="https://static.wixstatic.com/media/f436ca_81f72fe3031646ff8c075e6236667729~mv2.jpg" alt="Ambiente do restaurante South Beach" loading="lazy" />
+              <img data-cms-image="index.img.1.image" src="https://static.wixstatic.com/media/f436ca_81f72fe3031646ff8c075e6236667729~mv2.jpg" alt="Ambiente do restaurante South Beach" loading="lazy" />
               <span class="card-number">01 / 03</span><span class="circle-arrow" aria-hidden="true">↗</span>
             </a>
-            <div class="card-copy"><p class="eyebrow">SABORES DO ÍNDICO</p><h3>Restaurante</h3><p>Uma mesa para explorar sabores, partilhar pratos e prolongar a conversa.</p><a class="text-link" href="restaurant.html">Descobrir <span aria-hidden="true">↗</span></a></div>
+            <div class="card-copy"><p class="eyebrow" data-cms="index.p.7">SABORES DO ÍNDICO</p><h3 data-cms="index.h3.1">Restaurante</h3><p data-cms="index.p.8">Uma mesa para explorar sabores, partilhar pratos e prolongar a conversa.</p><a class="text-link" href="restaurant.html">Descobrir <span aria-hidden="true">↗</span></a></div>
           </article>
           <article class="experience-card card-beach">
             <a class="card-image" href="beach-bar.html" aria-label="Explorar o beach bar">
-              <img src="https://static.wixstatic.com/media/f436ca_42ce4777f82d4b3bacf656ccabd66136~mv2.jpg" alt="Espaço exterior do South Beach" loading="lazy" />
+              <img data-cms-image="index.img.2.image" src="https://static.wixstatic.com/media/f436ca_42ce4777f82d4b3bacf656ccabd66136~mv2.jpg" alt="Espaço exterior do South Beach" loading="lazy" />
               <span class="card-number">02 / 03</span><span class="circle-arrow" aria-hidden="true">↗</span>
             </a>
-            <div class="card-copy"><p class="eyebrow">BRISA & COCKTAILS</p><h3>Beach Bar</h3><p>Petiscos, bebidas e aquele tempo extra que sabe bem junto ao mar.</p><a class="text-link" href="beach-bar.html">Descobrir <span aria-hidden="true">↗</span></a></div>
+            <div class="card-copy"><p class="eyebrow" data-cms="index.p.9">BRISA & COCKTAILS</p><h3 data-cms="index.h3.2">Beach Bar</h3><p data-cms="index.p.10">Petiscos, bebidas e aquele tempo extra que sabe bem junto ao mar.</p><a class="text-link" href="beach-bar.html">Descobrir <span aria-hidden="true">↗</span></a></div>
           </article>
           <article class="experience-card card-sports">
             <a class="card-image" href="sports-bar.html" aria-label="Explorar o sports bar">
-              <img src="https://static.wixstatic.com/media/f436ca_f9379c6574344d609ccb48715cccf8f3~mv2.jpg" alt="Ambiente do sports bar South Beach" loading="lazy" />
+              <img data-cms-image="index.img.3.image" src="https://static.wixstatic.com/media/f436ca_f9379c6574344d609ccb48715cccf8f3~mv2.jpg" alt="Ambiente do sports bar South Beach" loading="lazy" />
               <span class="card-number">03 / 03</span><span class="circle-arrow" aria-hidden="true">↗</span>
             </a>
-            <div class="card-copy"><p class="eyebrow">JOGO, COMIDA & AMIGOS</p><h3>Sports Bar</h3><p>Junte a sua equipa, escolha o lugar e aproveite o ambiente de jogo.</p><a class="text-link" href="sports-bar.html">Explorar <span aria-hidden="true">↗</span></a></div>
+            <div class="card-copy"><p class="eyebrow" data-cms="index.p.11">JOGO, COMIDA & AMIGOS</p><h3 data-cms="index.h3.3">Sports Bar</h3><p data-cms="index.p.12">Junte a sua equipa, escolha o lugar e aproveite o ambiente de jogo.</p><a class="text-link" href="sports-bar.html">Explorar <span aria-hidden="true">↗</span></a></div>
           </article>
         </div>
       </section>
 
       <section class="food-section" id="gastronomia" aria-labelledby="food-title">
         <div class="food-image">
-          <img src="https://static.wixstatic.com/media/f436ca_38439cfd789845b89442ca219b9cef20~mv2.jpg" alt="Prato servido no South Beach" loading="lazy" />
+          <img data-cms-image="index.img.4.image" src="https://static.wixstatic.com/media/f436ca_38439cfd789845b89442ca219b9cef20~mv2.jpg" alt="Prato servido no South Beach" loading="lazy" />
           <span class="image-note">FRESCO · LOCAL · À BEIRA-MAR</span>
         </div>
         <div class="food-copy">
-          <p class="eyebrow">DA COZINHA PARA A MESA</p>
-          <h2 id="food-title">Sabores que<br />pedem <em>mais tempo.</em></h2>
-          <p>Frutos do mar, pratos para partilhar e cocktails preparados para acompanhar o momento. Descubra os menus do restaurante, do beach bar e do sports bar.</p>
+          <p class="eyebrow" data-cms="index.p.13">DA COZINHA PARA A MESA</p>
+          <h2 id="food-title" data-cms="index.h2.3">Sabores que<br />pedem <em>mais tempo.</em></h2>
+          <p data-cms="index.p.14">Frutos do mar, pratos para partilhar e cocktails preparados para acompanhar o momento. Descubra os menus do restaurante, do beach bar e do sports bar.</p>
           <div class="menu-links">
             <a href="menus.html#restaurant"><span>Menu do restaurante</span><b aria-hidden="true">↗</b></a>
             <a href="menus.html#beach"><span>Menu do beach bar</span><b aria-hidden="true">↗</b></a>
@@ -106,36 +106,36 @@
 
       <section class="events-section section-wrap" aria-labelledby="events-title">
         <div class="events-photo">
-          <img src="https://static.wixstatic.com/media/f436ca_d9fb55418bc34b64a73f395579f6d962~mv2.jpg" alt="Vista e ambiente do South Beach" loading="lazy" />
-          <div class="photo-stamp"><span>SB</span><small>MAPUTO<br />MOÇAMBIQUE</small></div>
+          <img data-cms-image="index.img.5.image" src="https://static.wixstatic.com/media/f436ca_d9fb55418bc34b64a73f395579f6d962~mv2.jpg" alt="Vista e ambiente do South Beach" loading="lazy" />
+          <div class="photo-stamp"><span>SB</span><small data-cms="index.small.1">MAPUTO<br />MOÇAMBIQUE</small></div>
         </div>
         <div class="events-copy">
-          <p class="eyebrow">CELEBRE À SUA MANEIRA</p>
-          <h2 id="events-title">Os melhores<br />momentos são <em>partilhados.</em></h2>
-          <p>Um cenário especial para reunir pessoas, celebrar ocasiões ou simplesmente aproveitar um dia diferente junto ao mar.</p>
+          <p class="eyebrow" data-cms="index.p.15">CELEBRE À SUA MANEIRA</p>
+          <h2 id="events-title" data-cms="index.h2.4">Os melhores<br />momentos são <em>partilhados.</em></h2>
+          <p data-cms="index.p.16">Um cenário especial para reunir pessoas, celebrar ocasiões ou simplesmente aproveitar um dia diferente junto ao mar.</p>
           <a class="button button-dark" href="events.html">Descubra os eventos <span aria-hidden="true">↗</span></a>
         </div>
       </section>
 
       <section class="gallery-section" aria-labelledby="gallery-title">
-        <div class="gallery-heading section-wrap"><div><p class="eyebrow">UM OLHAR PELO ESPAÇO</p><h2 id="gallery-title">Sinta o <em>ambiente.</em></h2></div><a class="text-link" href="gallery.html">Ver galeria completa <span aria-hidden="true">↗</span></a></div>
+        <div class="gallery-heading section-wrap"><div><p class="eyebrow" data-cms="index.p.17">UM OLHAR PELO ESPAÇO</p><h2 id="gallery-title" data-cms="index.h2.5">Sinta o <em>ambiente.</em></h2></div><a class="text-link" href="gallery.html">Ver galeria completa <span aria-hidden="true">↗</span></a></div>
         <div class="gallery-grid">
-          <img src="https://static.wixstatic.com/media/f436ca_81f72fe3031646ff8c075e6236667729~mv2.jpg" alt="Restaurante South Beach" loading="lazy" />
-          <img src="https://static.wixstatic.com/media/f436ca_42ce4777f82d4b3bacf656ccabd66136~mv2.jpg" alt="Espaço exterior South Beach" loading="lazy" />
-          <img src="https://static.wixstatic.com/media/f436ca_f9379c6574344d609ccb48715cccf8f3~mv2.jpg" alt="Sports bar South Beach" loading="lazy" />
-          <img src="https://static.wixstatic.com/media/f436ca_d9fb55418bc34b64a73f395579f6d962~mv2.jpg" alt="Vista do South Beach" loading="lazy" />
+          <img data-cms-image="index.img.6.image" src="https://static.wixstatic.com/media/f436ca_81f72fe3031646ff8c075e6236667729~mv2.jpg" alt="Restaurante South Beach" loading="lazy" />
+          <img data-cms-image="index.img.7.image" src="https://static.wixstatic.com/media/f436ca_42ce4777f82d4b3bacf656ccabd66136~mv2.jpg" alt="Espaço exterior South Beach" loading="lazy" />
+          <img data-cms-image="index.img.8.image" src="https://static.wixstatic.com/media/f436ca_f9379c6574344d609ccb48715cccf8f3~mv2.jpg" alt="Sports bar South Beach" loading="lazy" />
+          <img data-cms-image="index.img.9.image" src="https://static.wixstatic.com/media/f436ca_d9fb55418bc34b64a73f395579f6d962~mv2.jpg" alt="Vista do South Beach" loading="lazy" />
         </div>
       </section>
 
       <section class="visit-section" id="visite" aria-labelledby="visit-title">
         <div class="visit-top section-wrap">
-          <div><p class="eyebrow eyebrow-light">A SUA MESA ESTÁ À ESPERA</p><h2 id="visit-title">Encontramo-nos<br /><em>à beira-mar?</em></h2></div>
+          <div><p class="eyebrow eyebrow-light" data-cms="index.p.18">A SUA MESA ESTÁ À ESPERA</p><h2 id="visit-title" data-cms="index.h2.6">Encontramo-nos<br /><em>à beira-mar?</em></h2></div>
           <a class="button button-light" href="reservations.html">Reservar uma mesa <span aria-hidden="true">↗</span></a>
         </div>
         <div class="visit-details section-wrap">
-          <div><p class="eyebrow eyebrow-light">VISITE-NOS</p><p>Av. da Marginal 4272<br />Maputo, Moçambique</p><a class="text-link text-link-light" href="https://maps.google.com/?q=South+Beach+Maputo">Ver localização <span aria-hidden="true">↗</span></a></div>
-          <div><p class="eyebrow eyebrow-light">CONTACTO</p><p><a href="tel:+258823255120">(+258) 82 325 5120</a><br /><a href="mailto:turigest@southbeach.co.mz">turigest@southbeach.co.mz</a></p></div>
-          <div><p class="eyebrow eyebrow-light">HORÁRIOS DE REFEIÇÃO</p><p>Café · 08h00–10h00<br />Almoço · 12h00–14h00<br />17h00–19h00 · Jantar · 20h00–21h30</p><small>Confirme a disponibilidade ao reservar.</small></div>
+          <div><p class="eyebrow eyebrow-light" data-cms="index.p.19">VISITE-NOS</p><p data-cms="index.p.20">Av. da Marginal 4272<br />Maputo, Moçambique</p><a class="text-link text-link-light" href="https://maps.google.com/?q=South+Beach+Maputo">Ver localização <span aria-hidden="true">↗</span></a></div>
+          <div><p class="eyebrow eyebrow-light" data-cms="index.p.21">CONTACTO</p><p><a href="tel:+258823255120" data-cms="site.phone" data-cms-href="site.phone.href">(+258) 82 325 5120</a><br /><a href="mailto:turigest@southbeach.co.mz" data-cms="site.email" data-cms-href="site.email.href">turigest@southbeach.co.mz</a></p></div>
+          <div><p class="eyebrow eyebrow-light" data-cms="index.p.22">HORÁRIOS DE REFEIÇÃO</p><p data-cms="index.p.23">Café · 08h00–10h00<br />Almoço · 12h00–14h00<br />17h00–19h00 · Jantar · 20h00–21h30</p><small data-cms="index.small.2">Confirme a disponibilidade ao reservar.</small></div>
         </div>
       </section>
     </main>

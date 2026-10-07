@@ -78,6 +78,14 @@ At the gate, *Entrada* in the staff panel validates a code for the chosen event 
 
 Stock is taken with single conditional `UPDATE` statements, so concurrent buyers cannot oversell (covered by a 40-buyer test for 10 tickets). Expiry cleanup is not covered by an automated test yet.
 
+## Site content (CMS)
+
+Staff edit the website's text, images and links in *Conteúdo do site* in the staff panel, without touching files. Editable elements are marked in the HTML with `data-cms` (text), `data-cms-image` (`<img>`), `data-cms-bg` (background image) and `data-cms-href` (link); `cms.js` fetches `GET /api/content` and applies the edits on top of the page's own content. A page with no edit, or with the API down, shows exactly what is in the HTML. Edits are stored in `site_content` and saved all-or-nothing with `PUT /api/admin/content` (`{"entries": {"key": {"pt","en"}}}`; a null entry restores the original). Phone and email use shared keys (`site.phone`, `site.email`), so one edit updates every page.
+
+Text is plain text: a new line is a line break and `*word*` is italic accent; no HTML is ever interpreted. Links must be `https://`, `tel:`, `mailto:` or a page of this site, and images `https://` or an uploaded file (`POST /api/admin/media`, JPEG/PNG/WebP up to 3 MB, stored in the database and served at `/api/media/{id}`). If staff change the Portuguese but not the English, English visitors see the Portuguese text, and the editor warns about it.
+
+Not editable yet: menus beyond their page text, the gallery images, text inside links with arrows (buttons), navigation and footer, the opening of events/tickets pages, and adding or removing sections. New editable spots are added by marking the element in the HTML.
+
 ## Production database
 
 Set `DATABASE_URL` to a PostgreSQL JDBC URL, plus `DB_USERNAME` and `DB_PASSWORD`. Flyway applies versioned schema migrations; Hibernate validates the schema on startup. Configure `CORS_ALLOWED_ORIGINS` to the exact website origin(s). Store credentials in the hosting provider's secret manager, enable HTTPS, backups, monitoring and a rate limit at the edge before accepting public traffic.

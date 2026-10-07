@@ -5,7 +5,7 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>Painel da equipa — South Beach</title>
     <link rel="stylesheet" href="styles.css" /><link rel="stylesheet" href="admin.css" />
-    <script src="api-config.js" defer></script><script src="admin.js" defer></script>
+    <script src="translations.js" defer></script><script src="api-config.js" defer></script><script src="cms.js" defer></script><script src="admin.js" defer></script>
   </head>
   <body class="admin-page">
     <header class="admin-header"><a class="admin-brand" href="index.html">SOUTH <em>BEACH</em></a><span>Painel da equipa</span><button type="button" class="admin-logout" data-logout hidden>Terminar sessão</button></header>
@@ -18,7 +18,7 @@
         <p class="admin-message" data-login-message role="status"></p>
       </form>
       <section class="admin-panel" data-panel hidden>
-        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button></div>
+        <div class="admin-tabs" role="tablist"><button type="button" role="tab" data-tab="reservations" aria-selected="true">Reservas</button><button type="button" role="tab" data-tab="events" aria-selected="false">Eventos e bilhetes</button><button type="button" role="tab" data-tab="orders" aria-selected="false">Encomendas</button><button type="button" role="tab" data-tab="entry" aria-selected="false">Entrada</button><button type="button" role="tab" data-tab="content" aria-selected="false">Conteúdo do site</button></div>
         <p class="admin-message" data-message role="status"></p>
 
         <div data-view="reservations">
@@ -62,6 +62,19 @@
           </form>
           <div data-events></div>
           <p class="admin-empty" data-events-empty hidden>Ainda não há eventos. Crie o primeiro com “Novo evento”.</p>
+        </div>
+
+        <div data-view="content" hidden>
+          <div class="admin-toolbar">
+            <label>Página<select data-content-page>
+              <option value="index">Página inicial</option><option value="about">Sobre</option><option value="restaurant">Restaurante</option><option value="beach-bar">Beach Bar</option><option value="sports-bar">Sports Bar</option><option value="menus">Menus</option><option value="events">Eventos</option><option value="gallery">Galeria</option><option value="contact">Contactos</option><option value="reservations">Reservas</option>
+            </select></label>
+            <button type="button" class="admin-primary" data-content-save>Guardar alterações</button>
+            <a class="admin-refresh" data-content-preview href="index.html" target="_blank" rel="noopener">Ver a página</a>
+          </div>
+          <p class="content-help">Escreva texto simples. Uma nova linha é uma quebra de linha e <code>*palavra*</code> fica em itálico (cor de destaque). Se alterar o português e deixar o inglês igual à tradução original, o site usa o português nas duas línguas — actualize também o inglês. “Repor original” volta ao texto da página.</p>
+          <div data-content-fields></div>
+          <p class="admin-empty" data-content-empty hidden>Esta página não tem campos editáveis.</p>
         </div>
 
         <div data-view="entry" hidden>

@@ -132,7 +132,7 @@
   // ---- Tabs -------------------------------------------------------------
   const views = Object.fromEntries([...document.querySelectorAll('[data-view]')].map((node) => [node.dataset.view, node]));
   const tabs = [...document.querySelectorAll('[data-tab]')];
-  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry() };
+  const loaders = { reservations: () => load(), events: () => loadEvents(), orders: () => loadOrders(), entry: () => loadEntry(), content: () => loadContent() };
   function showView(name) {
     tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.tab === name)));
     Object.entries(views).forEach(([key, node]) => { node.hidden = key !== name; });
@@ -460,6 +460,132 @@
     });
   }
   tabs.forEach((tab) => tab.addEventListener('click', () => { if (tab.dataset.tab !== 'entry') stopCamera(); }));
+
+  // ---- Site content (CMS) ---------------------------------------------------
+  const contentPage = $('[data-content-page]'), contentFields = $('[data-content-fields]'), contentEmpty = $('[data-content-empty]');
+  const cms = () => window.SouthBeachCms;
+  const tagLabels = { H1: 'Título principal', H2: 'Título', H3: 'Subtítulo', P: 'Parágrafo', SMALL: 'Nota', A: 'Contacto' };
+  let contentRows = [];
+  const mediaSrc = (value) => (value && value.startsWith('/api/') ? cms().apiOrigin + value : value);
+
+  function field(labelText, key, control) {
+    const wrap = node('label', undefined, 'content-field');
+    wrap.append(node('span', labelText), control);
+    if (key) wrap.append(node('small', key));
+    return wrap;
+  }
+  function textarea(value, rows) {
+    const area = node('textarea');
+    area.rows = rows; area.maxLength = 2000; area.value = value;
+    return area;
+  }
+  const rowsFor = (text) => Math.min(8, Math.max(2, text.split('\n').length + Math.floor(text.length / 90)));
+
+  function addRow(parent, row) {
+    contentRows.push(row);
+    parent.append(row.element);
+  }
+
+  function textRow(element, saved, doc) {
+    const key = element.dataset.cms;
+    const defaultPt = cms().toSource(element);
+    const defaultEn = defaultPt.split('\n').map((line) => line.split(/(\*[^*]+\*)/).map((part) => {
+      if (part.length > 2 && part.startsWith('*') && part.endsWith('*')) return `*${cms().translatePiece(part.slice(1, -1))}*`;
+      return cms().translatePiece(part);
+    }).join('')).join('\n');
+    const edit = saved[key] || {};
+    const pt = textarea(edit.pt ?? defaultPt, rowsFor(edit.pt ?? defaultPt)), en = textarea(edit.en ?? defaultEn, rowsFor(edit.en ?? defaultEn));
+    const reset = node('button', 'Repor original'); reset.type = 'button';
+    reset.addEventListener('click', () => { pt.value = defaultPt; en.value = defaultEn; });
+    const warning = node('small', '', 'content-warning');
+    const check = () => { warning.textContent = pt.value.trim() !== defaultPt && en.value.trim() === defaultEn ? 'O inglês ainda é a tradução do texto original: será usado o português.' : ''; };
+    pt.addEventListener('input', check); en.addEventListener('input', check); check();
+    const grid = node('div', undefined, 'content-pair');
+    grid.append(field('Português', null, pt), field('English', null, en));
+    const box = node('div', undefined, 'content-row');
+    box.append(node('h4', element.classList.contains('eyebrow') ? 'Etiqueta' : (tagLabels[element.tagName] || 'Texto')), grid, warning, reset, node('small', key, 'content-key'));
+    addRow(contentFields, { key, element: box, read() {
+      const ptValue = pt.value.trim(), enValue = en.value.trim();
+      if (ptValue === defaultPt && enValue === defaultEn) return null;
+      return { pt: ptValue === defaultPt ? null : ptValue, en: enValue === defaultEn ? null : enValue, dirty: true };
+    }, had: Boolean(saved[key]) });
+    // A link attached to this text (phone, email) is edited right under it.
+    if (element.dataset.cmsHref) linkRow(element.dataset.cmsHref, element.getAttribute('href'), saved, box);
+  }
+
+  function linkRow(key, defaultHref, saved, parent) {
+    const input = node('input'); input.type = 'text'; input.maxLength = 480; input.value = saved[key]?.pt ?? defaultHref ?? '';
+    const box = node('div', undefined, 'content-row content-sub');
+    box.append(field('Ligação (ex.: tel:+258…, mailto:…, https://…)', key, input));
+    addRow(parent, { key, element: box, read() { const value = input.value.trim(); return value === (defaultHref ?? '') ? null : { pt: value, en: null }; }, had: Boolean(saved[key]) });
+  }
+
+  function imageRow(key, label, defaultSrc, saved, isBackground) {
+    let value = saved[key]?.pt || '';
+    const preview = node('img', undefined, 'content-preview'); preview.alt = '';
+    const status = node('small', '', 'content-key');
+    const show = () => {
+      const shown = value ? mediaSrc(value) : (isBackground ? '' : defaultSrc);
+      preview.hidden = !shown; if (shown) preview.src = shown;
+      status.textContent = value ? 'Imagem alterada' : 'Imagem original da página';
+    };
+    const file = node('input'); file.type = 'file'; file.accept = 'image/jpeg,image/png,image/webp';
+    file.addEventListener('change', async () => {
+      const chosen = file.files[0]; if (!chosen) return;
+      if (chosen.size > 3 * 1024 * 1024) { say(message, 'A imagem deve ter até 3 MB.'); file.value = ''; return; }
+      const upload = new FormData(); upload.append('file', chosen);
+      try { value = (await api('/api/admin/media', { method: 'POST', body: upload })).url; show(); say(message, 'Imagem carregada. Carregue em “Guardar alterações” para a publicar.', true); }
+      catch (error) { say(message, error.message); }
+      file.value = '';
+    });
+    const reset = node('button', 'Repor original'); reset.type = 'button';
+    reset.addEventListener('click', () => { value = ''; show(); });
+    const box = node('div', undefined, 'content-row');
+    box.append(node('h4', label), preview, file, reset, status, node('small', key, 'content-key'));
+    show();
+    addRow(contentFields, { key, element: box, read() { return value ? { pt: value, en: null } : null; }, had: Boolean(saved[key]) });
+  }
+
+  async function loadContent() {
+    const page = contentPage.value;
+    $('[data-content-preview]').href = `${page}.html`;
+    contentFields.replaceChildren(); contentRows = [];
+    const [saved, html] = await Promise.all([
+      fetch(`${cms().apiOrigin}/api/content`).then((r) => (r.ok ? r.json() : {})),
+      fetch(`${page}.html`).then((r) => { if (!r.ok) throw new Error('Não foi possível ler a página.'); return r.text(); })
+    ]);
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const seen = new Set();
+    doc.querySelectorAll('[data-cms], [data-cms-image], [data-cms-bg]').forEach((element, index) => {
+      if (element.dataset.cms) {
+        if (seen.has(element.dataset.cms)) return; seen.add(element.dataset.cms);
+        textRow(element, saved, doc);
+      } else if (element.dataset.cmsImage) {
+        if (seen.has(element.dataset.cmsImage)) return; seen.add(element.dataset.cmsImage);
+        imageRow(element.dataset.cmsImage, 'Imagem', element.getAttribute('src'), saved, false);
+      } else if (element.dataset.cmsBg) {
+        if (seen.has(element.dataset.cmsBg)) return; seen.add(element.dataset.cmsBg);
+        imageRow(element.dataset.cmsBg, 'Imagem de fundo', '', saved, true);
+      }
+    });
+    contentEmpty.hidden = contentRows.length > 0;
+  }
+
+  contentPage.addEventListener('change', () => loadContent().catch((error) => say(message, error.message)));
+  $('[data-content-save]').addEventListener('click', async () => {
+    const entries = {};
+    for (const row of contentRows) {
+      const value = row.read();
+      if (value) entries[row.key] = { pt: value.pt ?? null, en: value.en ?? null };
+      else if (row.had) entries[row.key] = null; // back to the original: remove the saved edit
+    }
+    if (!Object.keys(entries).length) { say(message, 'Não há alterações para guardar.'); return; }
+    try {
+      await api('/api/admin/content', { method: 'PUT', body: JSON.stringify({ entries }) });
+      await loadContent();
+      say(message, 'Conteúdo guardado. As visitas vêem as alterações em menos de um minuto.', true);
+    } catch (error) { say(message, error.message); }
+  });
   orderFilter.addEventListener('change', () => loadOrders().catch((error) => say(message, error.message)));
   $('[data-refresh-orders]').addEventListener('click', () => loadOrders().then(() => say(message, '')).catch((error) => say(message, error.message)));
 })();
