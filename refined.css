@@ -470,3 +470,11 @@ body.refined{
 .refined .past-event-text p{margin:0 0 6px;font-size:14px;line-height:1.9;color:var(--muted)}
 .refined .past-event-album{padding-top:34px;padding-bottom:100px}
 .refined .past-event-note{text-align:center;color:var(--muted);font-size:13px}
+
+/* Event cards: titles, dates, prices and buy buttons line up across the row */
+.refined .event-card-grid{align-items:stretch}
+.refined .event-card-body{flex:1}
+.refined .event-card-body h3{min-height:2.3em;display:flex;align-items:center;justify-content:center}
+.refined .event-card-status{margin-top:auto;padding-top:10px;color:var(--blue)}
+.refined .event-card-cta{margin-top:14px;align-self:center}
+.refined .events-list-heading h2 em,.refined .events-list-heading em{color:var(--blue)}
