@@ -39,5 +39,5 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 
 ## Direcção visual
 
-- [x] Página inicial: direcção clara e arejada, com detalhes finos (inspirada em Nikki Beach e SALT) — `home.css`, `home.js`; por aprovar
-- [ ] Estender a direcção às restantes páginas, depois de aprovada a página inicial
+- [x] Direcção clara e arejada, com detalhes finos (inspirada em Nikki Beach e SALT), em todas as páginas públicas — `refined.css`, `refined.js`; branch `direcao-visual-clara`, por aprovar
+- [ ] Aprovar e juntar à `main`

@@ -1,0 +1,335 @@
+/* Home page direction: light and airy, centred compositions, hairline details.
+   Scoped to body.refined so the other pages stay as they are until this direction is approved. */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+
+body.refined{--paper:#f8f4ec;--paper-deep:#f1eadd;--ink:#3a382e;--muted:#6a6657;--gold:#b09462;--line:rgba(58,56,46,.16);--display:'Cormorant Garamond','Playfair Display',Georgia,serif}
+.refined .hero h1,.refined .intro h2,.refined .section-heading h2,.refined .food-copy h2,.refined .events-copy h2,.refined .gallery-heading h2,.refined .visit-top h2,.refined .card-copy h3{font-family:var(--display);font-weight:400;letter-spacing:-.01em;line-height:1.04}
+.refined .hero h1 em,.refined .intro h2 em,.refined .section-heading h2 em,.refined .food-copy h2 em,.refined .events-copy h2 em,.refined .gallery-heading h2 em,.refined .visit-top h2 em{font-weight:400;font-style:italic}
+
+/* Header: logo in the middle, links either side */
+.refined .site-header{height:96px;background:var(--paper);border-bottom:1px solid var(--line)}
+.refined .brand{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:128px;height:76px;z-index:2}
+.refined .primary-nav{flex:1;gap:36px;font-size:11px;letter-spacing:.22em}
+.refined .nav-spacer{flex:1;min-width:150px}
+.refined .primary-nav>a:not(.button),.refined .nav-group summary{font-weight:500}
+.refined .nav-book{min-height:44px;padding-inline:22px}
+.refined .language-toggle{margin-left:28px}
+
+/* Buttons and links: outlined, widely spaced */
+.refined .button{min-height:50px;padding:0 30px;border:1px solid currentColor;background:transparent;letter-spacing:.22em;font-weight:600;font-size:10px;transition:background .35s,color .35s,border-color .35s,transform .35s}
+.refined .button:hover{transform:none}
+.refined .button-dark{color:var(--green);border-color:var(--green)}
+.refined .button-dark:hover{background:var(--green);color:#fff}
+.refined .button-light{color:#fff;border-color:rgba(255,255,255,.75)}
+.refined .button-light:hover{background:#fff;color:var(--green);border-color:#fff}
+.refined .text-link{letter-spacing:.2em;font-weight:600}
+
+/* Small gold labels with a hairline either side */
+.refined .eyebrow{font-size:10px;letter-spacing:.32em;font-weight:600;color:#8d7b55}
+.refined .eyebrow-light{color:rgba(255,255,255,.85)}
+.refined .hero .eyebrow,.refined .intro-main .eyebrow,.refined .section-heading .eyebrow,.refined .gallery-heading .eyebrow,.refined .visit-top .eyebrow{display:inline-flex;align-items:center;gap:18px}
+.refined .hero .eyebrow::before,.refined .hero .eyebrow::after,.refined .intro-main .eyebrow::before,.refined .intro-main .eyebrow::after,.refined .section-heading .eyebrow::before,.refined .section-heading .eyebrow::after,.refined .gallery-heading .eyebrow::before,.refined .gallery-heading .eyebrow::after,.refined .visit-top .eyebrow::before,.refined .visit-top .eyebrow::after{content:'';width:38px;height:1px;background:currentColor;opacity:.55}
+
+/* Hero: full height, framed, centred */
+.refined .hero{height:min(880px,calc(100svh - 96px));min-height:600px;justify-content:center;text-align:center}
+.refined .hero-shade{background:radial-gradient(ellipse at center,rgba(16,24,19,.5),rgba(16,24,19,.22) 70%),linear-gradient(0deg,rgba(16,24,19,.55),rgba(16,24,19,.1) 50%,rgba(16,24,19,.32))}
+.refined .hero h1,.refined .hero-copy{text-shadow:0 2px 24px rgba(10,18,14,.45)}
+.refined .hero::after{content:'';position:absolute;inset:20px;border:1px solid rgba(255,255,255,.42);pointer-events:none;z-index:2}
+.refined .hero-content{margin:0 auto;max-width:960px;padding:0 28px 30px}
+.refined .hero h1{font-size:clamp(54px,8.2vw,124px);letter-spacing:-.02em}
+.refined .hero h1 em{color:#e3cfa6}
+.refined .hero-copy{max-width:470px;margin:28px auto 38px;font-size:15px;line-height:1.8}
+.refined .hero-actions{justify-content:center;gap:34px}
+.refined .hero-caption{left:0;right:0;bottom:46px;justify-content:center;gap:0;letter-spacing:.28em}
+.refined .hero-caption span+span::before{content:'·';margin:0 16px}
+.refined .hero-index{display:none}
+
+/* Introduction */
+.refined .intro{display:block;width:min(800px,calc(100% - 10vw));padding:150px 0 140px;text-align:center}
+.refined .intro-kicker{justify-content:center;margin:0 0 30px}
+.refined .intro-kicker span:last-child{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap} /* kept for screen readers; the eyebrow below says the same */
+.refined .intro h2{font-size:clamp(46px,6vw,84px)}
+.refined .intro h2 em{color:#92774d}
+.refined .intro-copy{max-width:520px;margin:38px auto 0;padding:0}
+.refined .intro-copy>p{font-size:15px}
+.refined .intro-copy .text-link{margin-top:6px}
+
+/* Three spaces */
+.refined .experience-section{background:var(--paper-deep);padding:130px 0 150px}
+.refined .section-heading{flex-direction:column;align-items:center;text-align:center;margin-bottom:72px}
+.refined .section-heading h2{font-size:clamp(42px,5.4vw,76px)}
+.refined .section-heading h2 em{color:#92774d}
+.refined .section-heading>p{width:auto;max-width:480px;margin:26px 0 0;font-size:15px}
+.refined .experience-grid{gap:34px}
+.refined .experience-card:nth-child(2),.refined .experience-card:nth-child(3){margin-top:0}
+.refined .card-image{height:auto;aspect-ratio:4/5}
+.refined .card-image img{transition:transform 1.2s cubic-bezier(.2,.6,.2,1)}
+.refined .card-image::after{content:'';position:absolute;inset:14px;border:1px solid rgba(255,255,255,.55);pointer-events:none;transition:inset .5s,border-color .5s}
+.refined .card-image:hover::after{inset:20px;border-color:rgba(255,255,255,.9)}
+.refined .card-number{top:30px;left:32px;letter-spacing:.24em;z-index:1}
+.refined .circle-arrow{display:none}
+.refined .card-copy{text-align:center;padding:30px 8px 0}
+.refined .card-copy .eyebrow{margin-bottom:12px}
+.refined .card-copy h3{font-size:clamp(34px,3.2vw,44px);margin-bottom:12px}
+.refined .card-copy>p:not(.eyebrow){margin:0 auto 20px;font-size:14px}
+
+/* Food */
+.refined .food-section{background:var(--paper)}
+.refined .food-image::after{content:'';position:absolute;inset:22px;border:1px solid rgba(255,255,255,.5);pointer-events:none}
+.refined .image-note{left:50%;bottom:44px;transform:translateX(-50%);letter-spacing:.3em;white-space:nowrap}
+.refined .food-copy h2{font-size:clamp(44px,5vw,70px)}
+.refined .food-copy h2 em,.refined .events-copy h2 em{color:#92774d}
+.refined .food-copy>p:not(.eyebrow),.refined .events-copy>p:not(.eyebrow){font-size:15px}
+.refined .menu-links a{padding:18px 0;letter-spacing:.14em;text-transform:uppercase;font-size:11px;transition:padding .4s,color .4s}
+.refined .menu-links a:hover{padding-left:10px;color:#92774d}
+
+/* Events */
+.refined .events-section{padding-top:150px;padding-bottom:150px}
+.refined .events-photo{height:560px}
+.refined .events-photo::after{content:'';position:absolute;inset:-14px;border:1px solid var(--gold);pointer-events:none;opacity:.7}
+.refined .events-copy h2{font-size:clamp(44px,5vw,70px)}
+.refined .photo-stamp{right:-34px;bottom:-34px;z-index:1}
+
+/* Gallery */
+.refined .gallery-section{background:var(--paper-deep);padding:130px 0 0}
+.refined .gallery-heading{flex-direction:column;align-items:center;text-align:center;gap:22px;margin-bottom:62px}
+.refined .gallery-heading h2{font-size:clamp(42px,5.4vw,76px)}
+.refined .gallery-heading h2 em{color:#92774d}
+.refined .gallery-heading .text-link{margin:0}
+.refined .gallery-grid{height:380px;gap:0}
+.refined .gallery-grid img{transition:filter .6s}
+.refined .gallery-grid:hover img{filter:saturate(.8) brightness(.9)}
+.refined .gallery-grid img:hover{filter:none}
+
+/* Visit */
+.refined .visit-section{padding:140px 0 90px}
+.refined .visit-top{flex-direction:column;align-items:center;text-align:center;gap:42px;padding-bottom:90px}
+.refined .visit-top h2{font-size:clamp(50px,7vw,100px)}
+.refined .visit-top h2 em{color:#e3cfa6}
+.refined .visit-top .button{margin:0}
+.refined .visit-details{padding-top:60px;gap:0;text-align:center}
+.refined .visit-details>div{padding:0 28px}
+.refined .visit-details>div+div{border-left:1px solid rgba(255,255,255,.22)}
+.refined .visit-details p:not(.eyebrow){font-size:14px}
+.refined .visit-details .eyebrow{display:block}
+
+/* Quiet entrance as sections scroll into view (only when JS is running) */
+.reveal-ready [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity 1s ease,transform 1s cubic-bezier(.2,.6,.2,1)}
+.reveal-ready [data-reveal].is-visible{opacity:1;transform:none}
+
+@media(max-width:900px){.refined .primary-nav{gap:20px;letter-spacing:.16em}.refined .nav-spacer{min-width:110px}.refined .brand{width:104px}.refined .experience-grid{gap:18px}.refined .card-copy>p:not(.eyebrow){font-size:13px}}
+@media(max-width:700px){
+  .refined .site-header{height:76px}
+  .refined .brand{position:static;transform:none;width:84px;height:54px}
+  .refined .nav-spacer{display:none}
+  .refined .primary-nav{flex:none;letter-spacing:.14em}
+  .refined .hero{min-height:560px;height:calc(100svh - 76px)}
+  .refined .hero::after{inset:12px}
+  .refined .hero-caption{bottom:30px;font-size:8px;letter-spacing:.2em;flex-wrap:wrap}
+  .refined .hero-actions{flex-direction:column;align-items:center;gap:22px}
+  .refined .intro{padding:100px 0 96px}
+  .refined .experience-section{padding:90px 0 100px}
+  .refined .experience-grid{grid-template-columns:1fr;gap:46px}
+  .refined .food-image{height:460px}
+  .refined .events-section{padding-top:100px;padding-bottom:100px}
+  .refined .events-photo{height:420px}
+  .refined .events-photo::after{inset:-8px}
+  .refined .gallery-section{padding-top:90px}
+  .refined .gallery-grid{height:auto}
+  .refined .visit-section{padding:100px 0 70px}
+  .refined .visit-details{grid-template-columns:1fr;gap:34px}
+  .refined .visit-details>div{padding:0}
+  .refined .visit-details>div+div{border-left:0;border-top:1px solid rgba(255,255,255,.22);padding-top:30px}
+}
+
+/* ===== Inner pages ===================================================== */
+.refined :is(.subpage-hero-copy h1,.story-copy h2,.page-intro h2,.concept-section h2,.concept-grid h3,.feature-strip h3,.sports-features h3,.image-text-band h2,.menus-heading h2,.gallery-page-heading h2,.contact-details h2,.event-state h2,.past-events .section-heading h2,.past-event-list strong,.about-photo-band h2,.page-cta h2,.inquiry-copy h2,.ticketing-teaser h2,.reservation-hero-copy h1,.reservation-intro h2,.reservation-form-heading h2,.tickets-hero-content h1,.ticket-preview-heading h2,.ownership-inner h2,.live-event-head h2,.events-list-heading h2,.event-card-body h3,.menu-panel h3,.menu-panel h2,.checkout-card h3,.event-demo-info h3,.dialog h2){font-family:var(--display);font-weight:400;letter-spacing:-.01em;line-height:1.05;font-size-adjust:.46}
+.refined :is(.story-copy h2,.page-intro h2,.concept-section h2,.image-text-band h2,.menus-heading h2,.gallery-page-heading h2,.contact-details h2,.event-state h2,.past-events .section-heading h2,.about-photo-band h2,.page-cta h2,.inquiry-copy h2,.ticketing-teaser h2,.reservation-intro h2,.ticket-preview-heading h2,.ownership-inner h2,.events-list-heading h2) em,.refined .subpage-hero-copy h1 em,.refined :is(.reservation-hero-copy,.tickets-hero-content) h1 em{font-weight:400;font-style:italic}
+.refined :is(.story-copy,.page-intro,.concept-section,.image-text-band,.menus-heading,.gallery-page-heading,.contact-details,.event-state,.past-events,.ticketing-teaser,.reservation-intro,.ticket-preview-heading) h2 em{color:#92774d}
+.refined :is(.concept-section h2,.page-intro h2,.story-copy h2,.menus-heading h2,.gallery-page-heading h2,.contact-details h2,.event-state h2,.reservation-intro h2,.ticket-preview-heading h2){font-size:clamp(44px,5.6vw,80px)}
+.refined :is(.concept-grid h3,.feature-strip h3,.sports-features h3,.past-event-list strong){font-size:clamp(30px,2.8vw,38px)}
+
+/* Page tops: full width, framed, centred (same family as the home hero) */
+.refined :is(.subpage-hero,.reservation-hero,.tickets-hero){height:auto;min-height:clamp(520px,72svh,700px);padding:90px 0 110px;justify-content:center;text-align:center}
+.refined :is(.subpage-hero,.reservation-hero,.tickets-hero)::after{content:'';position:absolute;inset:20px;border:1px solid rgba(255,255,255,.42);pointer-events:none;z-index:2}
+.refined :is(.subpage-hero-shade,.reservation-hero-shade,.tickets-hero-shade){background:radial-gradient(ellipse at center,rgba(16,24,19,.5),rgba(16,24,19,.2) 70%),linear-gradient(0deg,rgba(16,24,19,.5),rgba(16,24,19,.08) 50%,rgba(16,24,19,.3))}
+.refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content){margin:0 auto;max-width:900px;padding:0 28px 30px;text-align:center}
+.refined :is(.subpage-hero-copy h1,.reservation-hero-copy h1,.tickets-hero-content h1){font-size:clamp(50px,7.4vw,108px);text-shadow:0 2px 24px rgba(10,18,14,.45)}
+.refined :is(.subpage-hero-copy h1 em,.reservation-hero-copy h1 em,.tickets-hero-content h1 em){color:#e3cfa6}
+.refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content)>p:not(.eyebrow){margin-left:auto;margin-right:auto;max-width:480px;font-size:15px;line-height:1.8;text-shadow:0 2px 20px rgba(10,18,14,.45)}
+.refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content) .button{margin-top:26px}
+.refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content) .eyebrow{display:inline-flex;align-items:center;gap:18px}
+.refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content) .eyebrow::before,.refined :is(.subpage-hero-copy,.reservation-hero-copy,.tickets-hero-content) .eyebrow::after{content:'';width:38px;height:1px;background:currentColor;opacity:.55}
+.refined .subpage-caption{left:0;right:0;bottom:46px;text-align:center;letter-spacing:.28em;z-index:3}
+.refined .reservation-hero-image{inset:0}
+.refined .reservation-hero-copy h1{font-size:clamp(44px,6.2vw,92px)}
+
+/* About */
+.refined .story-section{display:block;width:min(820px,calc(100% - 10vw));padding:150px 0 140px;text-align:center}
+.refined .story-kicker{justify-content:center;margin-bottom:30px;font-size:10px;letter-spacing:.3em;color:#8d7b55}
+.refined .story-copy{max-width:none;margin:0 auto}
+.refined .story-copy>p:not(.eyebrow){max-width:600px;margin:0 auto 20px;font-size:15px}
+.refined .story-copy .eyebrow{display:inline-flex;align-items:center;gap:18px}
+.refined .story-copy .eyebrow::before,.refined .story-copy .eyebrow::after,.refined .concept-section .eyebrow::before,.refined .concept-section .eyebrow::after,.refined .page-intro .eyebrow::before,.refined .page-intro .eyebrow::after,.refined .event-state .eyebrow::before,.refined .event-state .eyebrow::after,.refined .menus-heading .eyebrow::before,.refined .menus-heading .eyebrow::after,.refined .gallery-page-heading .eyebrow::before,.refined .gallery-page-heading .eyebrow::after,.refined .page-cta .eyebrow::before,.refined .page-cta .eyebrow::after,.refined .ticket-preview-heading .eyebrow::before,.refined .ticket-preview-heading .eyebrow::after{content:'';width:34px;height:1px;background:currentColor;opacity:.5}
+.refined :is(.concept-section,.page-intro,.event-state,.menus-heading,.gallery-page-heading,.page-cta,.ticket-preview-heading) .eyebrow{display:inline-flex;align-items:center;gap:18px}
+.refined .story-copy .button{margin-top:18px}
+.refined .concept-section{padding:140px 0 150px;text-align:center}
+.refined .concept-section h2{margin-bottom:70px}
+.refined .concept-grid article{padding:34px 36px 12px;text-align:center}
+.refined .concept-grid article+article{padding-left:36px}
+.refined .concept-grid p{margin:0 auto;font-size:14px}
+.refined .about-photo-band{height:560px;display:flex;align-items:center;justify-content:center;text-align:center}
+.refined .about-photo-band::after{background:linear-gradient(rgba(16,24,19,.42),rgba(16,24,19,.42)),radial-gradient(ellipse at center,rgba(16,24,19,.4),rgba(16,24,19,.1) 75%);inset:0}
+.refined .about-photo-band>div{position:relative;z-index:3;padding:0 28px}
+.refined .about-photo-band .eyebrow{display:inline-flex;align-items:center;gap:18px}
+.refined .about-photo-band h2{font-size:clamp(48px,6vw,88px)}
+.refined .about-photo-band h2 em{color:#e3cfa6}
+.refined .about-photo-band .text-link{margin-top:22px}
+
+/* Restaurant, Beach Bar, Sports Bar */
+.refined .page-intro{display:block;width:min(780px,calc(100% - 10vw));padding:140px 0 100px;text-align:center}
+.refined .page-intro>div:last-child{max-width:560px;margin:34px auto 0}
+.refined .page-intro>div:last-child>p{font-size:15px}
+.refined .feature-strip{padding:30px 0 130px}
+.refined .feature-strip article{padding:34px 36px 8px;text-align:center}
+.refined .feature-strip article+article{padding-left:36px}
+.refined .feature-strip p,.refined .sports-features p{margin:0 auto;font-size:14px}
+.refined .sports-features article{text-align:center}
+.refined .page-cta{padding:120px max(8vw,32px);flex-direction:column;align-items:center;text-align:center;gap:34px}
+.refined .page-cta h2{font-size:clamp(46px,6vw,90px)}
+.refined .page-cta h2 em{color:#e3cfa6}
+.refined .image-text-band{min-height:560px;background:var(--paper)}
+.refined .image-text-photo{position:relative;min-height:560px}
+.refined .image-text-photo::after{content:'';position:absolute;inset:22px;border:1px solid rgba(255,255,255,.5);pointer-events:none}
+.refined .image-text-band>div:last-child{text-align:center}
+.refined .image-text-band>div:last-child>p:not(.eyebrow){margin:24px auto 28px;font-size:15px}
+.refined .image-text-band h2{font-size:clamp(44px,5vw,72px)}
+
+/* Menus */
+.refined .menus-content{padding-top:130px;padding-bottom:130px}
+.refined .menus-heading{max-width:760px}
+.refined .menu-tabs{gap:6px}
+.refined .menu-tabs button{font:600 11px var(--sans);letter-spacing:.22em;text-transform:uppercase;padding:18px 28px}
+.refined .menu-panel{background:var(--paper-deep)}
+.refined .menu-category-switch{background:transparent;padding:0;gap:26px;margin:24px auto 20px}
+.refined .menu-category-switch button{background:transparent;color:var(--muted);letter-spacing:.2em;padding:6px 0;min-width:0;border-bottom:1px solid transparent}
+.refined .menu-category-switch button[aria-pressed=true]{background:transparent;color:var(--green);border-bottom-color:var(--gold)}
+
+/* Events */
+.refined .event-state{padding-top:130px;padding-bottom:120px}
+.refined .event-state>p:not(.eyebrow){font-size:15px}
+.refined .past-events{padding-bottom:140px}
+.refined .past-events .section-heading{margin-bottom:34px}
+.refined .past-event-list a{padding:24px 4px;transition:padding .4s,background .4s}
+.refined .past-event-list a:hover{padding-left:14px;background:rgba(176,148,98,.08)}
+.refined .ticketing-teaser{padding-top:110px;padding-bottom:110px;flex-direction:column;text-align:center;gap:34px;border-top:1px solid var(--line)}
+.refined .inquiry-section{padding:130px max(8vw,32px)}
+.refined .inquiry-copy h2{font-size:clamp(44px,5.4vw,78px)}
+.refined .inquiry-copy h2 em{color:#e3cfa6}
+.refined .inquiry-form input,.refined .inquiry-form textarea,.refined .inquiry-form select{border-radius:0;background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff}
+.refined .events-list{padding-top:110px}
+.refined .events-list-heading{text-align:center}
+.refined .events-list-heading .eyebrow{display:inline-flex;align-items:center;gap:18px}
+.refined .events-list-heading .eyebrow::before,.refined .events-list-heading .eyebrow::after{content:'';width:34px;height:1px;background:currentColor;opacity:.5}
+.refined .event-card{border:0;background:transparent;transition:transform .5s}
+.refined .event-card:hover,.refined .event-card:focus-within{box-shadow:none;transform:translateY(-4px)}
+.refined .event-card-media::after{content:'';position:absolute;inset:14px;border:1px solid rgba(255,255,255,.55);pointer-events:none}
+.refined .event-card-body{text-align:center;align-items:center;padding:26px 8px 0}
+.refined .event-card-cta{align-self:center;margin-top:18px;background:transparent;color:var(--green);border:1px solid var(--green)}
+.refined .event-card-link:hover .event-card-cta{background:var(--green);color:#fff}
+
+/* Gallery */
+.refined .gallery-page{padding-top:130px}
+.refined .gallery-page-heading{display:block;text-align:center}
+.refined .gallery-page-heading>p:last-child{max-width:520px;margin:24px auto 0;font-size:15px}
+.refined .gallery-filters{justify-content:center;gap:34px;margin:44px 0 40px}
+.refined .gallery-filters button{border:0;background:transparent;padding:6px 0;letter-spacing:.22em;text-transform:uppercase;font-size:10px;font-weight:600;color:var(--muted);border-bottom:1px solid transparent;cursor:pointer}
+.refined .gallery-filters button[aria-pressed=true]{color:var(--green);border-bottom-color:var(--gold);background:transparent}
+.refined .gallery-page-grid{gap:16px;grid-auto-rows:260px}
+.refined .gallery-card button{position:relative}
+.refined .gallery-card button::after{content:'';position:absolute;inset:12px;border:1px solid rgba(255,255,255,.0);transition:border-color .5s,inset .5s;pointer-events:none}
+.refined .gallery-card button:hover::after{inset:18px;border-color:rgba(255,255,255,.85)}
+.refined .gallery-bottom-cta{padding:100px 24px;display:flex;flex-direction:column;align-items:center;gap:26px;text-align:center}
+
+/* Contact */
+.refined .contact-layout{padding-top:140px;padding-bottom:140px}
+.refined .contact-details h2{font-size:clamp(44px,5vw,72px)}
+.refined .contact-item{padding:24px 0}
+.refined .contact-item p{font-size:14px}
+.refined .map-panel{height:600px;outline:1px solid var(--gold);outline-offset:12px}
+.refined .contact-last-call{padding:70px 24px;flex-direction:column;gap:26px;font-family:var(--display);font-size:26px}
+
+/* Reservations */
+.refined .reservation-content{padding-top:130px;padding-bottom:140px}
+.refined .reservation-intro h2{font-size:clamp(46px,5.4vw,76px)}
+.refined .reservation-form{border:1px solid var(--line);padding:46px clamp(26px,4vw,56px)}
+.refined .reservation-form-heading h2{font-size:38px}
+.refined .reservation-form label{letter-spacing:.14em;text-transform:uppercase;font-size:9px}
+.refined .reservation-form input,.refined .reservation-form select,.refined .reservation-form textarea{border:0;border-bottom:1px solid rgba(58,56,46,.4);background:transparent;padding-left:2px}
+.refined .reservation-form input:focus,.refined .reservation-form select:focus,.refined .reservation-form textarea:focus{outline:0;border-bottom-color:var(--gold);box-shadow:0 1px 0 var(--gold)}
+.refined .reservation-note{background:var(--paper-deep)}
+
+/* Tickets */
+.refined .ticket-preview-heading{flex-direction:column;align-items:center;text-align:center;gap:16px}
+.refined .ticket-preview-heading h2{margin:0}
+.refined .live-tickets{padding-top:100px}
+.refined .live-event-head{text-align:center}
+.refined .live-event-head.has-poster{text-align:left}
+.refined .live-event-head h2{font-size:clamp(40px,5vw,70px)}
+.refined .ticket-option,.refined .checkout-card,.refined .event-demo-card{border:1px solid var(--line);background:rgba(255,255,255,.55)}
+.refined .ownership-section{padding:130px 0}
+.refined .ownership-inner h2{font-size:clamp(44px,5.2vw,78px)}
+.refined .ownership-inner h2 em{color:#e3cfa6}
+.refined .checkout-button{background:transparent;color:var(--green);border:1px solid var(--green)}
+.refined .checkout-button:not(:disabled):hover{background:var(--green);color:#fff}
+.refined .checkout-button:disabled{opacity:.4}
+
+/* Footer on every page: centred and quiet */
+.refined .site-footer{flex-direction:column;justify-content:center;gap:22px;padding:56px 24px;text-align:center;min-height:0}
+.refined .site-footer>div{justify-content:center;flex-wrap:wrap;gap:30px;letter-spacing:.2em}
+.refined .site-footer p{line-height:1.8}
+.refined .footer-brand{font-family:var(--display);font-weight:500;font-size:28px;letter-spacing:.14em}
+
+@media(max-width:900px){
+  .refined .concept-grid article,.refined .concept-grid article+article,.refined .feature-strip article,.refined .feature-strip article+article{padding-inline:20px}
+  .refined .gallery-page-grid{grid-auto-rows:200px}
+}
+@media(max-width:700px){
+  .refined :is(.subpage-hero,.reservation-hero,.tickets-hero){height:auto;min-height:max(520px,calc(100svh - 76px));padding:80px 0 100px}
+  .refined :is(.subpage-hero,.reservation-hero,.tickets-hero)::after{inset:12px}
+  .refined .subpage-caption{bottom:30px;font-size:8px;letter-spacing:.2em}
+  .refined .story-section{padding:100px 0 96px}
+  .refined .concept-section{padding:90px 0 96px}
+  .refined .concept-grid article,.refined .concept-grid article+article,.refined .feature-strip article,.refined .feature-strip article+article{padding:28px 0}
+  .refined .about-photo-band{height:460px}
+  .refined .page-intro{padding:96px 0 70px}
+  .refined .feature-strip{padding-bottom:90px}
+  .refined .page-cta{padding:90px 24px}
+  .refined .image-text-band{min-height:0}
+  .refined .image-text-photo{min-height:380px}
+  .refined .menus-content{padding-top:90px;padding-bottom:90px}
+  .refined .menu-tabs button{padding:14px 14px;letter-spacing:.14em}
+  .refined .event-state{padding-top:90px}
+  .refined .inquiry-section{padding:90px 24px}
+  .refined .gallery-page{padding-top:90px}
+  .refined .gallery-filters{gap:20px}
+  .refined .gallery-page-grid{grid-auto-rows:160px;gap:8px}
+  .refined .contact-layout{padding-top:90px;padding-bottom:100px}
+  .refined .map-panel{height:420px;outline-offset:8px}
+  .refined .reservation-content{padding-top:90px}
+  .refined .site-footer{padding:44px 20px}
+}
+
+/* Light call-to-action bands use the dark outlined button; their text uses the display face */
+.refined :is(.gallery-bottom-cta,.contact-last-call) .button{color:var(--green);border-color:var(--green)}
+.refined :is(.gallery-bottom-cta,.contact-last-call) .button:hover{background:var(--green);color:#fff}
+.refined :is(.gallery-bottom-cta,.contact-last-call) p{font-family:var(--display);font-weight:400;font-size:clamp(26px,3vw,36px)}
+.refined .gallery-card button::after{border-color:transparent}
+.refined .gallery-card button:hover::after{border-color:rgba(255,255,255,.85)}
+
+/* Customer ticket page */
+.refined .pass-main h1,.refined .pass-card h2{font-family:var(--display);font-weight:400;letter-spacing:-.01em;font-size-adjust:.46}
+.refined .pass-main h1{font-size:clamp(40px,6vw,64px)}
+.refined .pass-card{border-color:var(--line)}
+.refined .pass-print{background:transparent;color:var(--green);border:1px solid var(--green)}
+.refined .pass-print:hover{background:var(--green);color:#fff}

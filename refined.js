@@ -1,7 +1,7 @@
-// Quiet fade-in as home page sections scroll into view. Without JS, or with reduced motion, everything is simply visible.
+// Quiet fade-in as sections scroll into view. Without JS, or with reduced motion, everything is simply visible.
 (() => {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
-  const targets = document.querySelectorAll('.home .intro > *, .home .section-heading, .home .experience-card, .home .food-copy, .home .events-copy, .home .events-photo, .home .gallery-heading, .home .visit-top, .home .visit-details > div');
+  const targets = document.querySelectorAll('.refined .intro > *, .refined .section-heading, .refined .experience-card, .refined .food-copy, .refined .events-copy, .refined .events-photo, .refined .gallery-heading, .refined .visit-top, .refined .visit-details > div');
   if (!targets.length) return;
   document.documentElement.classList.add('reveal-ready');
   const observer = new IntersectionObserver((entries) => {
