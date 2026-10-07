@@ -115,3 +115,5 @@ This service stores and manages requests and enforces seat capacity on confirmat
 ## Menus
 
 O separador *Menus* do painel gere os pratos e bebidas de cada espaço (Restaurante, Beach Bar, Sports Bar): secção, nome e descrição em português e inglês, preço em MZN (opcional), ordem e visibilidade. A página `menus.html` lê `GET /api/menu`; a equipa usa `/api/admin/menu` e `PUT /api/admin/menu-order`. Um espaço sem itens continua a mostrar a ligação para o menu completo.
+
+As *divisões* de cada menu (À Lá Carte, Sushi, Tapas, Bebidas, Cocktails…) são geridas no mesmo separador: criam-se por espaço, ordenam-se com as setas (`/api/admin/menu-groups`, `PUT /api/admin/menu-group-order`) e cada item escolhe a sua num menu. Uma divisão só se remove depois de ficar sem itens.

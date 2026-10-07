@@ -678,8 +678,96 @@
 
   // ---- Menus ------------------------------------------------------------------
   const menuForm = $('[data-menu-form]'), menuRows = $('[data-menu-rows]'), menuEmpty = $('[data-menu-empty]');
+  const groupForm = $('[data-group-form]'), groupLists = $('[data-group-lists]');
+  const filterVenue = $('[data-filter-venue]'), filterGroup = $('[data-filter-group]');
   const menuVenueLabels = { RESTAURANT: 'Restaurante', BEACH: 'Beach Bar', SPORTS: 'Sports Bar' }, menuKindLabels = { FOOD: 'Comida', DRINKS: 'Bebidas' };
-  let menuCache = [], editingMenuId = null;
+  let menuCache = [], groupsCache = [], editingMenuId = null, editingGroupId = null, menuLimit = 100;
+
+  const groupsOf = (venue) => groupsCache.filter((group) => group.venue === venue);
+
+  // ---- Menu divisions
+  function resetGroupForm() {
+    editingGroupId = null; groupForm.reset(); groupForm.elements.venue.disabled = false;
+    $('[data-group-submit]').textContent = 'Adicionar divisão'; $('[data-cancel-group]').hidden = true;
+  }
+  $('[data-cancel-group]').addEventListener('click', resetGroupForm);
+
+  groupForm.addEventListener('submit', async (submitEvent) => {
+    submitEvent.preventDefault();
+    const f = groupForm.elements;
+    const body = { venue: f.venue.value, namePt: f.namePt.value.trim(), nameEn: f.nameEn.value.trim() || null };
+    try {
+      await api(editingGroupId ? `/api/admin/menu-groups/${editingGroupId}` : '/api/admin/menu-groups', { method: editingGroupId ? 'PUT' : 'POST', body: JSON.stringify(body) });
+      resetGroupForm(); await loadMenu(); say(message, 'Divisão guardada.', true);
+    } catch (error) { say(message, error.message); }
+  });
+
+  async function moveGroup(venue, index, delta) {
+    const list = groupsOf(venue), target = index + delta;
+    if (target < 0 || target >= list.length) return;
+    const ids = list.map((group) => group.id);
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    try { groupsCache = await api('/api/admin/menu-group-order', { method: 'PUT', body: JSON.stringify({ venue, ids }) }); renderGroups(); say(message, 'Ordem guardada.', true); }
+    catch (error) { say(message, error.message); }
+  }
+
+  function renderGroups() {
+    groupLists.replaceChildren();
+    Object.entries(menuVenueLabels).forEach(([venue, label]) => {
+      const list = groupsOf(venue);
+      const block = node('div', undefined, 'menu-group-block');
+      block.append(node('h3', `${label} — ordem de apresentação`));
+      if (!list.length) block.append(node('p', 'Ainda sem divisões. Os itens deste espaço aparecem numa só lista.', 'admin-hint'));
+      list.forEach((group, index) => {
+        const count = menuCache.filter((item) => item.groupId === group.id).length;
+        const row = node('div', undefined, 'menu-group-row');
+        row.append(node('span', `${index + 1}. ${group.namePt}${group.nameEn ? ` / ${group.nameEn}` : ''}`, 'menu-group-name'), node('small', `${count} ${count === 1 ? 'item' : 'itens'}`));
+        const buttons = node('div', undefined, 'admin-row-actions');
+        const up = actionButton('↑', () => moveGroup(venue, index, -1)); up.disabled = index === 0; up.setAttribute('aria-label', `Mover ${group.namePt} para cima`);
+        const down = actionButton('↓', () => moveGroup(venue, index, 1)); down.disabled = index === list.length - 1; down.setAttribute('aria-label', `Mover ${group.namePt} para baixo`);
+        const edit = actionButton('Editar', () => {
+          editingGroupId = group.id; const f = groupForm.elements;
+          f.venue.value = group.venue; f.venue.disabled = true; f.namePt.value = group.namePt; f.nameEn.value = group.nameEn ?? '';
+          $('[data-group-submit]').textContent = 'Guardar divisão'; $('[data-cancel-group]').hidden = false; groupForm.scrollIntoView({ block: 'nearest' }); f.namePt.focus();
+        });
+        const remove = actionButton('Remover', async () => {
+          if (count) { say(message, `“${group.namePt}” ainda tem ${count} itens. Mude-os de divisão ou remova-os primeiro.`); return; }
+          if (!confirm(`Remover a divisão “${group.namePt}”?`)) return;
+          try { await api(`/api/admin/menu-groups/${group.id}`, { method: 'DELETE' }); await loadMenu(); say(message, 'Divisão removida.', true); }
+          catch (error) { say(message, error.message); }
+        });
+        buttons.append(up, down, edit, remove); row.append(buttons); block.append(row);
+      });
+      groupLists.append(block);
+    });
+    fillFilterGroups();
+  }
+
+  function fillFilterGroups() {
+    const venue = filterVenue.value, keep = filterGroup.value;
+    filterGroup.replaceChildren(new Option('Todas', ''), new Option('Sem divisão', 'none'));
+    (venue ? groupsOf(venue) : groupsCache).forEach((group) => filterGroup.append(new Option(venue ? group.namePt : `${menuVenueLabels[group.venue]} · ${group.namePt}`, String(group.id))));
+    filterGroup.value = [...filterGroup.options].some((option) => option.value === keep) ? keep : '';
+  }
+  filterVenue.addEventListener('change', () => { fillFilterGroups(); menuLimit = 100; renderMenu(); });
+  filterGroup.addEventListener('change', () => { menuLimit = 100; renderMenu(); });
+
+  // ---- Menu items
+  function fillItemGroups(selected) {
+    const venue = menuForm.elements.venue.value;
+    const select = menuForm.elements.groupId;
+    select.replaceChildren(new Option('— Sem divisão —', ''));
+    groupsOf(venue).forEach((group) => select.append(new Option(group.namePt, String(group.id))));
+    select.value = selected != null && groupsOf(venue).some((group) => group.id === selected) ? String(selected) : '';
+    fillSectionSuggestions();
+  }
+  function fillSectionSuggestions() {
+    const venue = menuForm.elements.venue.value, group = menuForm.elements.groupId.value;
+    const names = new Set(menuCache.filter((item) => item.venue === venue && String(item.groupId ?? '') === group).map((item) => item.sectionPt));
+    $('#menu-sections').replaceChildren(...[...names].map((name) => new Option(name)));
+  }
+  menuForm.elements.venue.addEventListener('change', () => fillItemGroups(null));
+  menuForm.elements.groupId.addEventListener('change', fillSectionSuggestions);
 
   function closeMenuForm() { menuForm.hidden = true; menuForm.reset(); editingMenuId = null; }
   $('[data-cancel-menu-form]').addEventListener('click', closeMenuForm);
@@ -690,10 +778,11 @@
     $('[data-menu-form-title]').textContent = item ? 'Editar item' : 'Novo item';
     const f = menuForm.elements;
     if (item) {
-      f.venue.value = item.venue; f.kind.value = item.kind; f.groupPt.value = item.groupPt ?? ''; f.groupEn.value = item.groupEn ?? ''; f.sectionPt.value = item.sectionPt; f.sectionEn.value = item.sectionEn ?? '';
+      f.venue.value = item.venue; f.kind.value = item.kind; f.sectionPt.value = item.sectionPt; f.sectionEn.value = item.sectionEn ?? '';
       f.namePt.value = item.namePt; f.nameEn.value = item.nameEn ?? ''; f.descriptionPt.value = item.descriptionPt ?? ''; f.descriptionEn.value = item.descriptionEn ?? '';
       f.price.value = item.priceCents == null ? '' : String(item.priceCents / 100); f.visible.value = String(item.visible);
-    }
+    } else if (filterVenue.value) f.venue.value = filterVenue.value;
+    fillItemGroups(item ? item.groupId : (/^\d+$/.test(filterGroup.value) ? Number(filterGroup.value) : null));
     menuForm.hidden = false;
     f.namePt.focus();
   }
@@ -702,7 +791,8 @@
     submitEvent.preventDefault();
     const f = menuForm.elements, text = (field) => f[field].value.trim() || null;
     const price = f.price.value.trim();
-    const body = { venue: f.venue.value, kind: f.kind.value, groupPt: text('groupPt'), groupEn: text('groupEn'), sectionPt: f.sectionPt.value.trim(), sectionEn: text('sectionEn'), namePt: f.namePt.value.trim(),
+    const body = { venue: f.venue.value, kind: f.kind.value, groupId: f.groupId.value ? Number(f.groupId.value) : null,
+      sectionPt: f.sectionPt.value.trim(), sectionEn: text('sectionEn'), namePt: f.namePt.value.trim(),
       nameEn: text('nameEn'), descriptionPt: text('descriptionPt'), descriptionEn: text('descriptionEn'),
       priceCents: price === '' ? null : Math.round(Number(price) * 100), visible: f.visible.value === 'true' };
     try {
@@ -713,25 +803,33 @@
   $('[data-new-menu-item]').addEventListener('click', () => openMenuForm(null));
   $('[data-refresh-menu]').addEventListener('click', () => loadMenu().then(() => say(message, '')).catch((error) => say(message, error.message)));
 
-  async function moveMenuItem(index, delta) {
-    const target = index + delta;
-    if (target < 0 || target >= menuCache.length) return;
-    const ids = menuCache.map((item) => item.id);
-    [ids[index], ids[target]] = [ids[target], ids[index]];
+  async function moveMenuItem(item, delta) {
+    // Moves within the rows currently shown, so the arrows work with a filter on.
+    const shown = menuCache.filter(matchesFilter), at = shown.indexOf(item), neighbour = shown[at + delta];
+    if (!neighbour) return;
+    const ids = menuCache.map((entry) => entry.id), i = ids.indexOf(item.id), k = ids.indexOf(neighbour.id);
+    [ids[i], ids[k]] = [ids[k], ids[i]];
     try { menuCache = await api('/api/admin/menu-order', { method: 'PUT', body: JSON.stringify({ ids }) }); renderMenu(); say(message, 'Ordem guardada.', true); }
     catch (error) { say(message, error.message); }
   }
 
+  function matchesFilter(item) {
+    if (filterVenue.value && item.venue !== filterVenue.value) return false;
+    if (filterGroup.value === 'none') return item.groupId == null;
+    return !filterGroup.value || String(item.groupId) === filterGroup.value;
+  }
+
   function renderMenu() {
     menuRows.replaceChildren();
-    menuEmpty.hidden = menuCache.length > 0;
-    menuCache.forEach((item, index) => {
+    const shown = menuCache.filter(matchesFilter);
+    menuEmpty.hidden = shown.length > 0;
+    shown.slice(0, menuLimit).forEach((item, index) => {
       const tr = node('tr');
-      cell(tr, menuVenueLabels[item.venue]); cell(tr, `${menuKindLabels[item.kind]} · ${item.groupPt ? item.groupPt + ' · ' : ''}${item.sectionPt}`); cell(tr, item.namePt);
+      cell(tr, menuVenueLabels[item.venue]); cell(tr, `${item.groupPt ? item.groupPt + ' · ' : ''}${item.sectionPt}`); cell(tr, item.namePt);
       cell(tr, item.priceCents == null ? '—' : money(item.priceCents)); cell(tr, item.visible ? 'Visível' : 'Oculto');
       const buttons = node('div', undefined, 'admin-row-actions');
-      const up = actionButton('↑', () => moveMenuItem(index, -1)); up.disabled = index === 0; up.setAttribute('aria-label', `Mover ${item.namePt} para cima`);
-      const down = actionButton('↓', () => moveMenuItem(index, 1)); down.disabled = index === menuCache.length - 1; down.setAttribute('aria-label', `Mover ${item.namePt} para baixo`);
+      const up = actionButton('↑', () => moveMenuItem(item, -1)); up.disabled = index === 0; up.setAttribute('aria-label', `Mover ${item.namePt} para cima`);
+      const down = actionButton('↓', () => moveMenuItem(item, 1)); down.disabled = index === shown.length - 1; down.setAttribute('aria-label', `Mover ${item.namePt} para baixo`);
       const remove = actionButton('Remover', async () => {
         if (!confirm(`Remover “${item.namePt}” do menu?`)) return;
         try { await api(`/api/admin/menu/${item.id}`, { method: 'DELETE' }); await loadMenu(); say(message, 'Item removido.', true); }
@@ -741,9 +839,18 @@
       const actions = node('td'); actions.append(buttons); tr.append(actions);
       menuRows.append(tr);
     });
+    if (shown.length > menuLimit) {
+      const tr = node('tr'), td = tr.insertCell();
+      td.colSpan = 6;
+      td.append(actionButton(`Mostrar mais (${shown.length - menuLimit} em falta)`, () => { menuLimit += 100; renderMenu(); }));
+      menuRows.append(tr);
+    }
   }
 
-  async function loadMenu() { menuCache = await api('/api/admin/menu'); renderMenu(); }
+  async function loadMenu() {
+    [groupsCache, menuCache] = await Promise.all([api('/api/admin/menu-groups'), api('/api/admin/menu')]);
+    renderGroups(); renderMenu();
+  }
 
   // ---- Site content (CMS) ---------------------------------------------------
   const contentPage = $('[data-content-page]'), contentFields = $('[data-content-fields]'), contentEmpty = $('[data-content-empty]');

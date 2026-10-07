@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,5 +91,46 @@ class MenuIntegrationTest {
         admin(put("/api/admin/menu-order"), Map.of("ids", ids)).andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(ids.get(0)));
         admin(put("/api/admin/menu-order"), Map.of("ids", ids.subList(1, ids.size()))).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void staffCreateOrderAndUseDivisions() throws Exception {
+        long sushi = body(admin(post("/api/admin/menu-groups"), Map.of("venue", "BEACH", "namePt", "Divisão A"))).get("id").asLong();
+        long other = body(admin(post("/api/admin/menu-groups"), Map.of("venue", "BEACH", "namePt", "Divisão B", "nameEn", "Division B"))).get("id").asLong();
+        admin(post("/api/admin/menu-groups"), Map.of("venue", "BEACH", "namePt", "divisão a")).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/admin/menu-groups")).andExpect(status().isUnauthorized());
+
+        var inB = item("Prato da B", 100);
+        inB.put("venue", "BEACH"); inB.put("groupId", other);
+        long itemId = body(admin(post("/api/admin/menu"), inB)).get("id").asLong();
+        var inA = item("Prato da A", 100);
+        inA.put("venue", "BEACH"); inA.put("groupId", sushi);
+        admin(post("/api/admin/menu"), inA).andExpect(status().isCreated());
+
+        // A division of another space is refused, and so is one that does not exist.
+        var wrong = item("Errado", 100);
+        wrong.put("venue", "SPORTS"); wrong.put("groupId", sushi);
+        admin(post("/api/admin/menu"), wrong).andExpect(status().isBadRequest());
+        wrong.put("groupId", 999999);
+        admin(post("/api/admin/menu"), wrong).andExpect(status().isBadRequest());
+
+        // Visitors see the divisions in the order staff chose: B first, then A.
+        var beachIds = new ArrayList<Long>();
+        body(admin(get("/api/admin/menu-groups"), null)).forEach(g -> { if (g.get("venue").asText().equals("BEACH")) beachIds.add(g.get("id").asLong()); });
+        beachIds.remove(other); beachIds.add(0, other);
+        admin(put("/api/admin/menu-group-order"), Map.of("venue", "BEACH", "ids", beachIds)).andExpect(status().isOk());
+        var order = new ArrayList<String>();
+        body(mvc.perform(get("/api/menu"))).forEach(n -> { if (n.has("groupPt")) order.add(n.get("groupPt").asText()); });
+        assertThat(order.indexOf("Divisão B")).isGreaterThanOrEqualTo(0).isLessThan(order.indexOf("Divisão A"));
+        admin(put("/api/admin/menu-group-order"), Map.of("venue", "BEACH", "ids", List.of(other))).andExpect(status().isBadRequest());
+
+        admin(put("/api/admin/menu-groups/" + other), Map.of("venue", "BEACH", "namePt", "Divisão C")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.namePt").value("Divisão C"));
+
+        // A division with items cannot be removed; an empty one can.
+        admin(delete("/api/admin/menu-groups/" + other), null).andExpect(status().isBadRequest());
+        admin(delete("/api/admin/menu/" + itemId), null).andExpect(status().isNoContent());
+        long empty = body(admin(post("/api/admin/menu-groups"), Map.of("venue", "SPORTS", "namePt", "Vazia"))).get("id").asLong();
+        admin(delete("/api/admin/menu-groups/" + empty), null).andExpect(status().isNoContent());
     }
 }

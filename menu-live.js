@@ -45,10 +45,6 @@
     name.textContent = pick(item.namePt, item.nameEn);
     li.append(name);
     if (item.priceCents != null) {
-      const leader = document.createElement('span');
-      leader.className = 'menu-leader';
-      leader.setAttribute('aria-hidden', 'true');
-      li.append(leader);
       const cost = document.createElement('span');
       cost.className = 'menu-dish-price';
       cost.textContent = price(item.priceCents);

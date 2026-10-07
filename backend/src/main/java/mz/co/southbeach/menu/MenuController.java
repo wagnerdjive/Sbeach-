@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 public class MenuController {
     public record OrderRequest(@NotNull List<Long> ids) { }
+    public record GroupOrderRequest(@NotNull MenuItem.Venue venue, @NotNull List<Long> ids) { }
 
     private final MenuService service;
 
@@ -41,4 +42,25 @@ public class MenuController {
 
     @PutMapping("/api/admin/menu-order")
     public List<MenuService.ItemResponse> reorder(@Valid @RequestBody OrderRequest request) { return service.reorder(request.ids()); }
+
+    @GetMapping("/api/admin/menu-groups")
+    public List<MenuService.GroupResponse> groups() { return service.allGroups(); }
+
+    @PostMapping("/api/admin/menu-groups")
+    @ResponseStatus(HttpStatus.CREATED)
+    public MenuService.GroupResponse addGroup(@Valid @RequestBody MenuService.GroupRequest request) { return service.addGroup(request); }
+
+    @PutMapping("/api/admin/menu-groups/{id}")
+    public MenuService.GroupResponse changeGroup(@PathVariable Long id, @Valid @RequestBody MenuService.GroupRequest request) {
+        return service.changeGroup(id, request);
+    }
+
+    @DeleteMapping("/api/admin/menu-groups/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeGroup(@PathVariable Long id) { service.removeGroup(id); }
+
+    @PutMapping("/api/admin/menu-group-order")
+    public List<MenuService.GroupResponse> reorderGroups(@Valid @RequestBody GroupOrderRequest request) {
+        return service.reorderGroups(request.venue(), request.ids());
+    }
 }

@@ -27,3 +27,7 @@
 @media(max-width:600px){.report-bar{grid-template-columns:60px 1fr}.report-bar strong{grid-column:1/-1}}
 .admin-badge.REFUNDED{background:#e9d9f0}
 .whatsapp-button{border-color:#25a05a!important;color:#146c3a!important}.whatsapp-button:not(:disabled):hover{background:#25a05a!important;color:#fff!important}.whatsapp-button:disabled{opacity:.4}
+.admin-hint{margin:0 0 14px;font-size:12px;line-height:1.6;color:#5d655f}
+.menu-group-lists{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin:0 0 26px}
+.menu-group-block{background:#fff;border:1px solid rgba(32,37,31,.1);padding:16px 18px}.menu-group-block h3{margin:0 0 10px;font:600 12px var(--sans);letter-spacing:.04em}
+.menu-group-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 0;border-top:1px solid rgba(32,37,31,.08)}.menu-group-name{flex:1;min-width:120px;font-size:13px}.menu-group-row small{color:#5d655f}

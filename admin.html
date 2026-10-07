@@ -84,9 +84,8 @@
             <div class="admin-form-grid">
               <label>Espaço<select name="venue"><option value="RESTAURANT">Restaurante</option><option value="BEACH">Beach Bar</option><option value="SPORTS">Sports Bar</option></select></label>
               <label>Tipo<select name="kind"><option value="FOOD">Comida</option><option value="DRINKS">Bebidas</option></select></label>
-              <label>Grupo (português, opcional)<input name="groupPt" maxlength="60" placeholder="Ex.: Sushi, Bebidas, Cocktails" /></label>
-              <label>Grupo (inglês, opcional)<input name="groupEn" maxlength="60" /></label>
-              <label>Secção (português)<input name="sectionPt" required maxlength="80" placeholder="Ex.: Sushi, Entradas, Cocktails" /></label>
+              <label class="wide">Divisão do menu<select name="groupId"></select></label>
+              <label>Secção (português)<input name="sectionPt" required maxlength="80" list="menu-sections" placeholder="Ex.: Cervejas, Entradas, Sashimi" autocomplete="off" /><datalist id="menu-sections"></datalist></label>
               <label>Secção (inglês, opcional)<input name="sectionEn" maxlength="80" /></label>
               <label>Nome (português)<input name="namePt" required maxlength="120" /></label>
               <label>Nome (inglês, opcional)<input name="nameEn" maxlength="120" /></label>
@@ -97,7 +96,19 @@
             </div>
             <div class="admin-form-actions"><button class="admin-primary" type="submit">Guardar item</button><button type="button" data-cancel-menu-form>Fechar</button></div>
           </form>
-          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Espaço</th><th>Grupo · secção</th><th>Item</th><th>Preço</th><th>Estado</th><th>Acções</th></tr></thead><tbody data-menu-rows></tbody></table></div>
+          <form class="admin-form" data-group-form>
+            <h2 data-group-form-title>Divisões do menu</h2>
+            <p class="admin-hint">As divisões são os separadores que o visitante vê em cada espaço (por exemplo À Lá Carte, Sushi, Bebidas). Crie-as aqui, escolha a ordem com as setas e depois atribua-as aos itens.</p>
+            <div class="admin-form-grid">
+              <label>Espaço<select name="venue"><option value="RESTAURANT">Restaurante</option><option value="BEACH">Beach Bar</option><option value="SPORTS">Sports Bar</option></select></label>
+              <label>Nome (português)<input name="namePt" required maxlength="60" placeholder="Ex.: Sobremesas" /></label>
+              <label>Nome (inglês, opcional)<input name="nameEn" maxlength="60" placeholder="Ex.: Desserts" /></label>
+            </div>
+            <div class="admin-form-actions"><button class="admin-primary" type="submit" data-group-submit>Adicionar divisão</button><button type="button" data-cancel-group hidden>Cancelar edição</button></div>
+          </form>
+          <div class="menu-group-lists" data-group-lists></div>
+          <div class="admin-toolbar"><label class="admin-inline">Espaço <select data-filter-venue><option value="">Todos</option><option value="RESTAURANT">Restaurante</option><option value="BEACH">Beach Bar</option><option value="SPORTS">Sports Bar</option></select></label><label class="admin-inline">Divisão <select data-filter-group><option value="">Todas</option></select></label></div>
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Espaço</th><th>Divisão · secção</th><th>Item</th><th>Preço</th><th>Estado</th><th>Acções</th></tr></thead><tbody data-menu-rows></tbody></table></div>
           <p class="admin-empty" data-menu-empty hidden>Ainda não há itens. Enquanto um espaço não tiver itens, a página Menus mostra a ligação para o menu completo.</p>
         </div>
 

@@ -37,7 +37,7 @@ Legenda: `[x]` feito · `[ ]` por fazer. Cada item é marcado quando implementad
 
 - [x] Páginas informativas, menus, galeria e contactos
 - [x] Gestão das fotos da galeria (adicionar, ordenar, ocultar e remover; separador *Galeria*)
-- [x] Menus geridos no painel (separador *Menus*: pratos e bebidas por espaço, com secção, preço, ordem e visibilidade; a página Menus deixa de remeter para o site antigo)
+- [x] Menus geridos no painel (separador *Menus*: pratos e bebidas por espaço, com secção, preço, ordem e visibilidade; divisões criadas e ordenadas no painel; os menus reais do site antigo estão importados)
 - [x] CMS para editar o conteúdo sem alterar ficheiros do site (textos PT/EN, imagens e ligações; separador *Conteúdo do site*)
 
 ## Direcção visual
